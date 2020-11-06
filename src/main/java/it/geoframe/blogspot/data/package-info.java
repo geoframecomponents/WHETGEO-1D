@@ -5,4 +5,4 @@
  * @author Niccolo
  *
  */
-package data;
+package it.geoframe.blogspot.data;

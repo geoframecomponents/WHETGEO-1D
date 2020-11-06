@@ -17,14 +17,14 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package richardssolver;
+package it.geoframe.blogspot.richardssolver;
 import java.util.List;
 
-import data.*;
+import it.geoframe.blogspot.data.*;
+import it.geoframe.blogspot.richardsboundaryconditions.*;
 import stateequation.*;
 //import interfaceConductivity.*;
 import oms3.annotations.*;
-import richardsboundaryconditions.*;
 import newtonalgorithm.NestedNewtonThomas;
 
 @Description("This code solve the mixed form of Richards equation."

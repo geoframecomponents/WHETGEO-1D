@@ -17,7 +17,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package richardsboundaryconditions;
+package it.geoframe.blogspot.richardsboundaryconditions;
 
 /**
  * This class compute the element of the coefficient matrix and the right-hand side

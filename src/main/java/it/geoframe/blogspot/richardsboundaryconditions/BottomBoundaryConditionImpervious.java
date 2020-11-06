@@ -16,16 +16,16 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package richardsboundaryconditions;
+
+package it.geoframe.blogspot.richardsboundaryconditions;
 
 /**
  * This class compute the element of the coefficient matrix and the right-hand side
- * when a Neumann boundary condition is applied at the top of the domain.
+ * when a no-flux boundary condition is applied at the bottom of the domain (impervious bottom).
  * @author Niccolo' Tubini
  *
  */
-
-public class TopBoundaryConditionNeumann extends BoundaryCondition{
+public class BottomBoundaryConditionImpervious extends BoundaryCondition {
 
 	
 	
@@ -37,8 +37,8 @@ public class TopBoundaryConditionNeumann extends BoundaryCondition{
 		this.spaceDeltaM = spaceDeltaM;
 		this.timeDelta = timeDelta;
 		
-		this.term = 0;
-
+		this.term =-this.kP*this.timeDelta/this.spaceDeltaP;
+		
 		return term;
 	}
 	
@@ -52,7 +52,7 @@ public class TopBoundaryConditionNeumann extends BoundaryCondition{
 		this.spaceDeltaM = spaceDeltaM;
 		this.timeDelta = timeDelta;
 		
-		this.term = this.kM*this.timeDelta/this.spaceDeltaM;
+		this.term = this.kP*this.timeDelta/this.spaceDeltaP;
 
 		return term;
 
@@ -68,7 +68,7 @@ public class TopBoundaryConditionNeumann extends BoundaryCondition{
 		this.spaceDeltaM = spaceDeltaM;
 		this.timeDelta = timeDelta;
 		
-		this.term = -this.kM*this.timeDelta/this.spaceDeltaM;
+		this.term = 0;
 
 		return term;
 
@@ -84,7 +84,7 @@ public class TopBoundaryConditionNeumann extends BoundaryCondition{
 		this.spaceDeltaM = spaceDeltaM;
 		this.timeDelta = timeDelta;
 		
-		this.term = this.timeDelta*(this.bC - this.kM);
+		this.term = this.timeDelta*this.kP;
 
 		return term;
 

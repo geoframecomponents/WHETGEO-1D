@@ -5,4 +5,4 @@
  * @author Niccolo` Tubini
  *
  */
-package rheology;
+package it.geoframe.blogspot.equationstate;

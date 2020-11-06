@@ -17,7 +17,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package richardssolver;
+package it.geoframe.blogspot.richardssolver;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -26,16 +26,16 @@ import java.util.List;
 import closureequation.ClosureEquation;
 import closureequation.ClosureEquationFactory;
 import closureequation.UnsaturatedHydraulicConductivityTemperatureFactory;
-import data.Geometry;
-import data.ProblemQuantities;
 import interfaceconductivity.InterfaceConductivity;
 import interfaceconductivity.SimpleInterfaceConductivityFactory;
+import it.geoframe.blogspot.data.Geometry;
+import it.geoframe.blogspot.data.ProblemQuantities;
+import it.geoframe.blogspot.equationstate.StateEquationFactory;
+import it.geoframe.blogspot.equationstate.WaterDepth;
 import oms3.annotations.*;
 import rheology.Rheology;
 import rheology.RheologyParameters;
 import rheology.SoilWaterRetentionCurveFactory;
-import rheology.StateEquationFactory;
-import rheology.WaterDepth;
 import stateequation.StateEquation;
 
 

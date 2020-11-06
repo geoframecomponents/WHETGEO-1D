@@ -17,7 +17,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package rheology;
+package it.geoframe.blogspot.equationstate;
 
 import rheology.Rheology;
 import stateequation.StateEquation;

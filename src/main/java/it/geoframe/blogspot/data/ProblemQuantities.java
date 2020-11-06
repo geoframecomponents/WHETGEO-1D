@@ -1,4 +1,4 @@
-package data;
+package it.geoframe.blogspot.data;
 
 import java.util.ArrayList;
 import java.util.List;

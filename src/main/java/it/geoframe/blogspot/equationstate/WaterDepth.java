@@ -20,9 +20,9 @@
 /**
  * 
  */
-package rheology;
+package it.geoframe.blogspot.equationstate;
 
-import data.ProblemQuantities;
+import it.geoframe.blogspot.data.ProblemQuantities;
 import rheology.Rheology;
 import stateequation.*;
 

@@ -24,10 +24,10 @@ import java.util.*;
 import org.jgrasstools.gears.io.timedependent.OmsTimeSeriesIteratorReader;
 
 import buffertowriter.RichardsBuffer1D;
+import it.geoframe.blogspot.richardssolver.CallRichardsSolver;
 import monodimensionalProblemTimeDependent.ReadNetCDFRichardsGrid1D;
 import monodimensionalProblemTimeDependent.ReadNetCDFRichardsOutput1D;
 import monodimensionalProblemTimeDependent.WriteNetCDFRichards1DDouble;
-import richardssolver.CallRichardsSolver;
 
 import org.junit.Test;
 
