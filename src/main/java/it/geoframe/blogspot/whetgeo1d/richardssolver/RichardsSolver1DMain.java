@@ -239,33 +239,6 @@ public class RichardsSolver1DMain {
 	public int picardIteration=1;
 
 	/*
-	 * LYSIMETER
-	 */
-//	@Description("Stressed Evapotranspiration for each layer")
-//	@In 
-//	@Unit ("mm/s")
-//	public double [] StressedETs;
-//
-//	@Description("Boolean value to use lysimeter")
-//	@In
-//	public boolean lysimeter = false;
-//
-//	@Description("Stressed Evapotranspiration for each layer")
-//	@Out
-//	@Unit ("m")
-//	public double[] ETs;
-//
-//	@Description("Sum of Stressed Evapotranspiration")
-//	@Out 
-//	@Unit ("m")
-//	public double sumETs;	
-//
-//	@Description("Sum of Stressed Evapotranspiration")
-//	@Out 
-//	@Unit ("-")
-//	public double[] thetasNew;	
-
-	/*
 	 *  BOUNDARY CONDITIONS
 	 */
 
@@ -344,8 +317,7 @@ public class RichardsSolver1DMain {
 			+ "- 1 save the current time step output"
 			+ "- 0 do not save")
 	private double saveDate;
-//	private double volume1;
-//	private double volume2;
+
 	private double volumeLost;
 
 	private int[] rheologyID;
