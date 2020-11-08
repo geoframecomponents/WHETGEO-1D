@@ -1,7 +1,5 @@
 package it.geoframe.blogspot.whetgeo1d.data;
 
-import java.util.ArrayList;
-import java.util.List;
 
 public class ProblemQuantities {
 	
@@ -38,9 +36,10 @@ public class ProblemQuantities {
 	public double[] celerities;        // Rasmussen et al. 2000
 	public double[] kinematicRatio;  // Rasmussen et al. 2000
 	public double[] ETs;
-	public double[] xStar1;
-	public double[] xStar2;
-	public double[] xStar3;
+	public double[] waterSuctionStar1;
+	public double[] waterSuctionStar2;
+	public double[] waterSuctionStar3;
+	
 	
 	public double sumETs;
 	public double runOff;
@@ -69,9 +68,10 @@ public class ProblemQuantities {
 		celerities = new double[icWaterSuction.length+1];
 		kinematicRatio = new double[icWaterSuction.length+1];
 		ETs = new double[icWaterSuction.length];
-		xStar1 = new double[icWaterSuction.length];
-		xStar2 = new double[icWaterSuction.length];
-		xStar3 = new double[icWaterSuction.length];
+		waterSuctionStar1 = new double[icWaterSuction.length];
+		waterSuctionStar2 = new double[icWaterSuction.length];
+		waterSuctionStar3 = new double[icWaterSuction.length];
+		
 		
 	}
 

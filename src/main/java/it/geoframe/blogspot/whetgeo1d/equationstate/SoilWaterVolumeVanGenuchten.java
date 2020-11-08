@@ -72,10 +72,10 @@ public class SoilWaterVolumeVanGenuchten extends EquationState {
 	@Override
 	public double p(double x, double y, int id, int element) {
 
-		if(x<=variables.xStar1[id]) {
+		if(x<=variables.waterSuctionStar1[id]) {
 			return dEquationState(x, y, id, element);  
 		} else {
-			return dEquationState(variables.xStar1[id], y, id, element);
+			return dEquationState(variables.waterSuctionStar1[id], y, id, element);
 		}
 
 	}
@@ -84,10 +84,10 @@ public class SoilWaterVolumeVanGenuchten extends EquationState {
 	@Override
 	public double pIntegral(double x, double y, int id, int element) {
 
-		if(x<=variables.xStar1[id]) {
+		if(x<=variables.waterSuctionStar1[id]) {
 			return equationState(x, y, id, element);  
 		} else {
-			return equationState(variables.xStar1[id], y, id, element) + dEquationState(variables.xStar1[id], y, id, element)*(x-variables.xStar1[id]);
+			return equationState(variables.waterSuctionStar1[id], y, id, element) + dEquationState(variables.waterSuctionStar1[id], y, id, element)*(x-variables.waterSuctionStar1[id]);
 		}
 
 	}
@@ -97,16 +97,16 @@ public class SoilWaterVolumeVanGenuchten extends EquationState {
 	@Override
 	public void computeXStar(double y, int id, int element) {
 		
-		variables.xStar1[element] = -1/super.closureEquation.parameters.par2[id]*Math.pow((super.closureEquation.parameters.par1[id]-1)/(super.closureEquation.parameters.par1[id]), 1/super.closureEquation.parameters.par1[id]);
-		variables.xStar2[element] = -9999.0;
-		variables.xStar3[element] = -9999.0;
+		variables.waterSuctionStar1[element] = -1/super.closureEquation.parameters.par2[id]*Math.pow((super.closureEquation.parameters.par1[id]-1)/(super.closureEquation.parameters.par1[id]), 1/super.closureEquation.parameters.par1[id]);
+		variables.waterSuctionStar2[element] = -9999.0;
+		variables.waterSuctionStar3[element] = -9999.0;
 		
 	}
 
 	@Override
 	public double initialGuess(double x, int id, int element) {
 		
-		return Math.min(variables.waterSuctions[element], variables.xStar1[element]);
+		return Math.min(variables.waterSuctions[element], variables.waterSuctionStar1[element]);
 		
 	}
 

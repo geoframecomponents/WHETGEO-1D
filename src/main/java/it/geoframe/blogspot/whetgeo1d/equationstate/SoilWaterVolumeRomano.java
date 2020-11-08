@@ -74,25 +74,25 @@ public class SoilWaterVolumeRomano extends EquationState {
 	@Override
 	public double p(double x, double y, int id, int element) {
 
-		if(x<=variables.xStar1[element]) {
+		if(x<=variables.waterSuctionStar1[element]) {
 			
 			return dEquationState(x, y, id, element);  
 			
-		} else if(variables.xStar1[element]<x && x<variables.xStar3[element]) {
+		} else if(variables.waterSuctionStar1[element]<x && x<variables.waterSuctionStar3[element]) {
 			
-			return this.dEquationState(variables.xStar1[element], y, id, element);
+			return this.dEquationState(variables.waterSuctionStar1[element], y, id, element);
 			
-		} else if (variables.xStar3[element]<=x && x<=variables.xStar2[element]) {
+		} else if (variables.waterSuctionStar3[element]<=x && x<=variables.waterSuctionStar2[element]) {
 			
-			return this.dEquationState(x, y, id, element) + (this.dEquationState(variables.xStar1[element], y, id, element)-this.dEquationState(variables.xStar3[element], y, id, element));
+			return this.dEquationState(x, y, id, element) + (this.dEquationState(variables.waterSuctionStar1[element], y, id, element)-this.dEquationState(variables.waterSuctionStar3[element], y, id, element));
 			
-		} else if (variables.xStar2[element]<x && x<0){
+		} else if (variables.waterSuctionStar2[element]<x && x<0){
 			
-			return this.dEquationState(variables.xStar2[element], y, id, element) + (this.dEquationState(variables.xStar1[element], y, id, element)-this.dEquationState(variables.xStar3[element], y, id, element));
+			return this.dEquationState(variables.waterSuctionStar2[element], y, id, element) + (this.dEquationState(variables.waterSuctionStar1[element], y, id, element)-this.dEquationState(variables.waterSuctionStar3[element], y, id, element));
 			
 		} else {
 			
-			return this.dEquationState(variables.xStar2[element], y, id, element) + (this.dEquationState(variables.xStar1[element], y, id, element)-this.dEquationState(variables.xStar3[element], y, id, element))
+			return this.dEquationState(variables.waterSuctionStar2[element], y, id, element) + (this.dEquationState(variables.waterSuctionStar1[element], y, id, element)-this.dEquationState(variables.waterSuctionStar3[element], y, id, element))
 					+ this.dEquationState(x, y, id, element);
 			
 		}
@@ -103,37 +103,37 @@ public class SoilWaterVolumeRomano extends EquationState {
 	@Override
 	public double pIntegral(double x, double y, int id, int element) {
 
-		if(x <=variables.xStar1[element]) {
+		if(x <=variables.waterSuctionStar1[element]) {
 			
 			return this.equationState(x, y, id, element); 
 			
-		} else if(variables.xStar1[element]<x && x<=variables.xStar3[element]) {
+		} else if(variables.waterSuctionStar1[element]<x && x<=variables.waterSuctionStar3[element]) {
 			
-			return this.equationState(variables.xStar1[element], y, id, element) 
-					+ this.dEquationState(variables.xStar1[element], y, id, element)*(x - variables.xStar1[element]);
+			return this.equationState(variables.waterSuctionStar1[element], y, id, element) 
+					+ this.dEquationState(variables.waterSuctionStar1[element], y, id, element)*(x - variables.waterSuctionStar1[element]);
 			
-		} else if (variables.xStar3[element]<x && x<=variables.xStar2[element]) {
+		} else if (variables.waterSuctionStar3[element]<x && x<=variables.waterSuctionStar2[element]) {
 			
-			return this.equationState(variables.xStar1[element], y, id, element) 
-					+ this.dEquationState(variables.xStar1[element], y, id, element)*(x-variables.xStar1[element])
-					- this.dEquationState(variables.xStar3[element], y, id, element)*(x-variables.xStar3[element])
-					+ this.equationState(x, y, id, element) - this.equationState(variables.xStar3[element], y, id, element);
+			return this.equationState(variables.waterSuctionStar1[element], y, id, element) 
+					+ this.dEquationState(variables.waterSuctionStar1[element], y, id, element)*(x-variables.waterSuctionStar1[element])
+					- this.dEquationState(variables.waterSuctionStar3[element], y, id, element)*(x-variables.waterSuctionStar3[element])
+					+ this.equationState(x, y, id, element) - this.equationState(variables.waterSuctionStar3[element], y, id, element);
 			
-		} else if (variables.xStar2[element]<x && x<0){
+		} else if (variables.waterSuctionStar2[element]<x && x<0){
 			
-			return this.equationState(variables.xStar1[element], y, id, element)
-					+ this.dEquationState(variables.xStar1[element], y, id, element)*(variables.xStar2[element]-variables.xStar1[element])
-					- this.dEquationState(variables.xStar3[element], y, id, element)*(variables.xStar2[element]-variables.xStar3[element])
-					+ this.equationState(variables.xStar2[element], y, id, element) - this.equationState(variables.xStar3[element], y, id, element)
-					+ this.dEquationState(variables.xStar2[element], y, id, element)*(x-variables.xStar2[element]);
+			return this.equationState(variables.waterSuctionStar1[element], y, id, element)
+					+ this.dEquationState(variables.waterSuctionStar1[element], y, id, element)*(variables.waterSuctionStar2[element]-variables.waterSuctionStar1[element])
+					- this.dEquationState(variables.waterSuctionStar3[element], y, id, element)*(variables.waterSuctionStar2[element]-variables.waterSuctionStar3[element])
+					+ this.equationState(variables.waterSuctionStar2[element], y, id, element) - this.equationState(variables.waterSuctionStar3[element], y, id, element)
+					+ this.dEquationState(variables.waterSuctionStar2[element], y, id, element)*(x-variables.waterSuctionStar2[element]);
 			
 		} else {
 			
-			return this.equationState(variables.xStar1[element], y, id, element) 
-					+ this.dEquationState(variables.xStar1[element], y, id, element)*(variables.xStar2[element]-variables.xStar1[element]) 
-					- this.dEquationState(variables.xStar3[element], y, id, element)*(variables.xStar2[element]-variables.xStar3[element])
-					+ this.equationState(variables.xStar2[element], y, id, element) - this.equationState(variables.xStar3[element], y, id, element) 
-					+ this.dEquationState(variables.xStar2[element], y, id, element)*(0-variables.xStar2[element])
+			return this.equationState(variables.waterSuctionStar1[element], y, id, element) 
+					+ this.dEquationState(variables.waterSuctionStar1[element], y, id, element)*(variables.waterSuctionStar2[element]-variables.waterSuctionStar1[element]) 
+					- this.dEquationState(variables.waterSuctionStar3[element], y, id, element)*(variables.waterSuctionStar2[element]-variables.waterSuctionStar3[element])
+					+ this.equationState(variables.waterSuctionStar2[element], y, id, element) - this.equationState(variables.waterSuctionStar3[element], y, id, element) 
+					+ this.dEquationState(variables.waterSuctionStar2[element], y, id, element)*(0-variables.waterSuctionStar2[element])
 					+ this.dEquationState(0, y, id, element)*(x-0);
 
 		}
@@ -146,17 +146,17 @@ public class SoilWaterVolumeRomano extends EquationState {
 	public void computeXStar(double y, int id, int element) {
 		
 		double x1 = super.closureEquation.parameters.par4[id]*Math.exp(-Math.pow(super.closureEquation.parameters.par2[id],2));
-		variables.xStar1[element] = bisection.findZero(x1*1.1, x1*0.9, y, id, element);
+		variables.waterSuctionStar1[element] = bisection.findZero(x1*1.1, x1*0.9, y, id, element);
 		double x2 = super.closureEquation.parameters.par5[id]*Math.exp(-Math.pow(super.closureEquation.parameters.par3[id],2));
-		variables.xStar2[element] = bisection.findZero(x2*1.2, x2*0.8, y, id, element);
-		variables.xStar3[element] = bisection.findZero(variables.xStar1[element]*0.9, variables.xStar2[element]*1.1, y, id, element);
+		variables.waterSuctionStar2[element] = bisection.findZero(x2*1.2, x2*0.8, y, id, element);
+		variables.waterSuctionStar3[element] = bisection.findZero(variables.waterSuctionStar1[element]*0.9, variables.waterSuctionStar2[element]*1.1, y, id, element);
 	}
 	
 	
 	@Override
 	public double initialGuess(double x, int id, int element) {
 		
-		return Math.min(variables.waterSuctions[element], variables.xStar1[element]);
+		return Math.min(variables.waterSuctions[element], variables.waterSuctionStar1[element]);
 		
 	}
 

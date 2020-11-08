@@ -92,9 +92,9 @@ public class WaterDepth extends EquationState {
 	@Override
 	public void computeXStar(double y, int id, int element) {
 		
-		variables.xStar1[element] = 0.0;
-		variables.xStar2[element] = -9999.0;
-		variables.xStar3[element] = -9999.0;
+		variables.waterSuctionStar1[element] = 0.0;
+		variables.waterSuctionStar2[element] = -9999.0;
+		variables.waterSuctionStar3[element] = -9999.0;
 	}
 
 	@Override

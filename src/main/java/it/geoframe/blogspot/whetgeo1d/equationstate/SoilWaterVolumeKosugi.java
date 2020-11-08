@@ -72,10 +72,10 @@ public class SoilWaterVolumeKosugi extends EquationState {
 	@Override
 	public double p(double x, double y, int id, int element) {
 
-		if(x<=variables.xStar1[element]) {
+		if(x<=variables.waterSuctionStar1[element]) {
 			return dEquationState(x, y, id, element);  
 		} else {
-			return dEquationState(variables.xStar1[element], y, id, element);
+			return dEquationState(variables.waterSuctionStar1[element], y, id, element);
 		}
 
 	}
@@ -84,10 +84,10 @@ public class SoilWaterVolumeKosugi extends EquationState {
 	@Override
 	public double pIntegral(double x, double y, int id, int element) {
 
-		if(x<=variables.xStar1[element]) {
+		if(x<=variables.waterSuctionStar1[element]) {
 			return equationState(x, y, id, element);  
 		} else {
-			return equationState(variables.xStar1[element], y, id, element) + dEquationState(variables.xStar1[element], y, id, element)*(x-variables.xStar1[element]);
+			return equationState(variables.waterSuctionStar1[element], y, id, element) + dEquationState(variables.waterSuctionStar1[element], y, id, element)*(x-variables.waterSuctionStar1[element]);
 		}
 
 	}
@@ -97,16 +97,16 @@ public class SoilWaterVolumeKosugi extends EquationState {
 	@Override
 	public void computeXStar(double y, int id, int element) {
 		
-		variables.xStar1[element] = super.closureEquation.parameters.par1[id]/Math.exp(Math.pow(super.closureEquation.parameters.par2[id],2));
-		variables.xStar2[element] = -9999.0;
-		variables.xStar3[element] = -9999.0;
+		variables.waterSuctionStar1[element] = super.closureEquation.parameters.par1[id]/Math.exp(Math.pow(super.closureEquation.parameters.par2[id],2));
+		variables.waterSuctionStar2[element] = -9999.0;
+		variables.waterSuctionStar3[element] = -9999.0;
 		
 	}
 	
 	@Override
 	public double initialGuess(double x, int id, int element) {
 		
-		return Math.min(variables.waterSuctions[element], variables.xStar1[element]);
+		return Math.min(variables.waterSuctions[element], variables.waterSuctionStar1[element]);
 		
 	}
 
