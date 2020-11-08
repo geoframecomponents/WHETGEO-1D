@@ -23,20 +23,21 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-import it.geoframe.blogspot.conductivitymodel.ConductivityEquation;
-import it.geoframe.blogspot.conductivitymodel.ConductivityEquationFactory;
-import it.geoframe.blogspot.conductivitymodel.UnsaturatedHydraulicConductivityTemperatureFactory;
-import it.geoframe.blogspot.interfaceconductivity.InterfaceConductivity;
-import it.geoframe.blogspot.interfaceconductivity.SimpleInterfaceConductivityFactory;
+import it.geoframe.blogspot.closureequation.conductivitymodel.ConductivityEquation;
+import it.geoframe.blogspot.closureequation.conductivitymodel.ConductivityEquationFactory;
+import it.geoframe.blogspot.closureequation.conductivitymodel.UnsaturatedHydraulicConductivityTemperatureFactory;
+import it.geoframe.blogspot.closureequation.interfaceconductivity.InterfaceConductivity;
+import it.geoframe.blogspot.closureequation.interfaceconductivity.SimpleInterfaceConductivityFactory;
+import it.geoframe.blogspot.closureequation.closureequation.ClosureEquation;
+import it.geoframe.blogspot.closureequation.closureequation.Parameters;
+import it.geoframe.blogspot.closureequation.closureequation.SoilWaterRetentionCurveFactory;
+import it.geoframe.blogspot.closureequation.equationstate.EquationState;
 import it.geoframe.blogspot.whetgeo1d.data.Geometry;
 import it.geoframe.blogspot.whetgeo1d.data.ProblemQuantities;
 import it.geoframe.blogspot.whetgeo1d.equationstate.EquationStateFactory;
 import it.geoframe.blogspot.whetgeo1d.equationstate.WaterDepth;
 import oms3.annotations.*;
-import it.geoframe.blogspot.closureequation.ClosureEquation;
-import it.geoframe.blogspot.closureequation.Parameters;
-import it.geoframe.blogspot.closureequation.SoilWaterRetentionCurveFactory;
-import it.geoframe.blogspot.equationstate.EquationState;
+
 
 
 
@@ -137,6 +138,9 @@ public class RichardsSolver1DMain {
 	
 	/*
 	 * MODELS
+	 * - closure equation
+	 * - conductivity model
+	 * - interface conductivity model
 	 */
 
 	@Description("It is possibile to chose between 3 different models to compute "
@@ -163,7 +167,9 @@ public class RichardsSolver1DMain {
 	public String interfaceHydraulicConductivityModel;
 
 
-	/////////////////////////////////////////////
+	/*
+	 * INITIAL CONDITION
+	 */
 
 	@Description("Initial condition for water suction read from grid NetCDF file")
 	@In
@@ -199,7 +205,7 @@ public class RichardsSolver1DMain {
 	public double maxPonding;
 
 	/*
-	 * Time step
+	 * TIME STEP
 	 */
 	@Description("Time amount at every time-loop")
 	@In
@@ -212,7 +218,7 @@ public class RichardsSolver1DMain {
 	public double timeDelta;
 
 	/*
-	 * Iteration parameter
+	 * ITERATION PARAMETERS
 	 */
 	@Description("Tolerance for Newton iteration")
 	@In
@@ -233,31 +239,31 @@ public class RichardsSolver1DMain {
 	public int picardIteration=1;
 
 	/*
-	 * Lysimeter
+	 * LYSIMETER
 	 */
-	@Description("Stressed Evapotranspiration for each layer")
-	@In 
-	@Unit ("mm/s")
-	public double [] StressedETs;
-
-	@Description("Boolean value to use lysimeter")
-	@In
-	public boolean lysimeter = false;
-
-	@Description("Stressed Evapotranspiration for each layer")
-	@Out
-	@Unit ("m")
-	public double[] ETs;
-
-	@Description("Sum of Stressed Evapotranspiration")
-	@Out 
-	@Unit ("m")
-	public double sumETs;	
-
-	@Description("Sum of Stressed Evapotranspiration")
-	@Out 
-	@Unit ("-")
-	public double[] thetasNew;	
+//	@Description("Stressed Evapotranspiration for each layer")
+//	@In 
+//	@Unit ("mm/s")
+//	public double [] StressedETs;
+//
+//	@Description("Boolean value to use lysimeter")
+//	@In
+//	public boolean lysimeter = false;
+//
+//	@Description("Stressed Evapotranspiration for each layer")
+//	@Out
+//	@Unit ("m")
+//	public double[] ETs;
+//
+//	@Description("Sum of Stressed Evapotranspiration")
+//	@Out 
+//	@Unit ("m")
+//	public double sumETs;	
+//
+//	@Description("Sum of Stressed Evapotranspiration")
+//	@Out 
+//	@Unit ("-")
+//	public double[] thetasNew;	
 
 	/*
 	 *  BOUNDARY CONDITIONS
@@ -317,66 +323,63 @@ public class RichardsSolver1DMain {
 	
 
 	@Description("Maximun number of Newton iterations")
-	final int MAXITER_NEWT = 50;
+	private final int MAXITER_NEWT = 50;
 
-	@Description("Top boundary condition according with topBCType")
+	@Description("Value of the top boundary condition according with topBCType")
 	@Unit ("")
-	double topBC;
+	private double topBC;
 
-	@Description("Bottom boundary condition according with bottomBCType")
+	@Description("Value of the bottom boundary condition according with bottomBCType")
 	@Unit ("")
-	double bottomBC;
+	private double bottomBC;
 
 	@Description("Number of control volume for domain discetrization")
 	@Unit (" ")
-	int KMAX; 
+	private int KMAX; 
 
 	@Description("It is needed to iterate on the date")
-	int step;
+	private int step;
 
-	double saveDate;
-	///////////////////////////////
-	double volume1;
-	double volume2;
-	double volumeLost;
+	@Description("Control value to save output:"
+			+ "- 1 save the current time step output"
+			+ "- 0 do not save")
+	private double saveDate;
+//	private double volume1;
+//	private double volume2;
+	private double volumeLost;
 
-	int[] rheologyID;
-	int[] parameterID;
+	private int[] rheologyID;
+	private int[] parameterID;
 
-	PDE1DSolver richardsSolver;
-	ProblemQuantities variables;
-	Geometry geometry;
-	Parameters rehologyParameters;
-	SoilWaterRetentionCurveFactory soilWaterRetentionCurveFactory;
+	private PDE1DSolver richardsSolver;
+	private ProblemQuantities variables;
+	private Geometry geometry;
+	private Parameters rehologyParameters;
+	private SoilWaterRetentionCurveFactory soilWaterRetentionCurveFactory;
 
 	@Description("This list contains the objects that describes the state equations of the problem")
-	List<EquationState> equationState;
+	private List<EquationState> equationState;
 
 	@Description("Object for the SWRC model")
-	ClosureEquation soilWaterRetentionCurve;
+	private ClosureEquation soilWaterRetentionCurve;
 
 	@Description("Object dealing with the state equation")
-//	EquationState internalEnergy;
-	EquationStateFactory equationStateFactory;
+	private EquationStateFactory equationStateFactory;
 
 
 	@Description("Object dealing with the hydraulic conductivity model")
-	ConductivityEquation hydraulicConductivity;
-	ConductivityEquationFactory conductivityEquationFactory;
-	UnsaturatedHydraulicConductivityTemperatureFactory unsaturatedHydraulicConductivityTemperatureFactory;
+	private ConductivityEquation hydraulicConductivity;
+	private ConductivityEquationFactory conductivityEquationFactory;
+	private UnsaturatedHydraulicConductivityTemperatureFactory unsaturatedHydraulicConductivityTemperatureFactory;
 
 
 	@Description("This object compute the interface hydraulic conductivity accordingly with the prescribed method.")
-	InterfaceConductivity interfaceConductivity;
-	SimpleInterfaceConductivityFactory interfaceConductivityFactory;
+	private InterfaceConductivity interfaceConductivity;
+	private SimpleInterfaceConductivityFactory interfaceConductivityFactory;
 
 	@Execute
 	public void solve() {
 
-		/// da cancellare
-		//		if(inCurrentDate.equalsIgnoreCase("2015-11-01 02:00")) {
-		//			System.out.println("RICHARDS 1D "+inCurrentDate);
-		//		}
 
 
 		if(step==0){
@@ -467,7 +470,7 @@ public class RichardsSolver1DMain {
 			 * Compute water volumes
 			 */
 			for(int element = 0; element < KMAX; element++) {
-				variables.volumes[element] = equationState.get(rheologyID[element]).stateEquation(variables.waterSuctions[element], variables.temperatures[element], parameterID[element], element);
+				variables.volumes[element] = equationState.get(rheologyID[element]).equationState(variables.waterSuctions[element], variables.temperatures[element], parameterID[element], element);
 				variables.waterVolume += variables.volumes[element];
 			}
 
@@ -481,32 +484,7 @@ public class RichardsSolver1DMain {
 			}
 			
 			
-			/*
-			 * Compute source term for evapotranspiration
-			 * 
-			 */
-			if(lysimeter==true) {
-				for(int i = 0; i < KMAX-2; i++) {
-					variables.ETs[i] = (StressedETs[i]/1000)/tTimestep*timeDelta;
-				} 
-			} else {
-				for(int i = 0; i < KMAX-2; i++) {
-					variables.ETs[i] = 0.0;
-				} 
-			}
-			
 
-			if(lysimeter==true) {
-				variables.sumETs = 0;
-				for(int element = 0; element < KMAX-1; element++) {
-					if (variables.ETs[element] > (variables.volumes[element] - thetaWp[parameterID[element]]*geometry.controlVolume[element])){
-						variables.ETs[element] = variables.volumes[element] - thetaWp[parameterID[element]]*geometry.controlVolume[element];
-						System.out.println("Errore nel calcolo di ETs. E' maggiore di volumes[i] - thetaR[i]*geometry.controlVolumex[i] ");} 
-					else if (variables.ETs[element] <= (variables.volumes[element] - thetaWp[parameterID[element]]*geometry.controlVolume[element])){
-						variables.ETs[element] = variables.ETs[element];}
-					variables.sumETs = variables.sumETs + variables.ETs[element];
-				}
-			}
 			/*
 			 * Solve PDE
 			 */
@@ -568,7 +546,7 @@ public class RichardsSolver1DMain {
 			 * - total water volume
 			 */
 			for(int element = 0; element < KMAX; element++) {		
-				variables.volumes[element] = equationState.get(rheologyID[element]).stateEquation(variables.waterSuctions[element], variables.temperatures[element], parameterID[element], element);
+				variables.volumes[element] = equationState.get(rheologyID[element]).equationState(variables.waterSuctions[element], variables.temperatures[element], parameterID[element], element);
 				variables.waterVolumeNew += variables.volumes[element];
 				if(element<KMAX-1) {
 					variables.thetas[element] = soilWaterRetentionCurve.f(variables.waterSuctions[element], parameterID[element]);
