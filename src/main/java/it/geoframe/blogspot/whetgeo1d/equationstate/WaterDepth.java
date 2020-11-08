@@ -22,8 +22,8 @@
  */
 package it.geoframe.blogspot.whetgeo1d.equationstate;
 
-import it.geoframe.blogspot.closureequation.ClosureEquation;
-import it.geoframe.blogspot.equationstate.EquationState;
+import it.geoframe.blogspot.closureequation.closureequation.ClosureEquation;
+import it.geoframe.blogspot.closureequation.equationstate.EquationState;
 import it.geoframe.blogspot.whetgeo1d.data.ProblemQuantities;
 
 /**
@@ -42,7 +42,7 @@ public class WaterDepth extends EquationState {
 
 
 	@Override
-	public double stateEquation(double x, double y, int id, int element) {
+	public double equationState(double x, double y, int id, int element) {
 		
 		if(x>0) {
 			return x;
@@ -54,7 +54,7 @@ public class WaterDepth extends EquationState {
 
 
 	@Override
-	public double dStateEquation(double x, double y, int id, int element) {
+	public double dEquationState(double x, double y, int id, int element) {
 
 		if(x>0) {
 			return 1.0;
@@ -66,7 +66,7 @@ public class WaterDepth extends EquationState {
 
 
 	@Override
-	public double ddStateEquation(double x, double y,  int id, int element) {
+	public double ddEquationState(double x, double y,  int id, int element) {
 
 		return 0.0;
 	}
@@ -75,7 +75,7 @@ public class WaterDepth extends EquationState {
 	@Override
 	public double p(double x, double y, int id, int element) {
 
-		return dStateEquation(x, y, id, element);
+		return dEquationState(x, y, id, element);
 
 	}
 
@@ -83,7 +83,7 @@ public class WaterDepth extends EquationState {
 	@Override
 	public double pIntegral(double x, double y, int id, int element) {
 
-		return stateEquation(x, y, id, element);
+		return equationState(x, y, id, element);
 
 	}
 
