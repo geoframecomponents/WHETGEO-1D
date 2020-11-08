@@ -23,11 +23,11 @@ import java.net.URISyntaxException;
 import java.util.*;
 import org.jgrasstools.gears.io.timedependent.OmsTimeSeriesIteratorReader;
 
-import buffertowriter.RichardsBuffer1D;
+import it.geoframe.blogspot.buffer.buffertowriter.RichardsBuffer1D;
 import it.geoframe.blogspot.whetgeo1d.richardssolver.RichardsSolver1DMain;
-import monodimensionalProblemTimeDependent.ReadNetCDFRichardsGrid1D;
-import monodimensionalProblemTimeDependent.ReadNetCDFRichardsOutput1D;
-import monodimensionalProblemTimeDependent.WriteNetCDFRichards1DDouble;
+import it.geoframe.blogpsot.netcdf.monodimensionalproblemtimedependent.ReadNetCDFRichardsGrid1D;
+import it.geoframe.blogpsot.netcdf.monodimensionalproblemtimedependent.ReadNetCDFRichardsOutput1D;
+import it.geoframe.blogpsot.netcdf.monodimensionalproblemtimedependent.WriteNetCDFRichards1DDouble;
 
 import org.junit.Test;
 

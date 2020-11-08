@@ -23,10 +23,11 @@ import java.net.URISyntaxException;
 import java.util.*;
 import org.jgrasstools.gears.io.timedependent.OmsTimeSeriesIteratorReader;
 
-import buffertowriter.RichardsBuffer1D;
+import it.geoframe.blogspot.buffer.buffertowriter.RichardsBuffer1D;
 import it.geoframe.blogspot.whetgeo1d.richardssolver.RichardsSolver1DMain;
-import monodimensionalProblemTimeDependent.ReadNetCDFRichardsGrid1D;
-import monodimensionalProblemTimeDependent.WriteNetCDFRichards1DDouble;
+import it.geoframe.blogpsot.netcdf.monodimensionalproblemtimedependent.ReadNetCDFRichardsGrid1D;
+import it.geoframe.blogpsot.netcdf.monodimensionalproblemtimedependent.ReadNetCDFRichardsOutput1D;
+import it.geoframe.blogpsot.netcdf.monodimensionalproblemtimedependent.WriteNetCDFRichards1DDouble;
 
 import org.junit.Test;
 
@@ -52,8 +53,8 @@ public class TestVanGenuchtenDirchlet {
 		String pathTopBC = "resources/input/TimeSeries/bottom.csv";
 		String pathBottomBC = "resources/input/TimeSeries/bottom.csv";
 		String pathSaveDates = "resources/input/TimeSeries/save.csv"; 
-		String pathGrid =  "resources/input/Grid_NetCDF/grid_VG_homogeneous.nc";
-		String pathOutput = "resources/output/Sim_VG_dirchlet_homogeneous.nc";
+		String pathGrid =  "resources/input/Grid_NetCDF/grid_VG.nc";
+		String pathOutput = "resources/output/Sim_VG_Dirchlet.nc";
 		
 		
 		String topBC = "Top Dirichlet";
@@ -181,6 +182,24 @@ public class TestVanGenuchtenDirchlet {
 		topBCReader.close();
 		bottomBCReader.close();
 		saveDatesReader.close();
+		
+		/*
+		 * ASSERT 
+		 */
+		System.out.println("Assert");
+		ReadNetCDFRichardsOutput1D readTestData = new ReadNetCDFRichardsOutput1D();
+		readTestData.richardsOutputFilename = "resources/Output/Check_VG_Dirichlet.nc";
+		readTestData.read();
+		
+		ReadNetCDFRichardsOutput1D readSimData = new ReadNetCDFRichardsOutput1D();
+		readSimData.richardsOutputFilename = pathOutput.replace(".nc","_0000.nc");
+		readSimData.read();
+
+		for(int k=0; k<readSimData.psi[(readSimData.psi.length)-1].length; k++) {
+			if(Math.abs(readSimData.psi[(readSimData.psi.length)-1][k]-readTestData.psi[(readTestData.psi.length)-1][k])>Math.pow(10,-11)) {
+				System.out.println("\n\n\t\tERROR: psi mismatch");
+			}
+		}
 					
 
 	}
@@ -197,14 +216,5 @@ public class TestVanGenuchtenDirchlet {
 		reader.initProcess();
 		return reader;
 	}
-	
-//	private OmsTimeSeriesIteratorWriter getTimeseriesWriter( String inPath, String id, String startDate, String endDate,
-//			int timeStepMinutes ) throws URISyntaxException {
-//		OmsTimeSeriesIteratorWriter writer = new OmsTimeSeriesIteratorWriter();
-//		writer.file = inPath;
-//		writer.tStart = startDate;
-//		writer.tTimestep = timeStepMinutes;
-//		writer.fileNovalue = "-9999";
-//		return writer;
-//	}
+
 }
