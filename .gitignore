@@ -5,3 +5,7 @@ bin/
 .project
 .settings/
 build/
+lib/NetCDF-old.jar
+lib/Numerical-old.jar
+lib/Rheology-0.1.1-old.jar
+lib/buffer-old.jar

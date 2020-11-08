@@ -17,26 +17,26 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package it.geoframe.blogspot.richardssolver;
+package it.geoframe.blogspot.whetgeo1d.richardssolver;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-import closureequation.ClosureEquation;
-import closureequation.ClosureEquationFactory;
-import closureequation.UnsaturatedHydraulicConductivityTemperatureFactory;
-import interfaceconductivity.InterfaceConductivity;
-import interfaceconductivity.SimpleInterfaceConductivityFactory;
-import it.geoframe.blogspot.data.Geometry;
-import it.geoframe.blogspot.data.ProblemQuantities;
-import it.geoframe.blogspot.equationstate.StateEquationFactory;
-import it.geoframe.blogspot.equationstate.WaterDepth;
+import it.geoframe.blogspot.conductivitymodel.ConductivityEquation;
+import it.geoframe.blogspot.conductivitymodel.ConductivityEquationFactory;
+import it.geoframe.blogspot.conductivitymodel.UnsaturatedHydraulicConductivityTemperatureFactory;
+import it.geoframe.blogspot.interfaceconductivity.InterfaceConductivity;
+import it.geoframe.blogspot.interfaceconductivity.SimpleInterfaceConductivityFactory;
+import it.geoframe.blogspot.whetgeo1d.data.Geometry;
+import it.geoframe.blogspot.whetgeo1d.data.ProblemQuantities;
+import it.geoframe.blogspot.whetgeo1d.equationstate.EquationStateFactory;
+import it.geoframe.blogspot.whetgeo1d.equationstate.WaterDepth;
 import oms3.annotations.*;
-import rheology.Rheology;
-import rheology.RheologyParameters;
-import rheology.SoilWaterRetentionCurveFactory;
-import stateequation.StateEquation;
+import it.geoframe.blogspot.closureequation.ClosureEquation;
+import it.geoframe.blogspot.closureequation.Parameters;
+import it.geoframe.blogspot.closureequation.SoilWaterRetentionCurveFactory;
+import it.geoframe.blogspot.equationstate.EquationState;
 
 
 
@@ -50,9 +50,11 @@ import stateequation.StateEquation;
 //@Name()
 //@Status()
 @License("General Public License Version 3 (GPLv3)")
-public class CallRichardsSolver {
+public class RichardsSolver1DMain {
 
-	// SOIL PARAMETERS
+	/*
+	 * SOIL PARAMETERS
+	 */
 	@Description("The hydraulic conductivity at saturation")
 	@In 
 	@Unit ("m/s")
@@ -122,6 +124,20 @@ public class CallRichardsSolver {
 	@In 
 	@Unit ("K")
 	public double temperatureR = 278.15;
+	
+	@Description("Control volume label defining the rheology")
+	@In 
+	@Unit("-")
+	public int[] inRheologyID;
+
+	@Description("Control volume label defining the set of the paramters")
+	@In 
+	@Unit("-")
+	public int[] inParameterID;
+	
+	/*
+	 * MODELS
+	 */
 
 	@Description("It is possibile to chose between 3 different models to compute "
 			+ "the soil hydraulic properties: Van Genuchten; Brooks and Corey; Kosugi unimodal")
@@ -138,7 +154,6 @@ public class CallRichardsSolver {
 	@In 
 	public String typeUHCModel;
 
-
 	@Description("Hydraulic conductivity at control volume interface can be evaluated as"
 			+ " the average of kappas[i] and kappas[i+1]"
 			+ " the maximum between kappas[i] and kappas[i+1]"
@@ -147,9 +162,7 @@ public class CallRichardsSolver {
 	@In
 	public String interfaceHydraulicConductivityModel;
 
-	@Description("Number of Picard iteration to update the diffusive flux matrix")
-	@In
-	public int picardIteration=1;
+
 	/////////////////////////////////////////////
 
 	@Description("Initial condition for water suction read from grid NetCDF file")
@@ -162,6 +175,9 @@ public class CallRichardsSolver {
 	@Unit("K")
 	public double[] temperature;
 
+	/*
+	 * GEOMETRY
+	 */
 	@Description("z coordinate read from grid NetCDF file")
 	@In
 	@Unit("m")
@@ -182,6 +198,9 @@ public class CallRichardsSolver {
 	@Unit("m")
 	public double maxPonding;
 
+	/*
+	 * Time step
+	 */
 	@Description("Time amount at every time-loop")
 	@In
 	@Unit ("s")
@@ -192,6 +211,9 @@ public class CallRichardsSolver {
 	@Unit ("s")
 	public double timeDelta;
 
+	/*
+	 * Iteration parameter
+	 */
 	@Description("Tolerance for Newton iteration")
 	@In
 	public double newtonTolerance;
@@ -205,7 +227,14 @@ public class CallRichardsSolver {
 	@Description("Damped factor for Newton algorithm")
 	@In
 	public double delta = 0.0; 
+	
+	@Description("Number of Picard iteration to update the diffusive flux matrix")
+	@In
+	public int picardIteration=1;
 
+	/*
+	 * Lysimeter
+	 */
 	@Description("Stressed Evapotranspiration for each layer")
 	@In 
 	@Unit ("mm/s")
@@ -230,7 +259,9 @@ public class CallRichardsSolver {
 	@Unit ("-")
 	public double[] thetasNew;	
 
-	// BOUNDARY CONDITIONS
+	/*
+	 *  BOUNDARY CONDITIONS
+	 */
 
 	@Description("The HashMap with the time series of the boundary condition at the top of soil column")
 	@In
@@ -267,15 +298,10 @@ public class CallRichardsSolver {
 	@Out
 	public String inCurrentDate;
 
-	@Description("Control volume label defining the rheology")
-	@In 
-	@Unit("-")
-	public int[] inRheologyID;
 
-	@Description("Control volume label defining the set of the paramters")
-	@In 
-	@Unit("-")
-	public int[] inParameterID;
+	/*
+	 * OUTPUT
+	 */
 
 	@Description("ArrayList of variable to be stored in the buffer writer")
 	@Out
@@ -288,6 +314,7 @@ public class CallRichardsSolver {
 
 	//////////////////////////////////////////
 	//////////////////////////////////////////
+	
 
 	@Description("Maximun number of Newton iterations")
 	final int MAXITER_NEWT = 50;
@@ -319,23 +346,23 @@ public class CallRichardsSolver {
 	PDE1DSolver richardsSolver;
 	ProblemQuantities variables;
 	Geometry geometry;
-	RheologyParameters rehologyParameters;
+	Parameters rehologyParameters;
 	SoilWaterRetentionCurveFactory soilWaterRetentionCurveFactory;
 
 	@Description("This list contains the objects that describes the state equations of the problem")
-	List<StateEquation> stateEquation;
+	List<EquationState> equationState;
 
 	@Description("Object for the SWRC model")
-	Rheology soilWaterRetentionCurve;
+	ClosureEquation soilWaterRetentionCurve;
 
 	@Description("Object dealing with the state equation")
-	StateEquation internalEnergy;
-	StateEquationFactory stateEquationFactory;
+//	EquationState internalEnergy;
+	EquationStateFactory equationStateFactory;
 
 
 	@Description("Object dealing with the hydraulic conductivity model")
-	ClosureEquation hydraulicConductivity;
-	ClosureEquationFactory closureEquationFactory;
+	ConductivityEquation hydraulicConductivity;
+	ConductivityEquationFactory conductivityEquationFactory;
 	UnsaturatedHydraulicConductivityTemperatureFactory unsaturatedHydraulicConductivityTemperatureFactory;
 
 
@@ -357,7 +384,7 @@ public class CallRichardsSolver {
 
 			variables = ProblemQuantities.getInstance(psiIC, temperature);
 			geometry = Geometry.getInstance(z, spaceDeltaZ, controlVolume);
-			rehologyParameters = RheologyParameters.getInstance(1000.0, 970, 4188,
+			rehologyParameters = Parameters.getInstance(1000.0, 970, 4188,
 					2117, 0.6, 2.29, 333700, 273.15,
 					thetaS, thetaR, new double[] {-9999.0}, new double[] {-9999.0}, new double[] {-9999.0},
 					new double[] {-9999.0}, par1SWRC, par2SWRC, par3SWRC, par4SWRC, par5SWRC, ks, alphaSpecificStorage, betaSpecificStorage);
@@ -371,15 +398,15 @@ public class CallRichardsSolver {
 			soilWaterRetentionCurveFactory = new SoilWaterRetentionCurveFactory();
 			soilWaterRetentionCurve = soilWaterRetentionCurveFactory.create(soilHydraulicModel);
 
-			stateEquationFactory = new StateEquationFactory();
+			equationStateFactory = new EquationStateFactory();
 
-			stateEquation = new ArrayList<StateEquation>();
-			stateEquation.add(new WaterDepth(null));
-			stateEquation.add(stateEquationFactory.create(soilHydraulicModel, soilWaterRetentionCurve));
+			equationState = new ArrayList<EquationState>();
+			equationState.add(new WaterDepth(null));
+			equationState.add(equationStateFactory.create(soilHydraulicModel, soilWaterRetentionCurve));
 
 
-			closureEquationFactory = new ClosureEquationFactory();
-			hydraulicConductivity = closureEquationFactory.create(typeUHCModel, soilWaterRetentionCurve);
+			conductivityEquationFactory = new ConductivityEquationFactory();
+			hydraulicConductivity = conductivityEquationFactory.create(typeUHCModel, soilWaterRetentionCurve);
 
 			unsaturatedHydraulicConductivityTemperatureFactory = new UnsaturatedHydraulicConductivityTemperatureFactory();
 			hydraulicConductivity = unsaturatedHydraulicConductivityTemperatureFactory.create(typeUHCTemperatureModel, soilWaterRetentionCurve, hydraulicConductivity);
@@ -389,7 +416,7 @@ public class CallRichardsSolver {
 			interfaceConductivity = interfaceConductivityFactory.createInterfaceConductivity(interfaceHydraulicConductivityModel);
 
 			richardsSolver = new PDE1DSolver(topBCType, bottomBCType, KMAX, nestedNewton, newtonTolerance, delta, MAXITER_NEWT,
-					stateEquation, rheologyID, parameterID);
+					equationState, rheologyID, parameterID);
 
 			if(topBCType.equalsIgnoreCase("Top Dirichlet")||topBCType.equalsIgnoreCase("TopDirichlet")) {
 				KMAX = KMAX-1;
@@ -440,7 +467,7 @@ public class CallRichardsSolver {
 			 * Compute water volumes
 			 */
 			for(int element = 0; element < KMAX; element++) {
-				variables.volumes[element] = stateEquation.get(rheologyID[element]).stateEquation(variables.waterSuctions[element], variables.temperatures[element], parameterID[element], element);
+				variables.volumes[element] = equationState.get(rheologyID[element]).stateEquation(variables.waterSuctions[element], variables.temperatures[element], parameterID[element], element);
 				variables.waterVolume += variables.volumes[element];
 			}
 
@@ -449,7 +476,7 @@ public class CallRichardsSolver {
 			 * Compute xStar
 			 */
 			for(int element=0; element<KMAX; element++) {
-				stateEquation.get(rheologyID[element]).computeXStar(variables.temperatures[element], parameterID[element], element);
+				equationState.get(rheologyID[element]).computeXStar(variables.temperatures[element], parameterID[element], element);
 
 			}
 			
@@ -541,7 +568,7 @@ public class CallRichardsSolver {
 			 * - total water volume
 			 */
 			for(int element = 0; element < KMAX; element++) {		
-				variables.volumes[element] = stateEquation.get(rheologyID[element]).stateEquation(variables.waterSuctions[element], variables.temperatures[element], parameterID[element], element);
+				variables.volumes[element] = equationState.get(rheologyID[element]).stateEquation(variables.waterSuctions[element], variables.temperatures[element], parameterID[element], element);
 				variables.waterVolumeNew += variables.volumes[element];
 				if(element<KMAX-1) {
 					variables.thetas[element] = soilWaterRetentionCurve.f(variables.waterSuctions[element], parameterID[element]);

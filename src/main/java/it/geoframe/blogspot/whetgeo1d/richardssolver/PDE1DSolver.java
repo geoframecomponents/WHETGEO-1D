@@ -17,11 +17,11 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package it.geoframe.blogspot.richardssolver;
+package it.geoframe.blogspot.whetgeo1d.richardssolver;
 import java.util.List;
 
-import it.geoframe.blogspot.data.*;
-import it.geoframe.blogspot.richardsboundaryconditions.*;
+import it.geoframe.blogspot.whetgeo1d.data.*;
+import it.geoframe.blogspot.whetgeo1d.richardsboundaryconditions.*;
 import stateequation.*;
 //import interfaceConductivity.*;
 import oms3.annotations.*;

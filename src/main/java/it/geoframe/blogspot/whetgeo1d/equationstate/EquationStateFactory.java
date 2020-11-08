@@ -17,26 +17,26 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package it.geoframe.blogspot.equationstate;
+package it.geoframe.blogspot.whetgeo1d.equationstate;
 
-import rheology.Rheology;
-import stateequation.StateEquation;
+import it.geoframe.blogspot.closureequation.closureequation.ClosureEquation;
+import it.geoframe.blogspot.closureequation.equationstate.EquationState;
 
-public class StateEquationFactory {
+public class EquationStateFactory {
 	
 	
-	public StateEquation create(String model, Rheology rheologyModel) {
+	public EquationState create(String model, ClosureEquation closureEquation) {
 		
-		StateEquation myModel = null;
+		EquationState myModel = null;
 		
 		if(model.equalsIgnoreCase("Van Genuchten") || model.equalsIgnoreCase("VanGenuchten") || model.equalsIgnoreCase("VG")) {
-			myModel = new SoilWaterVolumeVanGenuchten(rheologyModel);
+			myModel = new SoilWaterVolumeVanGenuchten(closureEquation);
 		} else if(model.equalsIgnoreCase("Brooks Corey") || model.equalsIgnoreCase("BrooksCorey") || model.equalsIgnoreCase("BC")) {
-			myModel = new SoilWaterVolumeBrooksCorey(rheologyModel);
+			myModel = new SoilWaterVolumeBrooksCorey(closureEquation);
 		} else if(model.equalsIgnoreCase("Kosugi") ) {
-			myModel = new SoilWaterVolumeKosugi(rheologyModel);
+			myModel = new SoilWaterVolumeKosugi(closureEquation);
 		} else if(model.equalsIgnoreCase("Romano") ) {
-			myModel = new SoilWaterVolumeRomano(rheologyModel);
+			myModel = new SoilWaterVolumeRomano(closureEquation);
 		} else {
 			System.out.println("\n\n\tERROR: please check the stateEquationModel");
 		}

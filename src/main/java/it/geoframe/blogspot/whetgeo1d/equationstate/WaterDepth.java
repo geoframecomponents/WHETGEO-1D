@@ -20,22 +20,22 @@
 /**
  * 
  */
-package it.geoframe.blogspot.equationstate;
+package it.geoframe.blogspot.whetgeo1d.equationstate;
 
-import it.geoframe.blogspot.data.ProblemQuantities;
-import rheology.Rheology;
-import stateequation.*;
+import it.geoframe.blogspot.closureequation.ClosureEquation;
+import it.geoframe.blogspot.equationstate.EquationState;
+import it.geoframe.blogspot.whetgeo1d.data.ProblemQuantities;
 
 /**
  * @author Niccolo` Tubini
  *
  */
-public class WaterDepth extends StateEquation {
+public class WaterDepth extends EquationState {
 
 	protected ProblemQuantities variables;
 
-	public WaterDepth(Rheology rheology) {
-		super(rheology);
+	public WaterDepth(ClosureEquation closureEquation) {
+		super(closureEquation);
 		this.variables = ProblemQuantities.getInstance();
 	}
 

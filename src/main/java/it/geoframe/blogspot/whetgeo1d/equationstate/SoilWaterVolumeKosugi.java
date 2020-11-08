@@ -20,24 +20,25 @@
 /**
  * 
  */
-package it.geoframe.blogspot.equationstate;
+package it.geoframe.blogspot.whetgeo1d.equationstate;
 
-import it.geoframe.blogspot.data.Geometry;
-import it.geoframe.blogspot.data.ProblemQuantities;
-import rheology.Rheology;
-import stateequation.*;
+import it.geoframe.blogspot.closureequation.closureequation.ClosureEquation;
+import it.geoframe.blogspot.closureequation.equationstate.EquationState;
+import it.geoframe.blogspot.whetgeo1d.data.Geometry;
+import it.geoframe.blogspot.whetgeo1d.data.ProblemQuantities;
 
 /**
  * @author Niccolo` Tubini
  *
  */
-public class SoilWaterVolumeBrooksCorey extends StateEquation {
+public class SoilWaterVolumeKosugi extends EquationState {
 
 	private Geometry geometry;
 	private ProblemQuantities variables;
 
-	public SoilWaterVolumeBrooksCorey(Rheology rheology) {
-		super(rheology);
+
+	public SoilWaterVolumeKosugi(ClosureEquation closureEquation) {
+		super(closureEquation);
 		this.geometry = Geometry.getInstance();
 		this.variables = ProblemQuantities.getInstance();
 	}
@@ -45,25 +46,25 @@ public class SoilWaterVolumeBrooksCorey extends StateEquation {
 
 
 	@Override
-	public double stateEquation(double x, double y, int id, int element) {
+	public double equationState(double x, double y, int id, int element) {
 		
-		return super.rheology.f(x, y, id)*geometry.controlVolume[element];
+		return super.closureEquation.f(x, y, id)*geometry.controlVolume[element];
 
 	}
 
 
 	@Override
-	public double dStateEquation(double x, double y, int id, int element) {
+	public double dEquationState(double x, double y, int id, int element) {
 
-		return super.rheology.df(x, y, id)*geometry.controlVolume[element];
+		return super.closureEquation.df(x, y, id)*geometry.controlVolume[element];
 
 	}
 
 
 	@Override
-	public double ddStateEquation(double x, double y, int id, int element) {
+	public double ddEquationState(double x, double y, int id, int element) {
 
-		return super.rheology.ddf(x, y, id)*geometry.controlVolume[element];
+		return super.closureEquation.ddf(x, y, id)*geometry.controlVolume[element];
 
 	}
 
@@ -72,9 +73,9 @@ public class SoilWaterVolumeBrooksCorey extends StateEquation {
 	public double p(double x, double y, int id, int element) {
 
 		if(x<=variables.xStar1[element]) {
-			return dStateEquation(x, y, id, element);  
+			return dEquationState(x, y, id, element);  
 		} else {
-			return dStateEquation(variables.xStar1[element], y, id, element);
+			return dEquationState(variables.xStar1[element], y, id, element);
 		}
 
 	}
@@ -84,9 +85,9 @@ public class SoilWaterVolumeBrooksCorey extends StateEquation {
 	public double pIntegral(double x, double y, int id, int element) {
 
 		if(x<=variables.xStar1[element]) {
-			return stateEquation(x, y, id, element);  
+			return equationState(x, y, id, element);  
 		} else {
-			return stateEquation(variables.xStar1[element], y, id, element) + dStateEquation(variables.xStar1[element], y, id, element)*(x-variables.xStar1[element]);
+			return equationState(variables.xStar1[element], y, id, element) + dEquationState(variables.xStar1[element], y, id, element)*(x-variables.xStar1[element]);
 		}
 
 	}
@@ -96,12 +97,11 @@ public class SoilWaterVolumeBrooksCorey extends StateEquation {
 	@Override
 	public void computeXStar(double y, int id, int element) {
 		
-		variables.xStar1[element] = super.rheology.parameters.par2[id];
+		variables.xStar1[element] = super.closureEquation.parameters.par1[id]/Math.exp(Math.pow(super.closureEquation.parameters.par2[id],2));
 		variables.xStar2[element] = -9999.0;
 		variables.xStar3[element] = -9999.0;
 		
 	}
-	
 	
 	@Override
 	public double initialGuess(double x, int id, int element) {

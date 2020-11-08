@@ -20,25 +20,25 @@
 /**
  * 
  */
-package it.geoframe.blogspot.equationstate;
+package it.geoframe.blogspot.whetgeo1d.equationstate;
 
-import it.geoframe.blogspot.data.Geometry;
-import it.geoframe.blogspot.data.ProblemQuantities;
-import rheology.Rheology;
-import stateequation.*;
+import it.geoframe.blogspot.closureequation.closureequation.ClosureEquation;
+import it.geoframe.blogspot.closureequation.equationstate.EquationState;
+import it.geoframe.blogspot.whetgeo1d.data.Geometry;
+import it.geoframe.blogspot.whetgeo1d.data.ProblemQuantities;
 
 /**
  * @author Niccolo` Tubini
  *
  */
-public class SoilWaterVolumeVanGenuchten extends StateEquation {
+public class SoilWaterVolumeVanGenuchten extends EquationState {
 
 	private Geometry geometry;
 	private ProblemQuantities variables;
 
 
-	public SoilWaterVolumeVanGenuchten(Rheology rheology) {
-		super(rheology);
+	public SoilWaterVolumeVanGenuchten(ClosureEquation closureEquation) {
+		super(closureEquation);
 		this.geometry = Geometry.getInstance();
 		this.variables = ProblemQuantities.getInstance();
 	}
@@ -46,25 +46,25 @@ public class SoilWaterVolumeVanGenuchten extends StateEquation {
 
 
 	@Override
-	public double stateEquation(double x, double y, int id, int element) {
+	public double equationState(double x, double y, int id, int element) {
 		
-		return rheology.f(x, y, id)*geometry.controlVolume[element];
+		return closureEquation.f(x, y, id)*geometry.controlVolume[element];
 
 	}
 
 
 	@Override
-	public double dStateEquation(double x, double y, int id, int element) {
+	public double dEquationState(double x, double y, int id, int element) {
 
-		return rheology.df(x, y, id)*geometry.controlVolume[element];
+		return closureEquation.df(x, y, id)*geometry.controlVolume[element];
 
 	}
 
 
 	@Override
-	public double ddStateEquation(double x, double y, int id, int element) {
+	public double ddEquationState(double x, double y, int id, int element) {
 
-		return rheology.ddf(x, y, id)*geometry.controlVolume[element];
+		return closureEquation.ddf(x, y, id)*geometry.controlVolume[element];
 
 	}
 
@@ -73,9 +73,9 @@ public class SoilWaterVolumeVanGenuchten extends StateEquation {
 	public double p(double x, double y, int id, int element) {
 
 		if(x<=variables.xStar1[id]) {
-			return dStateEquation(x, y, id, element);  
+			return dEquationState(x, y, id, element);  
 		} else {
-			return dStateEquation(variables.xStar1[id], y, id, element);
+			return dEquationState(variables.xStar1[id], y, id, element);
 		}
 
 	}
@@ -85,9 +85,9 @@ public class SoilWaterVolumeVanGenuchten extends StateEquation {
 	public double pIntegral(double x, double y, int id, int element) {
 
 		if(x<=variables.xStar1[id]) {
-			return stateEquation(x, y, id, element);  
+			return equationState(x, y, id, element);  
 		} else {
-			return stateEquation(variables.xStar1[id], y, id, element) + dStateEquation(variables.xStar1[id], y, id, element)*(x-variables.xStar1[id]);
+			return equationState(variables.xStar1[id], y, id, element) + dEquationState(variables.xStar1[id], y, id, element)*(x-variables.xStar1[id]);
 		}
 
 	}
@@ -97,7 +97,7 @@ public class SoilWaterVolumeVanGenuchten extends StateEquation {
 	@Override
 	public void computeXStar(double y, int id, int element) {
 		
-		variables.xStar1[element] = -1/super.rheology.parameters.par2[id]*Math.pow((super.rheology.parameters.par1[id]-1)/(super.rheology.parameters.par1[id]), 1/super.rheology.parameters.par1[id]);
+		variables.xStar1[element] = -1/super.closureEquation.parameters.par2[id]*Math.pow((super.closureEquation.parameters.par1[id]-1)/(super.closureEquation.parameters.par1[id]), 1/super.closureEquation.parameters.par1[id]);
 		variables.xStar2[element] = -9999.0;
 		variables.xStar3[element] = -9999.0;
 		

@@ -25,7 +25,7 @@ import org.jgrasstools.gears.io.timedependent.OmsTimeSeriesIteratorReader;
 import org.jgrasstools.gears.io.timedependent.OmsTimeSeriesIteratorWriter;
 
 import buffertowriter.RichardsBuffer1D;
-import it.geoframe.blogspot.richardssolver.CallRichardsSolver;
+import it.geoframe.blogspot.whetgeo1d.richardssolver.RichardsSolver1DMain;
 import buffercalibrationpoints.BufferCalibrationRichards1D;
 import monodimensionalProblemTimeDependent.ReadNetCDFRichardsGrid1D;
 import monodimensionalProblemTimeDependent.WriteNetCDFRichards1DDouble;
@@ -86,7 +86,7 @@ public class TestVanGenuchtenCalib {
 		BufferCalibrationRichards1D bufferCalibration = new BufferCalibrationRichards1D();
 
 		
-		CallRichardsSolver R1DSolver = new CallRichardsSolver();
+		RichardsSolver1DMain R1DSolver = new RichardsSolver1DMain();
 		
 		
 		readNetCDF.richardsGridFilename = pathGrid;

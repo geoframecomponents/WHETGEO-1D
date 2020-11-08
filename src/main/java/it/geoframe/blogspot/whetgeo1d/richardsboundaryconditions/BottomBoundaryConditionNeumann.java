@@ -1,7 +1,7 @@
 /*
  * GNU GPL v3 License
  *
- * Copyright 2017 Niccolo` Tubini
+ * Copyright 2017  Niccolo` Tubini
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,15 +17,15 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package it.geoframe.blogspot.richardsboundaryconditions;
+package it.geoframe.blogspot.whetgeo1d.richardsboundaryconditions;
 
 /**
  * This class compute the element of the coefficient matrix and the right-hand side
- * when a Dirichlet boundary condition is applied at the bottom of the domain.
+ * when a Neumann boundary condition is applied at the bottom of the domain.
  * @author Niccolo' Tubini
  *
  */
-public class BottomBoundaryConditionDirichlet extends BoundaryCondition {
+public class BottomBoundaryConditionNeumann extends BoundaryCondition {
 
 	
 	
@@ -52,7 +52,7 @@ public class BottomBoundaryConditionDirichlet extends BoundaryCondition {
 		this.spaceDeltaM = spaceDeltaM;
 		this.timeDelta = timeDelta;
 		
-		this.term = this.kM * this.timeDelta/this.spaceDeltaM + this.kP*this.timeDelta/this.spaceDeltaP;
+		this.term = this.kP*this.timeDelta/this.spaceDeltaP;
 
 		return term;
 
@@ -84,7 +84,7 @@ public class BottomBoundaryConditionDirichlet extends BoundaryCondition {
 		this.spaceDeltaM = spaceDeltaM;
 		this.timeDelta = timeDelta;
 		
-		this.term = this.timeDelta*(this.kP - this.kM) + this.kM*this.timeDelta/this.spaceDeltaM*this.bC;
+		this.term = this.timeDelta*this.kP + this.timeDelta*this.bC;
 
 		return term;
 

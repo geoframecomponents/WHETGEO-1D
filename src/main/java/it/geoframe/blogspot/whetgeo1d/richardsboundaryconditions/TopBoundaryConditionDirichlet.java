@@ -16,7 +16,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package it.geoframe.blogspot.richardsboundaryconditions;
+package it.geoframe.blogspot.whetgeo1d.richardsboundaryconditions;
 
 /**
  * This class compute the element of the coefficient matrix and the right-hand side

@@ -17,15 +17,15 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package it.geoframe.blogspot.richardsboundaryconditions;
+package it.geoframe.blogspot.whetgeo1d.richardsboundaryconditions;
 
 /**
  * This class compute the element of the coefficient matrix and the right-hand side
- * when a Neumann boundary condition is applied at the bottom of the domain.
+ * when a no-flux boundary condition is applied at the bottom of the domain (impervious bottom).
  * @author Niccolo' Tubini
  *
  */
-public class BottomBoundaryConditionNeumann extends BoundaryCondition {
+public class BottomBoundaryConditionImpervious extends BoundaryCondition {
 
 	
 	
@@ -37,7 +37,7 @@ public class BottomBoundaryConditionNeumann extends BoundaryCondition {
 		this.spaceDeltaM = spaceDeltaM;
 		this.timeDelta = timeDelta;
 		
-		this.term =-this.kP * this.timeDelta/this.spaceDeltaP;
+		this.term =-this.kP*this.timeDelta/this.spaceDeltaP;
 		
 		return term;
 	}
@@ -84,7 +84,7 @@ public class BottomBoundaryConditionNeumann extends BoundaryCondition {
 		this.spaceDeltaM = spaceDeltaM;
 		this.timeDelta = timeDelta;
 		
-		this.term = this.timeDelta*this.kP + this.timeDelta*this.bC;
+		this.term = this.timeDelta*this.kP;
 
 		return term;
 

@@ -1,7 +1,7 @@
 /*
  * GNU GPL v3 License
  *
- * Copyright 2017 Niccolo` Tubini
+ * Copyright 2017  Niccolo` Tubini
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,17 +16,16 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-
-package it.geoframe.blogspot.richardsboundaryconditions;
+package it.geoframe.blogspot.whetgeo1d.richardsboundaryconditions;
 
 /**
  * This class compute the element of the coefficient matrix and the right-hand side
- * when a free drainage boundary condition is applied at the bottom of the domain.
+ * when a Neumann boundary condition is applied at the top of the domain.
  * @author Niccolo' Tubini
  *
  */
 
-public class BottomBoundaryConditionFreeDrainage extends BoundaryCondition {
+public class TopBoundaryConditionNeumann extends BoundaryCondition{
 
 	
 	
@@ -38,8 +37,8 @@ public class BottomBoundaryConditionFreeDrainage extends BoundaryCondition {
 		this.spaceDeltaM = spaceDeltaM;
 		this.timeDelta = timeDelta;
 		
-		this.term = -this.kP*this.timeDelta/this.spaceDeltaP;
-		
+		this.term = 0;
+
 		return term;
 	}
 	
@@ -53,8 +52,8 @@ public class BottomBoundaryConditionFreeDrainage extends BoundaryCondition {
 		this.spaceDeltaM = spaceDeltaM;
 		this.timeDelta = timeDelta;
 		
-		this.term = this.kP*this.timeDelta/this.spaceDeltaP;
-		
+		this.term = this.kM*this.timeDelta/this.spaceDeltaM;
+
 		return term;
 
 	}
@@ -69,7 +68,7 @@ public class BottomBoundaryConditionFreeDrainage extends BoundaryCondition {
 		this.spaceDeltaM = spaceDeltaM;
 		this.timeDelta = timeDelta;
 		
-		this.term = 0;
+		this.term = -this.kM*this.timeDelta/this.spaceDeltaM;
 
 		return term;
 
@@ -85,10 +84,9 @@ public class BottomBoundaryConditionFreeDrainage extends BoundaryCondition {
 		this.spaceDeltaM = spaceDeltaM;
 		this.timeDelta = timeDelta;
 		
-		this.term = this.timeDelta*(this.kP - this.kM); 
-		
+		this.term = this.timeDelta*(this.bC - this.kM);
+
 		return term;
 
-	}	
-
+	}
 }

@@ -24,7 +24,7 @@ import java.util.*;
 import org.jgrasstools.gears.io.timedependent.OmsTimeSeriesIteratorReader;
 
 import buffertowriter.RichardsBuffer1D;
-import it.geoframe.blogspot.richardssolver.CallRichardsSolver;
+import it.geoframe.blogspot.whetgeo1d.richardssolver.RichardsSolver1DMain;
 import monodimensionalProblemTimeDependent.ReadNetCDFRichardsGrid1D;
 import monodimensionalProblemTimeDependent.WriteNetCDFRichards1DDouble;
 
@@ -75,7 +75,7 @@ public class TestVanGenuchtenDirchlet {
 		ReadNetCDFRichardsGrid1D readNetCDF = new ReadNetCDFRichardsGrid1D();
 	
 		
-		CallRichardsSolver R1DSolver = new CallRichardsSolver();
+		RichardsSolver1DMain R1DSolver = new RichardsSolver1DMain();
 		
 		
 		readNetCDF.richardsGridFilename = pathGrid;
