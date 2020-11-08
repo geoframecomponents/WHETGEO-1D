@@ -22,10 +22,9 @@ import java.util.List;
 
 import it.geoframe.blogspot.whetgeo1d.data.*;
 import it.geoframe.blogspot.whetgeo1d.richardsboundaryconditions.*;
-import stateequation.*;
-//import interfaceConductivity.*;
+import it.geoframe.blogspot.closureequation.equationstate.EquationState;
+import it.geoframe.blogspot.numerical.newtonalgorithm.NestedNewtonThomas;
 import oms3.annotations.*;
-import newtonalgorithm.NestedNewtonThomas;
 
 @Description("This code solve the mixed form of Richards equation."
 		+ "A semi-implicit finite volume method is used to discretize the equation, and the non-linear system is solved using the nested Newton algorithm.")
@@ -37,27 +36,29 @@ import newtonalgorithm.NestedNewtonThomas;
 //@Name()
 //@Status()
 @License("General Public License Version 3 (GPLv3)")
+
 public class PDE1DSolver {
 
 	@Description("Time step of integration")
 	@Unit ("s")
-	public double timeDelta;
+	private double timeDelta;
 
 
-	//	// BOUNDARY CONDITIONS
-
+	/*
+	 *  BOUNDARY CONDITIONS TYPE
+	 */
 	@Description("It is possibile to chose between 3 different kind "
 			+ "of boundary condition at the top of the domain: "
 			+ "- Dirichlet boundary condition --> Top Dirichlet"
 			+ "- Neumann boundary condition --> Top Neumann"
 			+ "- Newton's law for heat transfer boundary condition --> Top Newton")
-	public String topBCType;
+	private String topBCType;
 
 	@Description("It is possibile to chose among 2 different kind "
 			+ "of boundary condition at the bottom of the domain: "
 			+ "- Dirichlet boundary condition --> Bottom Dirichlet"
 			+ "- Neumann boundary condition --> Bottom Neumann")
-	public String bottomBCType;
+	private String bottomBCType;
 
 	//////////////////////////////////////////
 	//////////////////////////////////////////
@@ -65,78 +66,74 @@ public class PDE1DSolver {
 	@Description("Maximun number of Newton iterations")
 	final int MAXITER_NEWT = 50;
 
-	@Description("Top boundary condition according with topBCType")
+	@Description("Value of the top boundary condition according with topBCType")
 	@Unit ("")
-	double topBC;
+	private double topBC;
 
-	@Description("Bottom boundary condition according with bottomBCType")
+	@Description("Value of the bottom boundary condition according with bottomBCType")
 	@Unit ("")
 	double bottomBC;
 
 	
 	@Description("Vector collecting the lower diagonal entries of the coefficient matrix")
 	@Unit ("?")
-	double[] lowerDiagonal;
+	private double[] lowerDiagonal;
 
 	@Description("Vector collecting the main diagonal entries of the coefficient matrix")
 	@Unit ("?")
-	double[] mainDiagonal;
+	private double[] mainDiagonal;
 
 	@Description("Vector collecting the upper diagonal entries of the coefficient matrix")
 	@Unit ("?")
-	double[] upperDiagonal;
+	private double[] upperDiagonal;
 
 	@Description("Right hand side vector of the scalar equation to solve")
 	@Unit ("-")
-	double[] rhss;
+	private double[] rhss;
 	
 	@Description("")
 	@Unit ("-")
-	int[] rheologyID;
+	private int[] rheologyID;
 
 	@Description("")
 	@Unit ("-")
-	int[] parameterID;
+	private int[] parameterID;
 
 	@Description("Hydraulic conductivity at the cell interface i+1/2")
 	@Unit ("m/s)")
-	double kP;
+	private double kP;
 
 	@Description("Hydraulic conductivity at the cell interface i-1/2")
 	@Unit ("m/s")
-	double kM;
+	private double kM;
 
 	@Description("Number of control volume for domain discetrization")
 	@Unit (" ")
-	int KMAX;
+	private int KMAX;
 
-	@Description("Distance between two control volumes. Used to compute gradients.")
-	@Unit ("m")
-	double[] spaceDelta;
-
-	boolean checkData = false;
+	private boolean checkData = false;
 
 	@Description("Object to perform the nested Newton algortithm")
-	NestedNewtonThomas nestedNewtonAlg;
+	private NestedNewtonThomas nestedNewtonAlg;
 
 	@Description("This list contains the objects that describes the state equations of the problem")
-	List<StateEquation> stateEquation;
+	private List<EquationState> equationState;
 
 	@Description("This object compute the diagonal and right hand side entries for the uppermost cell accordingly with the prescribed top boundary condition.")
-	BoundaryCondition topBoundaryCondition;
+	private BoundaryCondition topBoundaryCondition;
 
 	@Description("This object compute the diagonal and right hand side entries for the lowermost cell accordingly with the prescribed bottom boundary condition.")
-	BoundaryCondition bottomBoundaryCondition;
+	private BoundaryCondition bottomBoundaryCondition;
 	
-	ProblemQuantities variables;
-	Geometry geometry;
+	private ProblemQuantities variables;
+	private Geometry geometry;
 
     //////////////////////////////
 
 
 
 	public PDE1DSolver( String topBCType, String bottomBCType, int KMAX, int nestedNewton, double newtonTolerance, double delta,
-			int MAXITER_NEWT, List<StateEquation>  stateEquation, int[] rheologyID, int[] parameterID) {
+			int MAXITER_NEWT, List<EquationState> equationState, int[] rheologyID, int[] parameterID) {
 
 
 		SimpleBoundaryConditionFactory boundCondFactory = new SimpleBoundaryConditionFactory();
@@ -145,7 +142,7 @@ public class PDE1DSolver {
 		topBoundaryCondition = boundCondFactory.createBoundaryCondition(topBCType);		
 		bottomBoundaryCondition = boundCondFactory.createBoundaryCondition(bottomBCType);	
 
-		nestedNewtonAlg = new NestedNewtonThomas(nestedNewton, newtonTolerance, MAXITER_NEWT, KMAX, stateEquation, delta, parameterID, rheologyID);
+		nestedNewtonAlg = new NestedNewtonThomas(nestedNewton, newtonTolerance, MAXITER_NEWT, KMAX, equationState, delta, parameterID, rheologyID);
 
 		this.KMAX = KMAX;
 
@@ -197,7 +194,7 @@ public class PDE1DSolver {
 
 			} else if(i == KMAX -1) {
 
-				kP = variables.kappasInterface[i+1];//0.0;
+				kP = variables.kappasInterface[i+1];
 				kM = variables.kappasInterface[i];
 				lowerDiagonal[i] = topBoundaryCondition.lowerDiagonal(-999.0, kP, kM, geometry.spaceDeltaZ[i+1], geometry.spaceDeltaZ[i], timeDelta); 
 				mainDiagonal[i] = topBoundaryCondition.mainDiagonal(-999.0, kP, kM, geometry.spaceDeltaZ[i+1], geometry.spaceDeltaZ[i], timeDelta);
@@ -216,34 +213,35 @@ public class PDE1DSolver {
 			}
 
 		}
-		if(checkData == true) {
-
-			System.out.println("Lower:");
-			for(int k=0;k<KMAX;k++){
-				System.out.println(lowerDiagonal[k]);
-			}
-
-			System.out.println("\n\nMain:");
-			for(int k=0;k<KMAX;k++){
-				System.out.println(mainDiagonal[k]);
-			}
-
-			System.out.println("\n\nUpper:");
-			for(int k=0;k<KMAX;k++){
-				System.out.println(upperDiagonal[k]);
-			}
-
-			System.out.println("\n\nRhs:");
-			for(int k=0;k<KMAX;k++){
-				System.out.println(rhss[k]);
-			}
-		}
+		
+//		if(checkData == true) {
+//
+//			System.out.println("Lower:");
+//			for(int k=0;k<KMAX;k++){
+//				System.out.println(lowerDiagonal[k]);
+//			}
+//
+//			System.out.println("\n\nMain:");
+//			for(int k=0;k<KMAX;k++){
+//				System.out.println(mainDiagonal[k]);
+//			}
+//
+//			System.out.println("\n\nUpper:");
+//			for(int k=0;k<KMAX;k++){
+//				System.out.println(upperDiagonal[k]);
+//			}
+//
+//			System.out.println("\n\nRhs:");
+//			for(int k=0;k<KMAX;k++){
+//				System.out.println(rhss[k]);
+//			}
+//		}
 		
 		/* 
 		 * NESTED NEWTON ALGORITHM /
 		 */
 	
-		nestedNewtonAlg.set(variables.waterSuctions, variables.temperatures, variables.xStar1, mainDiagonal, upperDiagonal, lowerDiagonal, rhss, KMAX);
+		nestedNewtonAlg.set(variables.waterSuctions, variables.temperatures, mainDiagonal, upperDiagonal, lowerDiagonal, rhss, KMAX);
 		variables.waterSuctions = nestedNewtonAlg.solver();
 
 
