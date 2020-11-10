@@ -37,6 +37,8 @@ public class EquationStateFactory {
 			myModel = new SoilWaterVolumeKosugi(closureEquation);
 		} else if(model.equalsIgnoreCase("Romano") ) {
 			myModel = new SoilWaterVolumeRomano(closureEquation);
+		}  else if(model.equalsIgnoreCase("Water Depth") || model.equalsIgnoreCase("WaterDepth") ) {
+			myModel = new WaterDepth(closureEquation);
 		} else {
 			System.out.println("\n\n\tERROR: please check the stateEquationModel");
 		}
