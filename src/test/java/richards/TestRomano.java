@@ -87,8 +87,6 @@ public class TestRomano {
 		R1DSolver.ks = readNetCDF.Ks;
 		R1DSolver.thetaS = readNetCDF.thetaS;
 		R1DSolver.thetaR = readNetCDF.thetaR;
-		R1DSolver.thetaWp = readNetCDF.thetaWp; 
-		R1DSolver.thetaFc = readNetCDF.thetaFc;
 		R1DSolver.par1SWRC = readNetCDF.par1SWRC;
 		R1DSolver.par2SWRC = readNetCDF.par2SWRC;
 		R1DSolver.par3SWRC = readNetCDF.par3SWRC;
@@ -108,12 +106,12 @@ public class TestRomano {
 		R1DSolver.topBCType = topBC;
 		R1DSolver.bottomBCType = bottomBC;
 		R1DSolver.delta = 0;
-		R1DSolver.tTimestep = 3600;
+		R1DSolver.tTimeStep = 3600;
 		R1DSolver.timeDelta = 1800;
 		R1DSolver.newtonTolerance = 0.000000001;//Math.pow(10,-10);
 		R1DSolver.nestedNewton = 1;
 		R1DSolver.picardIteration = 1;
-		R1DSolver.delta = 0.01;
+
 		buffer.writeFrequency = writeFrequency;
 		
 		writeNetCDF.fileName = pathOutput;
