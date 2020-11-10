@@ -44,11 +44,7 @@ public class WaterDepth extends EquationState {
 	@Override
 	public double equationState(double x, double y, int id, int element) {
 		
-		if(x>0) {
-			return x;
-		} else {
-			return 0.0;
-		}
+		return closureEquation.f(x, id);
 		
 	}
 
@@ -56,11 +52,7 @@ public class WaterDepth extends EquationState {
 	@Override
 	public double dEquationState(double x, double y, int id, int element) {
 
-		if(x>0) {
-			return 1.0;
-		} else {
-			return 0.0;
-		}
+		return closureEquation.df(x, id);
 		
 	}
 
@@ -68,7 +60,8 @@ public class WaterDepth extends EquationState {
 	@Override
 	public double ddEquationState(double x, double y,  int id, int element) {
 
-		return 0.0;
+		return closureEquation.ddf(x, id);
+		
 	}
 
 
