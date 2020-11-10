@@ -66,15 +66,6 @@ public class PDE1DSolver {
 	@Description("Maximun number of Newton iterations")
 	final int MAXITER_NEWT = 50;
 
-	@Description("Value of the top boundary condition according with topBCType")
-	@Unit ("")
-	private double topBC;
-
-	@Description("Value of the bottom boundary condition according with bottomBCType")
-	@Unit ("")
-	double bottomBC;
-
-	
 	@Description("Vector collecting the lower diagonal entries of the coefficient matrix")
 	@Unit ("?")
 	private double[] lowerDiagonal;
@@ -91,14 +82,6 @@ public class PDE1DSolver {
 	@Unit ("-")
 	private double[] rhss;
 	
-	@Description("")
-	@Unit ("-")
-	private int[] rheologyID;
-
-	@Description("")
-	@Unit ("-")
-	private int[] parameterID;
-
 	@Description("Hydraulic conductivity at the cell interface i+1/2")
 	@Unit ("m/s)")
 	private double kP;
@@ -133,7 +116,7 @@ public class PDE1DSolver {
 
 
 	public PDE1DSolver( String topBCType, String bottomBCType, int KMAX, int nestedNewton, double newtonTolerance, double delta,
-			int MAXITER_NEWT, List<EquationState> equationState, int[] rheologyID, int[] parameterID) {
+			int MAXITER_NEWT, List<EquationState> equationState) {
 
 
 		SimpleBoundaryConditionFactory boundCondFactory = new SimpleBoundaryConditionFactory();
@@ -142,7 +125,7 @@ public class PDE1DSolver {
 		topBoundaryCondition = boundCondFactory.createBoundaryCondition(topBCType);		
 		bottomBoundaryCondition = boundCondFactory.createBoundaryCondition(bottomBCType);	
 
-		nestedNewtonAlg = new NestedNewtonThomas(nestedNewton, newtonTolerance, MAXITER_NEWT, KMAX, equationState, delta, parameterID, rheologyID);
+		nestedNewtonAlg = new NestedNewtonThomas(nestedNewton, newtonTolerance, MAXITER_NEWT, KMAX, equationState, delta);
 
 		this.KMAX = KMAX;
 
@@ -155,10 +138,7 @@ public class PDE1DSolver {
 
 		variables = ProblemQuantities.getInstance();
 		geometry = Geometry.getInstance();
-		
-		this.parameterID = parameterID;
-		this.rheologyID = rheologyID;
-		
+
 	}
 
 
@@ -169,7 +149,7 @@ public class PDE1DSolver {
 	 * @param inCurrentDate
 	 * @param timeDelta
 	 */
-	public void solve(double topBC, double bottomBC, double timeDelta, int KMAX) {
+	public void solve(double timeDelta, int KMAX) {
 
 
 		this.timeDelta = timeDelta;
@@ -182,38 +162,35 @@ public class PDE1DSolver {
 				   	 - upper diagonal x_(i-1)
 				   	 - right-hand-side 
 		*/
-		for(int i = 0; i < KMAX; i++) {
-			if( i == 0 ) {
-				
-				kP = variables.kappasInterface[i+1];
-				kM = variables.kappasInterface[i];
-				lowerDiagonal[i] =  bottomBoundaryCondition.lowerDiagonal(-999.0, kP, kM, geometry.spaceDeltaZ[i+1], geometry.spaceDeltaZ[i], timeDelta);
-				mainDiagonal[i] = bottomBoundaryCondition.mainDiagonal(-999.0, kP, kM, geometry.spaceDeltaZ[i+1], geometry.spaceDeltaZ[i], timeDelta);
-				upperDiagonal[i] = bottomBoundaryCondition.upperDiagonal(-999.0, kP, kM, geometry.spaceDeltaZ[i+1], geometry.spaceDeltaZ[i], timeDelta);
-				rhss[i] = variables.volumes[i] + bottomBoundaryCondition.rightHandSide(bottomBC, kP, kM, geometry.spaceDeltaZ[i+1], geometry.spaceDeltaZ[i], timeDelta) - variables.ETs[i];
-
-			} else if(i == KMAX -1) {
-
-				kP = variables.kappasInterface[i+1];
-				kM = variables.kappasInterface[i];
-				lowerDiagonal[i] = topBoundaryCondition.lowerDiagonal(-999.0, kP, kM, geometry.spaceDeltaZ[i+1], geometry.spaceDeltaZ[i], timeDelta); 
-				mainDiagonal[i] = topBoundaryCondition.mainDiagonal(-999.0, kP, kM, geometry.spaceDeltaZ[i+1], geometry.spaceDeltaZ[i], timeDelta);
-				upperDiagonal[i] = topBoundaryCondition.upperDiagonal(-999.0, kP, kM,  geometry.spaceDeltaZ[i+1], geometry.spaceDeltaZ[i], timeDelta);
-				rhss[i] = variables.volumes[i] + topBoundaryCondition.rightHandSide(topBC, kP, kM, geometry.spaceDeltaZ[i+1], geometry.spaceDeltaZ[i-1], timeDelta);
-
-			} else {
-
+		for(int i = 1; i < KMAX-1; i++) {
+			
 				kP = variables.kappasInterface[i+1];
 				kM = variables.kappasInterface[i];
 				lowerDiagonal[i] = -kM*timeDelta/geometry.spaceDeltaZ[i];
-				mainDiagonal[i] = kM*timeDelta/geometry.spaceDeltaZ[i]  + kP*timeDelta/geometry.spaceDeltaZ[i+1];
+				mainDiagonal[i] = kM*timeDelta/geometry.spaceDeltaZ[i] + kP*timeDelta/geometry.spaceDeltaZ[i+1];
 				upperDiagonal[i] = -kP*timeDelta/geometry.spaceDeltaZ[i+1];
 				rhss[i] = variables.volumes[i] + timeDelta*(kP - kM) - variables.ETs[i]; 
 
-			}
-
 		}
 		
+		
+		// i == 0			
+		kP = variables.kappasInterface[1];
+		kM = variables.kappasInterface[0];
+		lowerDiagonal[0] =  bottomBoundaryCondition.lowerDiagonal(-999.0, kP, kM, geometry.spaceDeltaZ[1], geometry.spaceDeltaZ[0], timeDelta);
+		mainDiagonal[0] = bottomBoundaryCondition.mainDiagonal(-999.0, kP, kM, geometry.spaceDeltaZ[1], geometry.spaceDeltaZ[0], timeDelta);
+		upperDiagonal[0] = bottomBoundaryCondition.upperDiagonal(-999.0, kP, kM, geometry.spaceDeltaZ[1], geometry.spaceDeltaZ[0], timeDelta);
+		rhss[0] = variables.volumes[0] + bottomBoundaryCondition.rightHandSide(variables.richardsBottomBCValue, kP, kM, geometry.spaceDeltaZ[1], geometry.spaceDeltaZ[0], timeDelta) - variables.ETs[0];
+
+		// i == KMAX -1
+		kP = variables.kappasInterface[KMAX];
+		kM = variables.kappasInterface[KMAX-1];
+		lowerDiagonal[KMAX-1] = topBoundaryCondition.lowerDiagonal(-999.0, kP, kM, geometry.spaceDeltaZ[KMAX], geometry.spaceDeltaZ[KMAX-1], timeDelta); 
+		mainDiagonal[KMAX-1] = topBoundaryCondition.mainDiagonal(-999.0, kP, kM, geometry.spaceDeltaZ[KMAX], geometry.spaceDeltaZ[KMAX-1], timeDelta);
+		upperDiagonal[KMAX-1] = topBoundaryCondition.upperDiagonal(-999.0, kP, kM,  geometry.spaceDeltaZ[KMAX], geometry.spaceDeltaZ[KMAX-1], timeDelta);
+		rhss[KMAX -1] = variables.volumes[KMAX-1] + topBoundaryCondition.rightHandSide(variables.richardsTopBCValue, kP, kM, geometry.spaceDeltaZ[KMAX], geometry.spaceDeltaZ[KMAX-1], timeDelta) - variables.ETs[KMAX-1];
+
+		 
 //		if(checkData == true) {
 //
 //			System.out.println("Lower:");
@@ -241,7 +218,7 @@ public class PDE1DSolver {
 		 * NESTED NEWTON ALGORITHM /
 		 */
 	
-		nestedNewtonAlg.set(variables.waterSuctions, variables.temperatures, mainDiagonal, upperDiagonal, lowerDiagonal, rhss, KMAX);
+		nestedNewtonAlg.set(variables.waterSuctions, variables.temperatures, mainDiagonal, upperDiagonal, lowerDiagonal, rhss, KMAX, variables.parameterID, variables.rheologyID);
 		variables.waterSuctions = nestedNewtonAlg.solver();
 
 
