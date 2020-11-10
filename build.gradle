@@ -50,7 +50,7 @@ repositories {
 dependencies {
 	compile name: 'closureequation-na'
 	compile name: 'NetCDF-na'
-	compile name: 'Numerical-na'
+	compile name: 'numerical-na'
 	compile name: 'buffer-na'
     // This dependency is exported to consumers, that is to say found on their compile classpath.
     //api 'org.apache.commons:commons-math3:3.6.1'
