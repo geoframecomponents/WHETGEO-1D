@@ -87,4 +87,5 @@ public abstract class BoundaryCondition {
 	 * @return
 	 */
 	public abstract double rightHandSide(double bC, double kP, double kM, double spaceDeltaP, double spaceDeltaM, double timeDelta);
+
 }
