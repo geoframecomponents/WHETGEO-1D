@@ -446,7 +446,6 @@ public class RichardsSolver1DMain {
 			outputToBuffer.add(variables.poreVelocities);
 			outputToBuffer.add(variables.celerities);
 			outputToBuffer.add(variables.kinematicRatio);
-			outputToBuffer.add(variables.ETs);
 			outputToBuffer.add(new double[] {variables.errorVolume});
 			outputToBuffer.add(new double[] {variables.richardsTopBCValue*tTimeStep*1000}); // I want to have rainfall height instead of water flux
 			outputToBuffer.add(new double[] {variables.richardsBottomBCValue});
