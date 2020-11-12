@@ -76,12 +76,12 @@ public class RichardsLysimeterSolver1DMain {
 	@Description("Water content at the whilting point")
 	@In 
 	@Unit ("-")
-	public double[] thetaWp;
+	public double[] thetaWP;
 
 	@Description("Water content at field capacity")
 	@In 
 	@Unit ("-")
-	public double[] thetaFc;
+	public double[] thetaFC;
 
 	@Description("First parameter of SWRC")
 	@In 
@@ -280,16 +280,7 @@ public class RichardsLysimeterSolver1DMain {
 	/*
 	 * LYSIMETER
 	 */
-	@Description("Values of the adimensional water content at the wilting point")
-	@In
-	@Unit("-")
-	public double[] thetaWP;
-	
-	@Description("Values of the adimensional water content at the wilting point")
-	@In
-	@Unit("-")
-	public double[] thetaFC;
-	
+
 	@Description("Stressed Evapotranspiration for each layer")
 	@In
 	@Unit("mm")
@@ -301,6 +292,11 @@ public class RichardsLysimeterSolver1DMain {
 	@Description("ArrayList of variable to be stored in the buffer writer")
 	@Out
 	public ArrayList<double[]> outputToBuffer;
+	
+	@Description("Soil water content at the new time level. This will be passed to the Broker component")
+	@Out
+	public double[] thetasNew;
+	
 
 
 	@Description("Control variable")
@@ -473,7 +469,8 @@ public class RichardsLysimeterSolver1DMain {
 
 		}
 
-
+		thetasNew = variables.thetasNew;
+		
 		if(saveDate == 1) {
 			outputToBuffer.add(variables.waterSuctions);
 			outputToBuffer.add(variables.thetasNew);
