@@ -64,7 +64,7 @@ public class ComputeQuantitiesLysimeter {
 	 */
 	public void computeEvapoTranspirations(int KMAX, double tTimeStep, double[] stressedETs) {
 			
-		for(int element = 0; element < KMAX; element++) {
+		for(int element = 0; element < KMAX-2; element++) {
 			variables.ETs[element] = stressedETs[element]/1000/tTimeStep;
 		}
 		
@@ -78,7 +78,7 @@ public class ComputeQuantitiesLysimeter {
 		
 		variables.sumETs = 0.0;
 		
-		for(int element = 0; element < KMAX; element++) {
+		for(int element = 0; element < KMAX-1; element++) {
 			
 			variables.ETs[element] = variables.ETs[element]*timeDelta;
 			
