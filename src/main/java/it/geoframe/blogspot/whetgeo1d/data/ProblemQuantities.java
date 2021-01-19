@@ -9,9 +9,9 @@ public class ProblemQuantities {
 		return uniqueInstance;
 	}
 	
-	public static ProblemQuantities getInstance(double[] icWaterSuction, double[] icTemperature, int[] rheologyID, int[] parameterID) {
+	public static ProblemQuantities getInstance(double[] icWaterSuction, double[] icTemperature, int[] equationStateID, int[] parameterID) {
 		if (uniqueInstance == null) {
-			uniqueInstance = new ProblemQuantities(icWaterSuction, icTemperature, rheologyID, parameterID);
+			uniqueInstance = new ProblemQuantities(icWaterSuction, icTemperature, equationStateID, parameterID);
 		}
 		return uniqueInstance;
 	}
@@ -19,6 +19,7 @@ public class ProblemQuantities {
 	
 	public double[] waterSuctions;
 	public double[] temperatures;
+	
 	public double[] thetas;
     public double[] thetasNew;    
 	public double[] kappas;
@@ -35,7 +36,17 @@ public class ProblemQuantities {
 	public double[] waterSuctionStar2;
 	public double[] waterSuctionStar3;
 	
-	public int[] rheologyID;
+	public double[] internalEnergys;
+	public double[] internalEnergysNew;
+	public double[] lambdas;
+	public double[] lambdasInterface;
+	public double[] conductionHeatFluxs;
+	public double[] heatSourcesSinksTerm;
+	public double[] temperatureStar1;
+	public double[] temperatureStar2;
+	public double[] temperatureStar3;
+	
+	public int[] equationStateID;
 	public int[] parameterID;
 	
 	public double runOff;
@@ -46,17 +57,26 @@ public class ProblemQuantities {
 	public double volumeLost;
 	public double richardsTopBCValue;
 	public double richardsBottomBCValue;
+	
+	public double internalEnergy;
+	public double internalEnergyNew;
+	public double errorInternalEnergy;
+	public double internalEnergyTopBCValue;
+	public double internalEnergyBottomBCValue;
+	public double heatFluxTop;
+	public double heatFluxBottom;
+
 
 	public double sumETs;
 	public double[] ETs;
 	
-	private ProblemQuantities(double[] icWaterSuction, double[] icTemperature, int[] rheologyID, int[] parameterID) {
+	private ProblemQuantities(double[] icWaterSuction, double[] icTemperature, int[] equationStateID, int[] parameterID) {
 		
 		waterSuctions = icWaterSuction.clone();
 		temperatures = icTemperature.clone();
 		thetas = new double[icWaterSuction.length];
 		thetasNew = new double[icWaterSuction.length];
-		kappas = new double[icWaterSuction.length+1];
+		kappas = new double[icWaterSuction.length];
 		kappasInterface = new double[icWaterSuction.length+1];
 		volumes = new double[icWaterSuction.length];
 		volumesNew = new double[icWaterSuction.length];
@@ -71,7 +91,18 @@ public class ProblemQuantities {
 		waterSuctionStar2 = new double[icWaterSuction.length];
 		waterSuctionStar3 = new double[icWaterSuction.length];
 		
-		this.rheologyID = rheologyID.clone();
+		internalEnergys = new double[icWaterSuction.length];
+		internalEnergysNew = new double[icWaterSuction.length];
+		lambdas = new double[icWaterSuction.length];
+		lambdasInterface = new double[icWaterSuction.length+1];
+		conductionHeatFluxs = new double[icWaterSuction.length+1];
+		heatSourcesSinksTerm = new double[icWaterSuction.length];
+		temperatureStar1 = new double[icWaterSuction.length];
+		temperatureStar2 = new double[icWaterSuction.length];
+		temperatureStar3 = new double[icWaterSuction.length];
+		
+		
+		this.equationStateID = equationStateID.clone();
 		this.parameterID = parameterID.clone();
 		
 		

@@ -53,11 +53,11 @@ public class ComputeQuantitiesRichards {
 	
 	private ProblemQuantities variables;
 	private Geometry geometry;
-	private Parameters rehologyParameters;
+	private Parameters parameters;
 	
 
 	@Description("List containing the closure equations")
-	private List<ClosureEquation> soilWaterRetentionCurve;
+	private List<ClosureEquation> closureEquation;
 	
 	@Description("Factory for the closure equations")
 	private SoilWaterRetentionCurveFactory soilWaterRetentionCurveFactory;
@@ -69,7 +69,7 @@ public class ComputeQuantitiesRichards {
 	private EquationStateFactory equationStateFactory;
 
 	@Description("Object dealing with the hydraulic conductivity model")
-	private ConductivityEquation hydraulicConductivity;
+	private List<ConductivityEquation> hydraulicConductivity;
 	private ConductivityEquationFactory conductivityEquationFactory;
 	private UnsaturatedHydraulicConductivityTemperatureFactory unsaturatedHydraulicConductivityTemperatureFactory;
 
@@ -82,33 +82,60 @@ public class ComputeQuantitiesRichards {
 	
 //	private double tmp;
 	
-	public ComputeQuantitiesRichards(String soilHydraulicModel, String typeUHCModel, String typeUHCTemperatureModel,
+	public ComputeQuantitiesRichards(String[] typeClosureEquation, String[] typeEquationState, String[] typeUHCModel, String typeUHCTemperatureModel,
 			String interfaceHydraulicConductivityModel, String topBCType, String bottomBCType) {
 		
 		variables = ProblemQuantities.getInstance();
 		geometry = Geometry.getInstance();
-		rehologyParameters = Parameters.getInstance();
+		parameters = Parameters.getInstance();
 
 
 		soilWaterRetentionCurveFactory = new SoilWaterRetentionCurveFactory();
 		
-		soilWaterRetentionCurve = new ArrayList<ClosureEquation>();
-		soilWaterRetentionCurve.add(soilWaterRetentionCurveFactory.create("Water Depth"));
-		soilWaterRetentionCurve.add(soilWaterRetentionCurveFactory.create(soilHydraulicModel));
+		closureEquation = new ArrayList<ClosureEquation>();
+//		soilWaterRetentionCurve.add(soilWaterRetentionCurveFactory.create("Water Depth"));
+//		soilWaterRetentionCurve.add(soilWaterRetentionCurveFactory.create(soilHydraulicModel));
+		for(int i=0; i<typeClosureEquation.length; i++) {
+			closureEquation.add(soilWaterRetentionCurveFactory.create(typeClosureEquation[i]));
+		}
 
 		equationStateFactory = new EquationStateFactory();
 
 		equationState = new ArrayList<EquationState>();
-		equationState.add(equationStateFactory.create("Water Depth", soilWaterRetentionCurve.get(0)));
-		equationState.add(equationStateFactory.create(soilHydraulicModel, soilWaterRetentionCurve.get(1)));
+//		equationState.add(equationStateFactory.create("Water Depth", closureEquation.get(0)));
+//		equationState.add(equationStateFactory.create(soilHydraulicModel, soilWaterRetentionCurve.get(1)));
 
+		for(int i=0; i<typeEquationState.length; i++) {
+			equationState.add(equationStateFactory.create(typeEquationState[i], closureEquation.get(i)));
+		}
+
+
+		hydraulicConductivity = new ArrayList<ConductivityEquation>();
 
 		conductivityEquationFactory = new ConductivityEquationFactory();
-		hydraulicConductivity = conductivityEquationFactory.create(typeUHCModel, soilWaterRetentionCurve.get(1));
+		if(typeClosureEquation[0].equalsIgnoreCase("Water Depth") || typeClosureEquation[0].equalsIgnoreCase("Water Depth")) {
+			typeUHCModel[0] = typeUHCModel[variables.parameterID[variables.parameterID.length-2]];
+			hydraulicConductivity.add(conductivityEquationFactory.create(typeUHCModel[0], closureEquation.get(variables.equationStateID[variables.equationStateID.length-2])));
+			for(int i=1; i<typeUHCModel.length; i++) {
+				hydraulicConductivity.add(conductivityEquationFactory.create(typeUHCModel[i], closureEquation.get(i)));
+			}
+		} else {
+			for(int i=0; i<typeUHCModel.length; i++) {
+				hydraulicConductivity.add(conductivityEquationFactory.create(typeUHCModel[i], closureEquation.get(i)));
+			}
+		}
 
 		unsaturatedHydraulicConductivityTemperatureFactory = new UnsaturatedHydraulicConductivityTemperatureFactory();
-		hydraulicConductivity = unsaturatedHydraulicConductivityTemperatureFactory.create(typeUHCTemperatureModel, soilWaterRetentionCurve.get(1), hydraulicConductivity);
-
+		if(typeClosureEquation[0].equalsIgnoreCase("Water Depth") || typeClosureEquation[0].equalsIgnoreCase("Water Depth")) {
+			hydraulicConductivity.add(0, unsaturatedHydraulicConductivityTemperatureFactory.create(typeUHCTemperatureModel, closureEquation.get(variables.equationStateID[variables.equationStateID.length-2]), hydraulicConductivity.get(0)) );
+			for(int i=1; i<typeUHCModel.length; i++) {
+				hydraulicConductivity.add(i, unsaturatedHydraulicConductivityTemperatureFactory.create(typeUHCTemperatureModel, closureEquation.get(i), hydraulicConductivity.get(i)) );
+			}
+		} else {
+			for(int i=0; i<typeUHCModel.length; i++) {
+				hydraulicConductivity.add(i, unsaturatedHydraulicConductivityTemperatureFactory.create(typeUHCTemperatureModel, closureEquation.get(i), hydraulicConductivity.get(i)) );
+			}
+		}
 
 		interfaceConductivityFactory = new SimpleInterfaceConductivityFactory();
 		interfaceConductivity = interfaceConductivityFactory.createInterfaceConductivity(interfaceHydraulicConductivityModel);
@@ -133,7 +160,7 @@ public class ComputeQuantitiesRichards {
 		
 		variables.waterVolume = 0.0;
 		for(int element = 0; element < KMAX; element++) {
-			variables.volumes[element] = equationState.get(variables.rheologyID[element]).equationState(variables.waterSuctions[element], variables.temperatures[element], variables.parameterID[element], element);
+			variables.volumes[element] = equationState.get(variables.equationStateID[element]).equationState(variables.waterSuctions[element], variables.temperatures[element], variables.parameterID[element], element);
 			variables.waterVolume += variables.volumes[element];
 		}
 	}
@@ -142,7 +169,7 @@ public class ComputeQuantitiesRichards {
 		
 		variables.waterVolumeNew = 0.0;
 		for(int element = 0; element < KMAX; element++) {
-			variables.volumesNew[element] = equationState.get(variables.rheologyID[element]).equationState(variables.waterSuctions[element], variables.temperatures[element], variables.parameterID[element], element);
+			variables.volumesNew[element] = equationState.get(variables.equationStateID[element]).equationState(variables.waterSuctions[element], variables.temperatures[element], variables.parameterID[element], element);
 			variables.waterVolumeNew += variables.volumesNew[element];
 		}
 	}
@@ -150,14 +177,14 @@ public class ComputeQuantitiesRichards {
 	public void computeThetas(int KMAX) {
 		
 		for(int element = 0; element < KMAX-1; element++) {
-			variables.thetas[element] = soilWaterRetentionCurve.get(variables.rheologyID[element]).f(variables.waterSuctions[element], variables.parameterID[element]);
+			variables.thetas[element] = closureEquation.get(variables.equationStateID[element]).f(variables.waterSuctions[element], variables.temperatures[element], variables.parameterID[element]);
 		}
 	}
 	
 	public void computeThetasNew(int KMAX) {
 		
 		for(int element = 0; element < KMAX-1; element++) {
-			variables.thetasNew[element] = soilWaterRetentionCurve.get(variables.rheologyID[element]).f(variables.waterSuctions[element], variables.parameterID[element]);
+			variables.thetasNew[element] = closureEquation.get(variables.equationStateID[element]).f(variables.waterSuctions[element], variables.temperatures[element], variables.parameterID[element]);
 		}
 	}
 	
@@ -165,7 +192,7 @@ public class ComputeQuantitiesRichards {
 	public void computeXStar(int KMAX) {
 		
 		for(int element=0; element<KMAX; element++) {
-			equationState.get(variables.rheologyID[element]).computeXStar(variables.temperatures[element], variables.parameterID[element], element);
+			equationState.get(variables.equationStateID[element]).computeXStar(variables.temperatures[element], variables.parameterID[element], element);
 		}
 		
 	}
@@ -173,15 +200,16 @@ public class ComputeQuantitiesRichards {
 	
 	public void computeHydraulicConductivity(int KMAX) {
 		
-		for(int element = 0; element < KMAX-1; element++) {
-			variables.kappas[element] = hydraulicConductivity.k(variables.waterSuctions[element], variables.temperatures[element], variables.parameterID[element], element);
+		for(int element = 0; element < KMAX; element++) {
+			variables.kappas[element] = hydraulicConductivity.get(variables.equationStateID[element]).k(variables.waterSuctions[element], variables.temperatures[element], variables.parameterID[element], element);
 		}			
 
-		if(topBCType.equalsIgnoreCase("Top Dirichlet") || this.topBCType.equalsIgnoreCase("TopDirichlet")){
-			variables.kappas[KMAX-1] = hydraulicConductivity.k(variables.waterSuctions[KMAX-1], variables.temperatures[KMAX-1], variables.parameterID[KMAX-1], KMAX-1);
-		} else {
-			variables.kappas[KMAX-1] = hydraulicConductivity.k(variables.waterSuctions[KMAX-1], variables.temperatures[KMAX-1], variables.parameterID[KMAX-2], KMAX-2);
-		}
+//		// element == KMAX-1
+//		if(topBCType.equalsIgnoreCase("Top Coupled") || this.topBCType.equalsIgnoreCase("TopCoupled")){
+//			variables.kappas[KMAX-1] = hydraulicConductivity.k(variables.waterSuctions[KMAX-1], variables.temperatures[KMAX-1], variables.parameterID[KMAX-1], KMAX-1);
+//		} else {
+//			variables.kappas[KMAX-1] = hydraulicConductivity.k(variables.waterSuctions[KMAX-1], variables.temperatures[KMAX-1], variables.parameterID[KMAX-2], KMAX-2);
+//		}
 	}
 	
 	public void computeInterfaceHydraulicConductivity(int KMAX) {
@@ -190,33 +218,35 @@ public class ComputeQuantitiesRichards {
 			variables.kappasInterface[k] = interfaceConductivity.compute(variables.kappas[k-1],variables.kappas[k], geometry.controlVolume[k-1], geometry.controlVolume[k]);
 		}			
 		
-		// k == 0
+		// element == 0
 		if(this.bottomBCType.equalsIgnoreCase("Bottom Free Drainage") || this.bottomBCType.equalsIgnoreCase("BottomFreeDrainage")){
 			variables.kappasInterface[0] =  variables.kappas[0];
 		} else if (this.bottomBCType.equalsIgnoreCase("Bottom Impervious") || this.bottomBCType.equalsIgnoreCase("BottomImpervious")) {
 			variables.kappasInterface[0] = + 0.0;
 		} else {
-			variables.kappasInterface[0] = hydraulicConductivity.k(variables.richardsBottomBCValue, variables.temperatures[0], variables.parameterID[0], 0);
+			variables.kappasInterface[0] = hydraulicConductivity.get(variables.equationStateID[0]).k(variables.richardsBottomBCValue, variables.temperatures[0], variables.parameterID[0], 0);
 		} 
 		
 		// element == KMAX-1
 		if(this.topBCType.equalsIgnoreCase("Top Dirichlet") || this.topBCType.equalsIgnoreCase("TopDirichlet")){
 			variables.kappasInterface[KMAX-1] = interfaceConductivity.compute(variables.kappas[KMAX-2],variables.kappas[KMAX-1], geometry.controlVolume[KMAX-2], geometry.controlVolume[KMAX-1]); 
-			variables.kappasInterface[KMAX] = hydraulicConductivity.k(variables.richardsTopBCValue, variables.temperatures[KMAX-1], variables.parameterID[KMAX-1], KMAX-1); 
-		} else {
-			variables.kappasInterface[KMAX-1] = variables.kappas[KMAX-1];
+			variables.kappasInterface[KMAX] = hydraulicConductivity.get(variables.equationStateID[KMAX-1]).k(variables.richardsTopBCValue, variables.temperatures[KMAX-1], variables.parameterID[KMAX-1], KMAX-1); 
+		} else if(this.topBCType.equalsIgnoreCase("Top Neumann") || this.topBCType.equalsIgnoreCase("TopNeumann")){
+			variables.kappasInterface[KMAX-1] = interfaceConductivity.compute(variables.kappas[KMAX-2],variables.kappas[KMAX-1], geometry.controlVolume[KMAX-2], geometry.controlVolume[KMAX-1]);
 			variables.kappasInterface[KMAX] = -9999.0;
+		} else if(this.topBCType.equalsIgnoreCase("Top coupled") || this.topBCType.equalsIgnoreCase("TopCoupled")){
+			variables.kappasInterface[KMAX-1] = variables.kappas[KMAX-1]; 
+			variables.kappasInterface[KMAX] = -9999.0; 
 		}
-		
 	}
 	
 	public void computeDarcyVelocities(int KMAX) {
 		
-		for(int k = 1; k < KMAX-1; k++) {
+		for(int k = 1; k < KMAX; k++) {
 			variables.darcyVelocities[k] = -variables.kappasInterface[k] * ( (variables.waterSuctions[k]-variables.waterSuctions[k-1])/geometry.spaceDeltaZ[k] + 1 );
 		}
 		
-		// k == 0
+		// element == 0
 		if(this.bottomBCType.equalsIgnoreCase("Bottom Free Drainage") || this.bottomBCType.equalsIgnoreCase("BottomFreeDrainage")){
 			variables.darcyVelocities[0] = -variables.kappasInterface[0];
 		} else if (this.bottomBCType.equalsIgnoreCase("Bottom Impervious") || this.bottomBCType.equalsIgnoreCase("BottomImpervious")) {
@@ -227,24 +257,27 @@ public class ComputeQuantitiesRichards {
 			variables.darcyVelocities[0] = variables.richardsBottomBCValue;
 		}
 		
-		// k == KMAX-1
+		// element == KMAX-1
 		if(this.topBCType.equalsIgnoreCase("Top Dirichlet") || this.topBCType.equalsIgnoreCase("TopDirichlet")){
-			variables.darcyVelocities[KMAX-1] = -variables.kappasInterface[KMAX-1] * ( (variables.waterSuctions[KMAX-1]-variables.waterSuctions[KMAX-2])/geometry.spaceDeltaZ[KMAX-1] +1 );
+//			variables.darcyVelocities[KMAX-1] = -variables.kappasInterface[KMAX-1] * ( (variables.waterSuctions[KMAX-1]-variables.waterSuctions[KMAX-2])/geometry.spaceDeltaZ[KMAX-1] +1 );
 			variables.darcyVelocities[KMAX] = -variables.kappasInterface[KMAX] * ( (variables.richardsTopBCValue-variables.waterSuctions[KMAX-1])/geometry.spaceDeltaZ[KMAX] +1 );
-		} else {
-			variables.darcyVelocities[KMAX-1] = -variables.kappasInterface[KMAX-1] * ( (variables.waterSuctions[KMAX-1]-variables.waterSuctions[KMAX-2])/geometry.spaceDeltaZ[KMAX-1] +1 );
-			variables.darcyVelocities[KMAX] = -9999.0;
-		}	
+		} else if (this.topBCType.equalsIgnoreCase("Top Neumann") || this.topBCType.equalsIgnoreCase("TopNeumann")){
+//			variables.darcyVelocities[KMAX-1] = -variables.kappasInterface[KMAX-1] * ( (variables.waterSuctions[KMAX-1]-variables.waterSuctions[KMAX-2])/geometry.spaceDeltaZ[KMAX-1] +1 );
+			variables.darcyVelocities[KMAX] = -variables.richardsTopBCValue;
+		} else if (this.topBCType.equalsIgnoreCase("Top coupled") || this.topBCType.equalsIgnoreCase("TopCoupled")){
+//			variables.darcyVelocities[KMAX-1] = -variables.kappasInterface[KMAX-1] * ( (variables.waterSuctions[KMAX-1]-variables.waterSuctions[KMAX-2])/geometry.spaceDeltaZ[KMAX-1] +1 );
+			variables.darcyVelocities[KMAX] = -variables.richardsTopBCValue;
+		}
 		
 	}
 	
 	public void computeDarcyVelocitiesCapillary(int KMAX) {
 		
-		for(int k = 1; k < KMAX-1; k++) {
+		for(int k = 1; k < KMAX; k++) {
 			variables.darcyVelocitiesCapillary[k] = -variables.kappasInterface[k] * (variables.waterSuctions[k]-variables.waterSuctions[k-1])/geometry.spaceDeltaZ[k];
 		}
 		
-		// k == 0
+		// element == 0
 		if(this.bottomBCType.equalsIgnoreCase("Bottom Free Drainage") || this.bottomBCType.equalsIgnoreCase("BottomFreeDrainage")){
 			variables.darcyVelocitiesCapillary[0] = + 0.0;
 		} else if (this.bottomBCType.equalsIgnoreCase("Bottom Impervious") || this.bottomBCType.equalsIgnoreCase("BottomImpervious")) {
@@ -253,24 +286,27 @@ public class ComputeQuantitiesRichards {
 			variables.darcyVelocitiesCapillary[0] = -variables.kappasInterface[0] * (variables.waterSuctions[0]-variables.richardsBottomBCValue)/geometry.spaceDeltaZ[0];
 		}
 		
-		// k == KMAX-1
+		// element == KMAX-1
 		if(this.topBCType.equalsIgnoreCase("Top Dirichlet") || this.topBCType.equalsIgnoreCase("TopDirichlet")){
-			variables.darcyVelocitiesCapillary[KMAX-1] = -variables.kappasInterface[KMAX-1] * (variables.waterSuctions[KMAX-1]-variables.waterSuctions[KMAX-2])/geometry.spaceDeltaZ[KMAX-1];
+//			variables.darcyVelocitiesCapillary[KMAX-1] = -variables.kappasInterface[KMAX-1] * (variables.waterSuctions[KMAX-1]-variables.waterSuctions[KMAX-2])/geometry.spaceDeltaZ[KMAX-1];
 			variables.darcyVelocitiesCapillary[KMAX] = -variables.kappasInterface[KMAX] * (variables.richardsTopBCValue-variables.waterSuctions[KMAX-1])/geometry.spaceDeltaZ[KMAX];
-		} else {
-			variables.darcyVelocitiesCapillary[KMAX-1] = -variables.kappasInterface[KMAX-1] * (variables.waterSuctions[KMAX-1]-variables.waterSuctions[KMAX-2])/geometry.spaceDeltaZ[KMAX-1];
+		} else if (this.topBCType.equalsIgnoreCase("Top Neumann") || this.topBCType.equalsIgnoreCase("TopNeumann")){
+//			variables.darcyVelocitiesCapillary[KMAX-1] = -variables.kappasInterface[KMAX-1] * (variables.waterSuctions[KMAX-1]-variables.waterSuctions[KMAX-2])/geometry.spaceDeltaZ[KMAX-1];
 			variables.darcyVelocitiesCapillary[KMAX] = -9999.0;
-		}	
+		} else if (this.topBCType.equalsIgnoreCase("Top coupled") || this.topBCType.equalsIgnoreCase("TopCoupled")){
+//			variables.darcyVelocitiesCapillary[KMAX-1] = -variables.kappasInterface[KMAX-1] * (variables.waterSuctions[KMAX-1]-variables.waterSuctions[KMAX-2])/geometry.spaceDeltaZ[KMAX-1];
+			variables.darcyVelocitiesCapillary[KMAX] = -9999.0;
+		}
 		
 	}
 	
 	public void computeDarcyVelocitiesGravity(int KMAX) {
 		
-		for(int k = 1; k < KMAX-1; k++) {
+		for(int k = 1; k < KMAX; k++) {
 			variables.darcyVelocitiesGravity[k] = -variables.kappasInterface[k];
 		}
 		
-		// k == 0
+		// element == 0
 		if(this.bottomBCType.equalsIgnoreCase("Bottom Free Drainage") || this.bottomBCType.equalsIgnoreCase("BottomFreeDrainage")){
 			variables.darcyVelocitiesGravity[0] = -variables.kappasInterface[0];
 		} else if (this.bottomBCType.equalsIgnoreCase("Bottom Impervious") || this.bottomBCType.equalsIgnoreCase("BottomImpervious")) {
@@ -279,12 +315,15 @@ public class ComputeQuantitiesRichards {
 			variables.darcyVelocitiesGravity[0] = -variables.kappasInterface[0];
 		}
 		
-		// k == KMAX-1
+		// element == KMAX-1
 		if(this.topBCType.equalsIgnoreCase("Top Dirichlet") || this.topBCType.equalsIgnoreCase("TopDirichlet")){
-			variables.darcyVelocitiesGravity[KMAX-1] = -variables.kappasInterface[KMAX-1];
+//			variables.darcyVelocitiesGravity[KMAX-1] = -variables.kappasInterface[KMAX-1];
 			variables.darcyVelocitiesGravity[KMAX] = -variables.kappasInterface[KMAX];
-		} else {
-			variables.darcyVelocitiesGravity[KMAX-1] = -variables.kappasInterface[KMAX-1];
+		} else if (this.topBCType.equalsIgnoreCase("Top Neumann") || this.topBCType.equalsIgnoreCase("TopNeumann")){
+//			variables.darcyVelocitiesGravity[KMAX-1] = -variables.kappasInterface[KMAX-1];
+			variables.darcyVelocitiesGravity[KMAX] = -9999.0;
+		} else if (this.topBCType.equalsIgnoreCase("Top coupled") || this.topBCType.equalsIgnoreCase("TopCoupled")){
+//			variables.darcyVelocitiesGravity[KMAX-1] = -variables.kappasInterface[KMAX-1];
 			variables.darcyVelocitiesGravity[KMAX] = -9999.0;
 		}	
 		
@@ -293,28 +332,35 @@ public class ComputeQuantitiesRichards {
 	public void computePoreVelocities(int KMAX) {
 		
 		for(int k = 1; k < KMAX-1; k++) {
-			variables.poreVelocities[k] = variables.darcyVelocities[k]/interfaceConductivity.compute(variables.thetas[k-1]-rehologyParameters.thetaR[variables.parameterID[k-1]],variables.thetas[k]-rehologyParameters.thetaR[variables.parameterID[k]]
+			variables.poreVelocities[k] = variables.darcyVelocities[k]/interfaceConductivity.compute(variables.thetas[k-1]-parameters.thetaR[variables.parameterID[k-1]],variables.thetas[k]-parameters.thetaR[variables.parameterID[k]]
 					,geometry.controlVolume[k-1], geometry.controlVolume[k]);
 		}
 		
-		// k == 0
+		// element == 0
 		if(this.bottomBCType.equalsIgnoreCase("Bottom Free Drainage") || this.bottomBCType.equalsIgnoreCase("BottomFreeDrainage")){
-			variables.poreVelocities[0] = variables.darcyVelocities[0]/(variables.thetas[0]-rehologyParameters.thetaR[variables.parameterID[0]]);
+			variables.poreVelocities[0] = variables.darcyVelocities[0]/(variables.thetas[0]-parameters.thetaR[variables.parameterID[0]]);
 		} else if (this.bottomBCType.equalsIgnoreCase("Bottom Impervious") || this.bottomBCType.equalsIgnoreCase("BottomImpervious")) {
 			variables.poreVelocities[0] = + 0.0;
 		} else if (this.bottomBCType.equalsIgnoreCase("Bottom Dirichlet") || this.bottomBCType.equalsIgnoreCase("BottomDirichlet"))  {
-			variables.poreVelocities[0] = variables.darcyVelocities[0]/interfaceConductivity.compute(soilWaterRetentionCurve.get(variables.rheologyID[0]).f(variables.richardsBottomBCValue, variables.temperatures[0], variables.parameterID[0])-rehologyParameters.thetaR[variables.parameterID[0]], variables.thetas[0]-rehologyParameters.thetaR[variables.parameterID[0]]
+			variables.poreVelocities[0] = variables.darcyVelocities[0]/interfaceConductivity.compute(closureEquation.get(variables.equationStateID[0]).f(variables.richardsBottomBCValue, variables.temperatures[0], variables.parameterID[0])-parameters.thetaR[variables.parameterID[0]], variables.thetas[0]-parameters.thetaR[variables.parameterID[0]]
 					,geometry.controlVolume[0], geometry.controlVolume[0]);
 		} else if (this.bottomBCType.equalsIgnoreCase("Bottom Dirichlet") || this.bottomBCType.equalsIgnoreCase("BottomDirichlet"))  {
-			variables.poreVelocities[0] = variables.darcyVelocities[0]/(variables.thetas[0]-rehologyParameters.thetaR[variables.parameterID[0]]);
+			variables.poreVelocities[0] = variables.darcyVelocities[0]/(variables.thetas[0]-parameters.thetaR[variables.parameterID[0]]);
 		}
 		
-		// k == KMAX-1
+		// element == KMAX-1
 		if(this.topBCType.equalsIgnoreCase("Top Dirichlet") || this.topBCType.equalsIgnoreCase("TopDirichlet")){
-			variables.poreVelocities[KMAX-1] = -variables.kappasInterface[KMAX-1];
-			variables.poreVelocities[KMAX] = -variables.kappasInterface[KMAX];
-		} else {
-			variables.poreVelocities[KMAX-1] = -variables.kappasInterface[KMAX-1];
+			variables.poreVelocities[KMAX-1] = variables.darcyVelocities[KMAX-1]/interfaceConductivity.compute(variables.thetas[KMAX-2]-parameters.thetaR[variables.parameterID[KMAX-2]],variables.thetas[KMAX-1]-parameters.thetaR[variables.parameterID[KMAX-1]]
+					,geometry.controlVolume[KMAX-2], geometry.controlVolume[KMAX-1]);
+			variables.poreVelocities[KMAX] = variables.darcyVelocities[KMAX]/interfaceConductivity.compute(closureEquation.get(variables.equationStateID[KMAX-1]).f(variables.richardsTopBCValue, variables.temperatures[KMAX-1], variables.parameterID[KMAX-1])-parameters.thetaR[variables.parameterID[KMAX-1]], variables.thetas[KMAX-1]-parameters.thetaR[variables.parameterID[KMAX-1]]
+					,geometry.controlVolume[KMAX-1], geometry.controlVolume[KMAX-1]);
+		} else if (this.topBCType.equalsIgnoreCase("Top Neumann") || this.topBCType.equalsIgnoreCase("TopNeumann")){
+			variables.poreVelocities[KMAX-1] = variables.darcyVelocities[KMAX-1]/interfaceConductivity.compute(variables.thetas[KMAX-2]-parameters.thetaR[variables.parameterID[KMAX-2]],variables.thetas[KMAX-1]-parameters.thetaR[variables.parameterID[KMAX-1]]
+					,geometry.controlVolume[KMAX-2], geometry.controlVolume[KMAX-1]);
+			variables.poreVelocities[KMAX] = variables.darcyVelocities[KMAX-1]/(variables.thetas[KMAX-1]-parameters.thetaR[variables.parameterID[KMAX-1]]);
+		} else if (this.topBCType.equalsIgnoreCase("Top coupled") || this.topBCType.equalsIgnoreCase("TopCoupled")){
+			variables.poreVelocities[KMAX-1] = variables.darcyVelocities[KMAX-1]/interfaceConductivity.compute(closureEquation.get(variables.equationStateID[KMAX-1]).f(variables.waterSuctions[KMAX-1], variables.temperatures[KMAX-1], variables.parameterID[KMAX-1])-parameters.thetaR[variables.parameterID[KMAX-1]], variables.thetas[KMAX-2]-parameters.thetaR[variables.parameterID[KMAX-2]]
+					,geometry.controlVolume[KMAX-2], geometry.controlVolume[KMAX-2]);
 			variables.poreVelocities[KMAX] = -9999.0;
 		}	
 		
@@ -326,54 +372,34 @@ public class ComputeQuantitiesRichards {
 			variables.celerities[k] = -9999.0;
 		}
 		
-		// k == 0
+		// element == 0
 		if(this.bottomBCType.equalsIgnoreCase("Bottom Free Drainage") || this.bottomBCType.equalsIgnoreCase("BottomFreeDrainage")){
-			variables.poreVelocities[0] = -9999.0;
+			variables.celerities[0] = -9999.0;
 		} else if (this.bottomBCType.equalsIgnoreCase("Bottom Impervious") || this.bottomBCType.equalsIgnoreCase("BottomImpervious")) {
-			variables.poreVelocities[0] = + 0.0;
+			variables.celerities[0] = + 0.0;
 		} else if (this.bottomBCType.equalsIgnoreCase("Bottom Dirichlet") || this.bottomBCType.equalsIgnoreCase("BottomDirichlet"))  {
-			variables.poreVelocities[0] = -9999.0;
+			variables.celerities[0] = -9999.0;
 		} else if (this.bottomBCType.equalsIgnoreCase("Bottom Dirichlet") || this.bottomBCType.equalsIgnoreCase("BottomDirichlet"))  {
-			variables.poreVelocities[0] = -9999.0;
+			variables.celerities[0] = -9999.0;
 		}
 		
-		// k == KMAX-1
+		// element == KMAX-1
 		if(this.topBCType.equalsIgnoreCase("Top Dirichlet") || this.topBCType.equalsIgnoreCase("TopDirichlet")){
-			variables.poreVelocities[KMAX-1] = -9999.0;
-			variables.poreVelocities[KMAX] = -9999.0;
+			variables.celerities[KMAX-1] = -9999.0;
+			variables.celerities[KMAX] = -9999.0;
 		} else {
-			variables.poreVelocities[KMAX-1] = -9999.0;
-			variables.poreVelocities[KMAX] = -9999.0;
+			variables.celerities[KMAX-1] = -9999.0;
+			variables.celerities[KMAX] = -9999.0;
 		}	
 		
 	}
 
 	public void computeKinematicRatio(int KMAX) {
 		
-		for(int k = 1; k < KMAX-1; k++) {
+		for(int k = 0; k < KMAX+1; k++) {
 			variables.kinematicRatio[k] = variables.celerities[k]/variables.poreVelocities[k];
 		}
-		
-		// k == 0
-		if(this.bottomBCType.equalsIgnoreCase("Bottom Free Drainage") || this.bottomBCType.equalsIgnoreCase("BottomFreeDrainage")){
-			variables.poreVelocities[0] = variables.celerities[0]/variables.poreVelocities[0];
-		} else if (this.bottomBCType.equalsIgnoreCase("Bottom Impervious") || this.bottomBCType.equalsIgnoreCase("BottomImpervious")) {
-			variables.poreVelocities[0] = + 0.0;
-		} else if (this.bottomBCType.equalsIgnoreCase("Bottom Dirichlet") || this.bottomBCType.equalsIgnoreCase("BottomDirichlet"))  {
-			variables.poreVelocities[0] = variables.celerities[0]/variables.poreVelocities[0];
-		} else if (this.bottomBCType.equalsIgnoreCase("Bottom Dirichlet") || this.bottomBCType.equalsIgnoreCase("BottomDirichlet"))  {
-			variables.poreVelocities[0] = variables.celerities[0]/variables.poreVelocities[0];
-		}
-		
-		// k == KMAX-1
-		if(this.topBCType.equalsIgnoreCase("Top Dirichlet") || this.topBCType.equalsIgnoreCase("TopDirichlet")){
-			variables.poreVelocities[KMAX-1] = variables.celerities[0]/variables.poreVelocities[0];
-			variables.poreVelocities[KMAX] = variables.celerities[0]/variables.poreVelocities[0];
-		} else {
-			variables.poreVelocities[KMAX-1] = variables.celerities[0]/variables.poreVelocities[0];
-			variables.poreVelocities[KMAX] = -9999.0;
-		}	
-		
+
 	}
 	
 	public void computeRunOff(int KMAX, double maxPonding) {
@@ -390,12 +416,9 @@ public class ComputeQuantitiesRichards {
 	}
 	
 	public void computeError(int KMAX, double timeDelta) {
-		
-		if(this.topBCType.equalsIgnoreCase("Top Dirichlet") || this.topBCType.equalsIgnoreCase("TopDirichlet")) {
-			variables.errorVolume = variables.waterVolumeNew - variables.waterVolume - timeDelta*(-variables.darcyVelocities[KMAX-1] + variables.darcyVelocities[0]) + variables.sumETs + variables.volumeLost;
-		} else {
-			variables.errorVolume = variables.waterVolumeNew - variables.waterVolume - timeDelta*(variables.richardsTopBCValue + variables.darcyVelocities[0]) + variables.sumETs + variables.volumeLost;
-		}
+
+		variables.errorVolume = variables.waterVolumeNew - variables.waterVolume - timeDelta*(-variables.darcyVelocities[KMAX] + variables.darcyVelocities[0]) + variables.sumETs + variables.volumeLost;
+
 	}
 	
 }

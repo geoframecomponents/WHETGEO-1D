@@ -23,20 +23,23 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-import it.geoframe.blogspot.closureequation.conductivitymodel.ConductivityEquation;
-import it.geoframe.blogspot.closureequation.conductivitymodel.ConductivityEquationFactory;
-import it.geoframe.blogspot.closureequation.conductivitymodel.UnsaturatedHydraulicConductivityTemperatureFactory;
-import it.geoframe.blogspot.closureequation.interfaceconductivity.InterfaceConductivity;
-import it.geoframe.blogspot.closureequation.interfaceconductivity.SimpleInterfaceConductivityFactory;
-import it.geoframe.blogspot.closureequation.closureequation.ClosureEquation;
+//import it.geoframe.blogspot.closureequation.conductivitymodel.ConductivityEquation;
+//import it.geoframe.blogspot.closureequation.conductivitymodel.ConductivityEquationFactory;
+//import it.geoframe.blogspot.closureequation.conductivitymodel.UnsaturatedHydraulicConductivityTemperatureFactory;
+//import it.geoframe.blogspot.closureequation.interfaceconductivity.InterfaceConductivity;
+//import it.geoframe.blogspot.closureequation.interfaceconductivity.SimpleInterfaceConductivityFactory;
+//import it.geoframe.blogspot.closureequation.closureequation.ClosureEquation;
 import it.geoframe.blogspot.closureequation.closureequation.Parameters;
-import it.geoframe.blogspot.closureequation.closureequation.SoilWaterRetentionCurveFactory;
+//import it.geoframe.blogspot.closureequation.closureequation.SoilWaterRetentionCurveFactory;
 import it.geoframe.blogspot.closureequation.equationstate.EquationState;
+import it.geoframe.blogspot.whetgeo1d.boundaryconditions.BoundaryCondition;
+import it.geoframe.blogspot.whetgeo1d.boundaryconditions.RichardsSimpleBoundaryConditionFactory;
 import it.geoframe.blogspot.whetgeo1d.data.ComputeQuantitiesRichards;
 import it.geoframe.blogspot.whetgeo1d.data.Geometry;
 import it.geoframe.blogspot.whetgeo1d.data.ProblemQuantities;
-import it.geoframe.blogspot.whetgeo1d.equationstate.EquationStateFactory;
-import it.geoframe.blogspot.whetgeo1d.equationstate.WaterDepth;
+//import it.geoframe.blogspot.whetgeo1d.equationstate.EquationStateFactory;
+//import it.geoframe.blogspot.whetgeo1d.equationstate.WaterDepth;
+import it.geoframe.blogspot.whetgeo1d.pdefinitevolume.Richards1DFiniteVolumeSolver;
 import oms3.annotations.*;
 
 
@@ -115,12 +118,12 @@ public class RichardsSolver1DMain {
 	@Description("Reference temperature for soil water content")
 	@In 
 	@Unit ("K")
-	public double temperatureR = 278.15;
+	public double referenceTemperatureSWRC = 278.15;
 	
-	@Description("Control volume label defining the rheology")
+	@Description("Control volume label defining the equation state")
 	@In 
 	@Unit("-")
-	public int[] inRheologyID;
+	public int[] inEquationStateID;
 
 	@Description("Control volume label defining the set of the paramters")
 	@In 
@@ -136,17 +139,23 @@ public class RichardsSolver1DMain {
 	@Description("It is possibile to chose between 3 different models to compute "
 			+ "the soil hydraulic properties: Van Genuchten; Brooks and Corey; Kosugi unimodal")
 	@In 
-	public String soilHydraulicModel;
+	public String[] typeClosureEquation;
+	
+	@Description("It is possibile to chose between 3 different models to compute "
+			+ "the soil hydraulic properties: Van Genuchten; Brooks and Corey; Kosugi unimodal")
+	@In 
+	public String[] typeEquationState;
+	
+	@Description("It is possible to choose among these models:"
+			+ "Mualem Van Genuchten, Mualem Brooks Corey, ....")
+	@In 
+	public String[] typeUHCModel;
 
 	@Description("It is possible to choose among these models:"
 			+ "notemperature, ....")
 	@In 
 	public String typeUHCTemperatureModel;
 
-	@Description("It is possible to choose among these models:"
-			+ "Mualem Van Genuchten, Mualem Brooks Corey, ....")
-	@In 
-	public String typeUHCModel;
 
 	@Description("Hydraulic conductivity at control volume interface can be evaluated as"
 			+ " the average of kappas[i] and kappas[i+1]"
@@ -230,7 +239,11 @@ public class RichardsSolver1DMain {
 	/*
 	 *  BOUNDARY CONDITIONS
 	 */
-
+	@Description("The station ID in the timeseries file")
+	@In
+	@Unit ("-")
+	public int stationID;
+	
 	@Description("The HashMap with the time series of the boundary condition at the top of soil column")
 	@In
 	@Unit ("m")
@@ -300,11 +313,14 @@ public class RichardsSolver1DMain {
 	private double saveDate;
 
 
-	private PDE1DSolver richardsSolver;
+	private Richards1DFiniteVolumeSolver richardsSolver;
 	private ProblemQuantities variables;
 	private Geometry geometry;
-	private Parameters rehologyParameters;
+	private Parameters parameters;
 	private ComputeQuantitiesRichards computeQuantitiesRichards;
+	private BoundaryCondition topBoundaryCondition;
+	private BoundaryCondition bottomBoundaryCondition;
+	private RichardsSimpleBoundaryConditionFactory boundaryConditionFactory;
 
 	@Execute
 	public void solve() {
@@ -314,24 +330,22 @@ public class RichardsSolver1DMain {
 		if(step==0){
 			KMAX = psiIC.length;
 
-			variables = ProblemQuantities.getInstance(psiIC, temperature, inRheologyID, inParameterID);
+			variables = ProblemQuantities.getInstance(psiIC, temperature, inEquationStateID, inParameterID);
 			geometry = Geometry.getInstance(z, spaceDeltaZ, controlVolume);
-			rehologyParameters = Parameters.getInstance(1000.0, 970, 4188,
-					2117, 0.6, 2.29, 333700, 273.15,
-					thetaS, thetaR, new double[] {-9999.0}, new double[] {-9999.0}, new double[] {-9999.0},
-					new double[] {-9999.0}, par1SWRC, par2SWRC, par3SWRC, par4SWRC, par5SWRC, ks, alphaSpecificStorage, betaSpecificStorage);
+			parameters = Parameters.getInstance(referenceTemperatureSWRC, beta0, thetaS, thetaR, par1SWRC, par2SWRC, par3SWRC, par4SWRC, par5SWRC, ks, alphaSpecificStorage, betaSpecificStorage);
 
-			computeQuantitiesRichards = new ComputeQuantitiesRichards(soilHydraulicModel, typeUHCModel, typeUHCTemperatureModel, interfaceHydraulicConductivityModel, topBCType, bottomBCType);
+			computeQuantitiesRichards = new ComputeQuantitiesRichards(typeClosureEquation, typeEquationState, typeUHCModel, typeUHCTemperatureModel, interfaceHydraulicConductivityModel, topBCType, bottomBCType);
 			
 			outputToBuffer = new ArrayList<double[]>();
 
 			List<EquationState> equationState = computeQuantitiesRichards.getRichardsStateEquation();
 			
-			richardsSolver = new PDE1DSolver(topBCType, bottomBCType, KMAX, nestedNewton, newtonTolerance, delta, MAXITER_NEWT, equationState);
+			boundaryConditionFactory = new RichardsSimpleBoundaryConditionFactory();
+			topBoundaryCondition = boundaryConditionFactory.createBoundaryCondition(topBCType);
+			bottomBoundaryCondition = boundaryConditionFactory.createBoundaryCondition(bottomBCType);
 
-			if(topBCType.equalsIgnoreCase("Top Dirichlet")||topBCType.equalsIgnoreCase("TopDirichlet")) {
-				KMAX = KMAX-1;
-			}
+			richardsSolver = new Richards1DFiniteVolumeSolver(topBoundaryCondition, bottomBoundaryCondition, KMAX, nestedNewton, newtonTolerance, delta, MAXITER_NEWT, equationState);
+
 
 		} // close step==0
 
@@ -339,20 +353,20 @@ public class RichardsSolver1DMain {
 
 
 		variables.richardsTopBCValue = 0.0;
-		if(topBCType.equalsIgnoreCase("Top Neumann") || topBCType.equalsIgnoreCase("TopNeumann")) {
-			variables.richardsTopBCValue = (inTopBC.get(0)[0]/1000)/tTimeStep;
+		if(topBCType.equalsIgnoreCase("Top Neumann") || topBCType.equalsIgnoreCase("TopNeumann") || topBCType.equalsIgnoreCase("Top Coupled") || topBCType.equalsIgnoreCase("TopCoupled")) {
+			variables.richardsTopBCValue = (inTopBC.get(stationID)[0]/1000)/tTimeStep;
 		} else {
-			variables.richardsTopBCValue = inTopBC.get(0)[0]/1000;
+			variables.richardsTopBCValue = inTopBC.get(stationID)[0]/1000;
 		}
 		
 
 		variables.richardsBottomBCValue = 0.0;
 		if(inBottomBC != null) {
-			variables.richardsBottomBCValue = inBottomBC.get(0)[0];
+			variables.richardsBottomBCValue = inBottomBC.get(stationID)[0];
 		}
 
 		saveDate = -1.0;
-		saveDate = inSaveDate.get(0)[0];
+		saveDate = inSaveDate.get(stationID)[0];
 		outputToBuffer.clear();
 
 		double sumTimeDelta = 0;
@@ -372,7 +386,9 @@ public class RichardsSolver1DMain {
 			 * Compute water volumes
 			 */
 			computeQuantitiesRichards.computeWaterVolume(KMAX);
-
+//			for(int k=0; k<KMAX;k++) {
+//				System.out.println(variables.volumes[k]);
+//			}
 			
 			/*
 			 * Compute xStar
@@ -390,14 +406,22 @@ public class RichardsSolver1DMain {
 				 * 
 				 */	
 				computeQuantitiesRichards.computeHydraulicConductivity(KMAX);
+//				for(int k=0; k<KMAX;k++) {
+//					System.out.println(variables.kappas[k]);
+//				}
+//				System.out.println("\n\n");
 
 				computeQuantitiesRichards.computeInterfaceHydraulicConductivity(KMAX);
+//				for(int k=0; k<KMAX+1;k++) {
+//					System.out.println(variables.kappasInterface[k]);
+//				}
 
 				
 				/*
 				 * Solve PDE
 				 */
-				richardsSolver.solve(timeDelta, KMAX);
+				variables.waterSuctions = richardsSolver.solve(timeDelta, variables.richardsBottomBCValue, variables.richardsTopBCValue, KMAX, variables.kappasInterface,
+						variables.volumes, geometry.spaceDeltaZ, variables.ETs, variables.waterSuctions, variables.temperatures, variables.parameterID, variables.equationStateID);
 
 			} // close Picard iteration
 			
@@ -426,12 +450,20 @@ public class RichardsSolver1DMain {
 			computeQuantitiesRichards.computePoreVelocities(KMAX);
 			computeQuantitiesRichards.computeCelerities(KMAX);
 			computeQuantitiesRichards.computeKinematicRatio(KMAX);
-
+//			System.out.println("\n\n");
+//			for(int k=0; k<KMAX;k++) {
+//				System.out.println(variables.waterSuctions[k]);
+//			}
+//			System.out.println("\n\n");
+//			for(int k=0; k<KMAX;k++) {
+//				System.out.println(variables.darcyVelocities[k]);
+//			}
 			
 			/*
 			 * compute error
 			 */
 			computeQuantitiesRichards.computeError(KMAX, timeDelta);
+//			System.out.println(variables.errorVolume);
 
 		}
 
@@ -439,7 +471,7 @@ public class RichardsSolver1DMain {
 		if(saveDate == 1) {
 			outputToBuffer.add(variables.waterSuctions);
 			outputToBuffer.add(variables.thetas);
-			outputToBuffer.add(variables.volumes);
+			outputToBuffer.add(variables.volumesNew);
 			outputToBuffer.add(variables.darcyVelocities);
 			outputToBuffer.add(variables.darcyVelocitiesCapillary);
 			outputToBuffer.add(variables.darcyVelocitiesGravity);
