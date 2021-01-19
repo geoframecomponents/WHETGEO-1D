@@ -391,8 +391,9 @@ public class RichardsLysimeterSolver1DMain {
 		}
 
 		saveDate = -1.0;
-		saveDate = inSaveDate.get(stationID)[0];
-		
+		if(inSaveDate != null) {
+			saveDate = inSaveDate.get(stationID)[0];
+		}		
 
 		computeQuantitiesLysimeter.computeEvapoTranspirations(KMAX, tTimeStep, stressedETs);
 
