@@ -242,7 +242,7 @@ public class RichardsSolver1DMain {
 	@Description("The station ID in the timeseries file")
 	@In
 	@Unit ("-")
-	public int stationID;
+	public int stationID = 0;
 	
 	@Description("The HashMap with the time series of the boundary condition at the top of soil column")
 	@In
@@ -351,7 +351,6 @@ public class RichardsSolver1DMain {
 
 		doProcessBuffer = false;
 
-
 		variables.richardsTopBCValue = 0.0;
 		if(topBCType.equalsIgnoreCase("Top Neumann") || topBCType.equalsIgnoreCase("TopNeumann") || topBCType.equalsIgnoreCase("Top Coupled") || topBCType.equalsIgnoreCase("TopCoupled")) {
 			variables.richardsTopBCValue = (inTopBC.get(stationID)[0]/1000)/tTimeStep;
@@ -365,9 +364,12 @@ public class RichardsSolver1DMain {
 			variables.richardsBottomBCValue = inBottomBC.get(stationID)[0];
 		}
 
-		saveDate = -1.0;
-		saveDate = inSaveDate.get(stationID)[0];
-		outputToBuffer.clear();
+		saveDate = 1.0;
+		if(inSaveDate != null) {
+			saveDate = inSaveDate.get(stationID)[0];
+		}
+		
+//		outputToBuffer.clear();
 
 		double sumTimeDelta = 0;
 
@@ -380,7 +382,6 @@ public class RichardsSolver1DMain {
 				timeDelta = tTimeStep - sumTimeDelta;
 			}
 			sumTimeDelta = sumTimeDelta + timeDelta;
-
 
 			/*
 			 * Compute water volumes
