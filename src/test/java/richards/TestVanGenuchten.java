@@ -169,7 +169,6 @@ public class TestVanGenuchten {
 			R1DSolver.inSaveDate = bCValueMap;
 			
 			R1DSolver.inCurrentDate = topBCReader.tCurrent;
-			System.out.println(topBCReader.tCurrent);
 			R1DSolver.solve();
 
 			
