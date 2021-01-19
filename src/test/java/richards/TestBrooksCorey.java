@@ -1,7 +1,7 @@
 /*
   * GNU GPL v3 License
  *
- * Copyright 2016 Niccolo` Tubini
+ * Copyright 2020 Niccolo` Tubini
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -53,10 +53,10 @@ public class TestBrooksCorey {
 		String pathTopBC = "resources/input/TimeSeries/precip.csv";
 		String pathBottomBC = "resources/input/TimeSeries/bottom.csv";
 		String pathSaveDates = "resources/input/TimeSeries/save.csv"; 
-		String pathGrid =  "resources/input/Grid_NetCDF/grid_BC.nc";
-		String pathOutput = "resources/output/Sim_BC.nc";
+		String pathGrid =  "resources/input/Grid_NetCDF/RichardsCoupled_BC.nc";
+		String pathOutput = "resources/output/Sim_RichardsCoupled_BC.nc";
 		
-		String topBC = "Top Neumann";
+		String topBC = "Top Coupled";
 		String bottomBC = "Bottom free drainage";
 
 		String outputDescription = "\n"
@@ -97,13 +97,14 @@ public class TestBrooksCorey {
 		R1DSolver.par5SWRC = readNetCDF.par5SWRC;
 		R1DSolver.alphaSpecificStorage = readNetCDF.alphaSS;
 		R1DSolver.betaSpecificStorage = readNetCDF.betaSS;
-		R1DSolver.inRheologyID = readNetCDF.rheologyID;
+		R1DSolver.inEquationStateID = readNetCDF.equationStateID;
 		R1DSolver.inParameterID = readNetCDF.parameterID;
 		R1DSolver.beta0 = -766.45;
-		R1DSolver.temperatureR = 278.15;
+		R1DSolver.referenceTemperatureSWRC = 278.15;
 		R1DSolver.maxPonding = 0.0;
-		R1DSolver.soilHydraulicModel = "Brooks Corey";
-		R1DSolver.typeUHCModel = "Mualem Brooks Corey";
+		R1DSolver.typeClosureEquation = new String[] {"Water Depth", "Brooks Corey"};
+		R1DSolver.typeEquationState = new String[] {"Water Depth", "Brooks Corey"};
+		R1DSolver.typeUHCModel = new String[] {"", "Mualem Brooks Corey"};
 		R1DSolver.typeUHCTemperatureModel = "notemperature"; //"Ronan1998";
 		R1DSolver.interfaceHydraulicConductivityModel = "max";
 		R1DSolver.topBCType = topBC;
@@ -181,7 +182,7 @@ public class TestBrooksCorey {
 		 */
 		System.out.println("Assert");
 		ReadNetCDFRichardsOutput1D readTestData = new ReadNetCDFRichardsOutput1D();
-		readTestData.richardsOutputFilename = "resources/Output/Check_BC.nc";
+		readTestData.richardsOutputFilename = "resources/Output/Check_RichardsCoupled_BC.nc";
 		readTestData.read();
 		
 		ReadNetCDFRichardsOutput1D readSimData = new ReadNetCDFRichardsOutput1D();

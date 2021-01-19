@@ -50,10 +50,10 @@ public class TestRomano {
 		String pathTopBC = "resources/input/TimeSeries/precip.csv";
 		String pathBottomBC = "resources/input/TimeSeries/bottom.csv";
 		String pathSaveDates = "resources/input/TimeSeries/save.csv"; 
-		String pathGrid =  "resources/input/Grid_NetCDF/grid_Romano.nc";
-		String pathOutput = "resources/output/Sim_Romano.nc";
+		String pathGrid =  "resources/input/Grid_NetCDF/RichardsCoupled_Romano_new.nc";
+		String pathOutput = "resources/output/Sim_RichardsCoupled_Romano.nc";
 		
-		String topBC = "Top Neumann";
+		String topBC = "Top Coupled";
 		String bottomBC = "Bottom Dirichlet";
 
 		String outputDescription = "\n"
@@ -94,13 +94,14 @@ public class TestRomano {
 		R1DSolver.par5SWRC = readNetCDF.par5SWRC;
 		R1DSolver.alphaSpecificStorage = readNetCDF.alphaSS;
 		R1DSolver.betaSpecificStorage = readNetCDF.betaSS;
-		R1DSolver.inRheologyID = readNetCDF.rheologyID;
+		R1DSolver.inEquationStateID = readNetCDF.equationStateID;
 		R1DSolver.inParameterID = readNetCDF.parameterID;
 		R1DSolver.beta0 = -766.45;
-		R1DSolver.temperatureR = 278.15;
+		R1DSolver.referenceTemperatureSWRC = 278.15;
 		R1DSolver.maxPonding = 0.0;
-		R1DSolver.soilHydraulicModel = "Romano";
-		R1DSolver.typeUHCModel = "Mualem Romano";
+		R1DSolver.typeClosureEquation = new String[] {"Water Depth", "Romano"};
+		R1DSolver.typeEquationState = new String[] {"Water Depth", "Romano"};
+		R1DSolver.typeUHCModel = new String[] {"", "Mualem Romano"};
 		R1DSolver.typeUHCTemperatureModel = "notemperature"; //"Ronan1998";
 		R1DSolver.interfaceHydraulicConductivityModel = "max";
 		R1DSolver.topBCType = topBC;
@@ -178,7 +179,7 @@ public class TestRomano {
 		 */
 		System.out.println("Assert");
 		ReadNetCDFRichardsOutput1D readTestData = new ReadNetCDFRichardsOutput1D();
-		readTestData.richardsOutputFilename = "resources/Output/Check_Romano.nc";
+		readTestData.richardsOutputFilename = "resources/Output/Check_RichardsCoupled_Romano.nc";
 		readTestData.read();
 		
 		ReadNetCDFRichardsOutput1D readSimData = new ReadNetCDFRichardsOutput1D();

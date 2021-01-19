@@ -32,14 +32,14 @@ import it.geoframe.blogpsot.netcdf.monodimensionalproblemtimedependent.WriteNetC
 import org.junit.Test;
 
 /**
- * Test the {@link TestVanGenuchtenDirchlet} module.
+ * Test the {@link TestVanGenuchtenDirichlet} module.
  * 
  * This test consider an initial hydrostatic condition with Dirichlet boundary condition at the 
- * top and free drainage at the bottom.
+ * top and free drainage at the bottom. 
  * 
  * @author Niccolo' Tubini
  */
-public class TestVanGenuchtenDirchlet {
+public class TestVanGenuchtenDirichlet {
 
 	@Test
 	public void Test() throws Exception {
@@ -53,9 +53,8 @@ public class TestVanGenuchtenDirchlet {
 		String pathTopBC = "resources/input/TimeSeries/bottom.csv";
 		String pathBottomBC = "resources/input/TimeSeries/bottom.csv";
 		String pathSaveDates = "resources/input/TimeSeries/save.csv"; 
-		String pathGrid =  "resources/input/Grid_NetCDF/grid_VG.nc";
-		String pathOutput = "resources/output/Sim_VG_Dirchlet.nc";
-		
+		String pathGrid =  "resources/input/Grid_NetCDF/Richards_VG.nc";
+		String pathOutput = "resources/output/Sim_Richards_VG_Dirichlet_new.nc";
 		
 		String topBC = "Top Dirichlet";
 		String bottomBC = "Bottom free drainage";
@@ -70,11 +69,10 @@ public class TestVanGenuchtenDirchlet {
 		OmsTimeSeriesIteratorReader topBCReader = getTimeseriesReader(pathTopBC, fId, startDate, endDate, timeStepMinutes);
 		OmsTimeSeriesIteratorReader bottomBCReader = getTimeseriesReader(pathBottomBC, fId, startDate, endDate, timeStepMinutes);
 		OmsTimeSeriesIteratorReader saveDatesReader = getTimeseriesReader(pathSaveDates, fId, startDate, endDate, timeStepMinutes);
-		
+
 		RichardsBuffer1D buffer = new RichardsBuffer1D();
 		WriteNetCDFRichards1DDouble writeNetCDF = new WriteNetCDFRichards1DDouble();
 		ReadNetCDFRichardsGrid1D readNetCDF = new ReadNetCDFRichardsGrid1D();
-	
 		
 		RichardsSolver1DMain R1DSolver = new RichardsSolver1DMain();
 		
@@ -99,13 +97,14 @@ public class TestVanGenuchtenDirchlet {
 		R1DSolver.par5SWRC = readNetCDF.par5SWRC;
 		R1DSolver.alphaSpecificStorage = readNetCDF.alphaSS;
 		R1DSolver.betaSpecificStorage = readNetCDF.betaSS;
-		R1DSolver.inRheologyID = readNetCDF.rheologyID;
+		R1DSolver.inEquationStateID = readNetCDF.equationStateID;
 		R1DSolver.inParameterID = readNetCDF.parameterID;
 		R1DSolver.beta0 = -766.45;
-		R1DSolver.temperatureR = 278.15;
+		R1DSolver.referenceTemperatureSWRC = 278.15;
 		R1DSolver.maxPonding = 0.0;
-		R1DSolver.soilHydraulicModel = "Van Genuchten";
-		R1DSolver.typeUHCModel = "Mualem Van Genuchten";
+		R1DSolver.typeClosureEquation = new String[] {"Van Genuchten"};
+		R1DSolver.typeEquationState = new String[] {"Van Genuchten"};
+		R1DSolver.typeUHCModel = new String[] {"Mualem Van Genuchten"};
 		R1DSolver.typeUHCTemperatureModel = "notemperature"; //"Ronan1998";
 		R1DSolver.interfaceHydraulicConductivityModel = "max";
 		R1DSolver.topBCType = topBC;
@@ -117,9 +116,7 @@ public class TestVanGenuchtenDirchlet {
 		R1DSolver.nestedNewton = 1;
 		R1DSolver.picardIteration = 1;
 
-		
 		buffer.writeFrequency = writeFrequency;
-		
 		
 		writeNetCDF.fileName = pathOutput;
 		writeNetCDF.briefDescritpion = outputDescription;
@@ -137,7 +134,7 @@ public class TestVanGenuchtenDirchlet {
 		writeNetCDF.controlVolume = readNetCDF.controlVolume;
 		writeNetCDF.psiIC = readNetCDF.psiIC;
 		writeNetCDF.temperature = readNetCDF.temperature;
-		writeNetCDF.outVariables = new String[] {"darcy_velocity"};
+		writeNetCDF.outVariables = new String[] {"darcyVelocity"};
 		writeNetCDF.timeUnits = "Minutes since 01/01/1970 00:00:00 UTC";
 		writeNetCDF.timeZone = "UTC"; 
 		writeNetCDF.fileSizeMax = 10000;
@@ -159,10 +156,10 @@ public class TestVanGenuchtenDirchlet {
 			R1DSolver.inSaveDate = bCValueMap;
 			
 			R1DSolver.inCurrentDate = topBCReader.tCurrent;
-//			System.out.println(topBCReader.tCurrent);
+			
 			R1DSolver.solve();
 
-
+			
 			buffer.inputDate = R1DSolver.inCurrentDate;
 			buffer.doProcessBuffer = R1DSolver.doProcessBuffer;
 			buffer.inputVariable = R1DSolver.outputToBuffer;
@@ -173,20 +170,19 @@ public class TestVanGenuchtenDirchlet {
 			writeNetCDF.variables = buffer.myVariable;
 			writeNetCDF.doProcess = topBCReader.doProcess;
 			writeNetCDF.writeNetCDF();
-			
+
 
 		}
 
 		topBCReader.close();
 		bottomBCReader.close();
-		saveDatesReader.close();
-		
+				
 		/*
 		 * ASSERT 
 		 */
 		System.out.println("Assert");
 		ReadNetCDFRichardsOutput1D readTestData = new ReadNetCDFRichardsOutput1D();
-		readTestData.richardsOutputFilename = "resources/Output/Check_VG_Dirichlet.nc";
+		readTestData.richardsOutputFilename = "resources/Output/Check_Richards_VG_Dirichlet.nc";
 		readTestData.read();
 		
 		ReadNetCDFRichardsOutput1D readSimData = new ReadNetCDFRichardsOutput1D();
@@ -194,17 +190,10 @@ public class TestVanGenuchtenDirchlet {
 		readSimData.read();
 
 		for(int k=0; k<readSimData.psi[(readSimData.psi.length)-1].length; k++) {
-			if(Math.abs(readSimData.psi[0][k]-readTestData.psi[0][k])>Math.pow(10,-11)) {
+			if(Math.abs(readSimData.psi[(readSimData.psi.length)-1][k]-readTestData.psi[(readTestData.psi.length)-1][k])>Math.pow(10,-7)) {
 				System.out.println("\n\n\t\tERROR: psi mismatch");
 			}
 		}
-		
-		for(int k=0; k<readSimData.psi[(readSimData.psi.length)-1].length; k++) {
-			if(Math.abs(readSimData.psi[(readSimData.psi.length)-1][k]-readTestData.psi[(readTestData.psi.length)-1][k])>Math.pow(10,-11)) {
-				System.out.println("\n\n\t\tERROR: psi mismatch");
-			}
-		}
-					
 
 	}
 
@@ -220,5 +209,4 @@ public class TestVanGenuchtenDirchlet {
 		reader.initProcess();
 		return reader;
 	}
-
 }

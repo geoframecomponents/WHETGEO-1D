@@ -53,10 +53,10 @@ public class TestVanGenuchten {
 		String pathTopBC = "resources/input/TimeSeries/precip.csv";
 		String pathBottomBC = "resources/input/TimeSeries/bottom.csv";
 		String pathSaveDates = "resources/input/TimeSeries/save.csv"; 
-		String pathGrid =  "resources/input/Grid_NetCDF/grid_VG.nc";
-		String pathOutput = "resources/output/Sim_VG.nc";
+		String pathGrid =  "resources/input/Grid_NetCDF/RichardsCoupled_VG.nc";
+		String pathOutput = "resources/output/Sim_RichardsCoupled_VG_cancella.nc";
 		
-		String topBC = "Top Neumann";
+		String topBC = "Top Coupled";
 		String bottomBC = "Bottom free drainage";
 
 		String outputDescription = "\n"
@@ -97,25 +97,39 @@ public class TestVanGenuchten {
 		R1DSolver.par5SWRC = readNetCDF.par5SWRC;
 		R1DSolver.alphaSpecificStorage = readNetCDF.alphaSS;
 		R1DSolver.betaSpecificStorage = readNetCDF.betaSS;
-		R1DSolver.inRheologyID = readNetCDF.rheologyID;
+		R1DSolver.inEquationStateID = readNetCDF.equationStateID;
 		R1DSolver.inParameterID = readNetCDF.parameterID;
-		R1DSolver.beta0 = -766.45;
-		R1DSolver.temperatureR = 278.15;
-		R1DSolver.maxPonding = 0.0;
-		R1DSolver.soilHydraulicModel = "Van Genuchten";
-		R1DSolver.typeUHCModel = "Mualem Van Genuchten";
+		
+
+		R1DSolver.typeClosureEquation = new String[] {"Water Depth", "Van Genuchten"};
+		R1DSolver.typeEquationState = new String[] {"Water Depth", "Van Genuchten"};
+		
+		R1DSolver.typeUHCModel = new String[] {"", "Mualem Van Genuchten"};
 		R1DSolver.typeUHCTemperatureModel = "notemperature"; //"Ronan1998";
 		R1DSolver.interfaceHydraulicConductivityModel = "max";
+		
 		R1DSolver.topBCType = topBC;
 		R1DSolver.bottomBCType = bottomBC;
-		R1DSolver.delta = 0;
+		
+		R1DSolver.beta0 = -766.45;
+		R1DSolver.referenceTemperatureSWRC = 278.15;
+		
+		R1DSolver.maxPonding = 0.0;
+		
 		R1DSolver.tTimeStep = 3600;
 		R1DSolver.timeDelta = 1800;
+		
 		R1DSolver.newtonTolerance = 0.00000000001;//Math.pow(10,-10);
 		R1DSolver.nestedNewton = 1;
+		R1DSolver.delta = 0;
+		
 		R1DSolver.picardIteration = 1;
 
+		
+		
 		buffer.writeFrequency = writeFrequency;
+		
+		
 		
 		writeNetCDF.fileName = pathOutput;
 		writeNetCDF.briefDescritpion = outputDescription;
@@ -133,8 +147,8 @@ public class TestVanGenuchten {
 		writeNetCDF.controlVolume = readNetCDF.controlVolume;
 		writeNetCDF.psiIC = readNetCDF.psiIC;
 		writeNetCDF.temperature = readNetCDF.temperature;
-		writeNetCDF.outVariables = new String[] {"darcy_velocity"};
-		writeNetCDF.timeUnits = "Minutes since 01/01/1970 01:00:00 UTC";
+		writeNetCDF.outVariables = new String[] {"darcyVelocity"};
+		writeNetCDF.timeUnits = "Minutes since 01/01/1970 00:00:00 UTC";
 		writeNetCDF.timeZone = "UTC"; 
 		writeNetCDF.fileSizeMax = 10000;
 		
@@ -155,7 +169,7 @@ public class TestVanGenuchten {
 			R1DSolver.inSaveDate = bCValueMap;
 			
 			R1DSolver.inCurrentDate = topBCReader.tCurrent;
-			
+			System.out.println(topBCReader.tCurrent);
 			R1DSolver.solve();
 
 			
@@ -181,7 +195,7 @@ public class TestVanGenuchten {
 		 */
 		System.out.println("Assert");
 		ReadNetCDFRichardsOutput1D readTestData = new ReadNetCDFRichardsOutput1D();
-		readTestData.richardsOutputFilename = "resources/Output/Check_VG.nc";
+		readTestData.richardsOutputFilename = "resources/Output/Check_RichardsCoupled_VG.nc";
 		readTestData.read();
 		
 		ReadNetCDFRichardsOutput1D readSimData = new ReadNetCDFRichardsOutput1D();
@@ -189,7 +203,7 @@ public class TestVanGenuchten {
 		readSimData.read();
 
 		for(int k=0; k<readSimData.psi[(readSimData.psi.length)-1].length; k++) {
-			if(Math.abs(readSimData.psi[(readSimData.psi.length)-1][k]-readTestData.psi[(readTestData.psi.length)-1][k])>Math.pow(10,-11)) {
+			if(Math.abs(readSimData.psi[(readSimData.psi.length)-1][k]-readTestData.psi[(readTestData.psi.length)-1][k])>Math.pow(10,-7)) {
 				System.out.println("\n\n\t\tERROR: psi mismatch");
 			}
 		}
