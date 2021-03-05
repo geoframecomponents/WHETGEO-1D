@@ -19,27 +19,23 @@
 
 package it.geoframe.blogspot.whetgeo1d.richardssolver;
 
+import static org.jgrasstools.gears.libs.modules.JGTConstants.isNovalue;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-//import it.geoframe.blogspot.closureequation.conductivitymodel.ConductivityEquation;
-//import it.geoframe.blogspot.closureequation.conductivitymodel.ConductivityEquationFactory;
-//import it.geoframe.blogspot.closureequation.conductivitymodel.UnsaturatedHydraulicConductivityTemperatureFactory;
-//import it.geoframe.blogspot.closureequation.interfaceconductivity.InterfaceConductivity;
-//import it.geoframe.blogspot.closureequation.interfaceconductivity.SimpleInterfaceConductivityFactory;
-//import it.geoframe.blogspot.closureequation.closureequation.ClosureEquation;
+import static org.jgrasstools.gears.libs.modules.JGTConstants.isNovalue;
+
 import it.geoframe.blogspot.closureequation.closureequation.Parameters;
-//import it.geoframe.blogspot.closureequation.closureequation.SoilWaterRetentionCurveFactory;
 import it.geoframe.blogspot.closureequation.equationstate.EquationState;
 import it.geoframe.blogspot.whetgeo1d.boundaryconditions.BoundaryCondition;
 import it.geoframe.blogspot.whetgeo1d.boundaryconditions.RichardsSimpleBoundaryConditionFactory;
 import it.geoframe.blogspot.whetgeo1d.data.ComputeQuantitiesRichards;
 import it.geoframe.blogspot.whetgeo1d.data.Geometry;
 import it.geoframe.blogspot.whetgeo1d.data.ProblemQuantities;
-//import it.geoframe.blogspot.whetgeo1d.equationstate.EquationStateFactory;
-//import it.geoframe.blogspot.whetgeo1d.equationstate.WaterDepth;
 import it.geoframe.blogspot.whetgeo1d.pdefinitevolume.Richards1DFiniteVolumeSolver;
+
 import oms3.annotations.*;
 
 
@@ -242,7 +238,7 @@ public class RichardsSolver1DMain {
 	@Description("The station ID in the timeseries file")
 	@In
 	@Unit ("-")
-	public int stationID = 0;
+	public int stationID;
 	
 	@Description("The HashMap with the time series of the boundary condition at the top of soil column")
 	@In
@@ -312,6 +308,8 @@ public class RichardsSolver1DMain {
 			+ "- 0 do not save")
 	private double saveDate;
 
+	@Description("Temporary variable to read boundary conditions")
+	private double tmpBCValue;
 
 	private Richards1DFiniteVolumeSolver richardsSolver;
 	private ProblemQuantities variables;
@@ -351,29 +349,38 @@ public class RichardsSolver1DMain {
 
 		doProcessBuffer = false;
 
+
 		variables.richardsTopBCValue = 0.0;
+		tmpBCValue = inTopBC.get(stationID)[0];
+		if (isNovalue(tmpBCValue)) tmpBCValue = 0;
 		if(topBCType.equalsIgnoreCase("Top Neumann") || topBCType.equalsIgnoreCase("TopNeumann") || topBCType.equalsIgnoreCase("Top Coupled") || topBCType.equalsIgnoreCase("TopCoupled")) {
-			variables.richardsTopBCValue = (inTopBC.get(stationID)[0]/1000)/tTimeStep;
+			variables.richardsTopBCValue = (tmpBCValue/1000)/tTimeStep;
 		} else {
-			variables.richardsTopBCValue = inTopBC.get(stationID)[0]/1000;
+			variables.richardsTopBCValue = tmpBCValue/1000;
 		}
 		
 
 		variables.richardsBottomBCValue = 0.0;
+		tmpBCValue = inBottomBC.get(stationID)[0];
+		if (isNovalue(tmpBCValue)) tmpBCValue = 0;
 		if(inBottomBC != null) {
-			variables.richardsBottomBCValue = inBottomBC.get(stationID)[0];
+			variables.richardsBottomBCValue = tmpBCValue;
 		}
 
 		saveDate = 1.0;
 		if(inSaveDate != null) {
 			saveDate = inSaveDate.get(stationID)[0];
 		}
-		
-//		outputToBuffer.clear();
+
+		outputToBuffer.clear();
 
 		double sumTimeDelta = 0;
 
 		computeQuantitiesRichards.resetRunOff();
+		
+		if(step==184) {
+			picardIteration = 1;
+		}
 
 		while(sumTimeDelta < tTimeStep) {
 
@@ -382,6 +389,7 @@ public class RichardsSolver1DMain {
 				timeDelta = tTimeStep - sumTimeDelta;
 			}
 			sumTimeDelta = sumTimeDelta + timeDelta;
+
 
 			/*
 			 * Compute water volumes
@@ -471,7 +479,7 @@ public class RichardsSolver1DMain {
 
 		if(saveDate == 1) {
 			outputToBuffer.add(variables.waterSuctions);
-			outputToBuffer.add(variables.thetas);
+			outputToBuffer.add(variables.thetasNew);
 			outputToBuffer.add(variables.volumesNew);
 			outputToBuffer.add(variables.darcyVelocities);
 			outputToBuffer.add(variables.darcyVelocitiesCapillary);

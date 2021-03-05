@@ -23,14 +23,9 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-//import it.geoframe.blogspot.closureequation.conductivitymodel.ConductivityEquation;
-//import it.geoframe.blogspot.closureequation.conductivitymodel.ConductivityEquationFactory;
-//import it.geoframe.blogspot.closureequation.conductivitymodel.UnsaturatedHydraulicConductivityTemperatureFactory;
-//import it.geoframe.blogspot.closureequation.interfaceconductivity.InterfaceConductivity;
-//import it.geoframe.blogspot.closureequation.interfaceconductivity.SimpleInterfaceConductivityFactory;
-//import it.geoframe.blogspot.closureequation.closureequation.ClosureEquation;
+import static org.jgrasstools.gears.libs.modules.JGTConstants.isNovalue;
+
 import it.geoframe.blogspot.closureequation.closureequation.Parameters;
-//import it.geoframe.blogspot.closureequation.closureequation.SoilWaterRetentionCurveFactory;
 import it.geoframe.blogspot.closureequation.equationstate.EquationState;
 import it.geoframe.blogspot.whetgeo1d.boundaryconditions.BoundaryCondition;
 import it.geoframe.blogspot.whetgeo1d.boundaryconditions.RichardsSimpleBoundaryConditionFactory;
@@ -38,9 +33,8 @@ import it.geoframe.blogspot.whetgeo1d.data.ComputeQuantitiesLysimeter;
 import it.geoframe.blogspot.whetgeo1d.data.ComputeQuantitiesRichards;
 import it.geoframe.blogspot.whetgeo1d.data.Geometry;
 import it.geoframe.blogspot.whetgeo1d.data.ProblemQuantities;
-//import it.geoframe.blogspot.whetgeo1d.equationstate.EquationStateFactory;
-//import it.geoframe.blogspot.whetgeo1d.equationstate.WaterDepth;
 import it.geoframe.blogspot.whetgeo1d.pdefinitevolume.Richards1DFiniteVolumeSolver;
+
 import oms3.annotations.*;
 
 
@@ -335,6 +329,8 @@ public class RichardsLysimeterSolver1DMain {
 			+ "- 0 do not save")
 	private double saveDate;
 
+	@Description("Temporary variable to read boundary conditions")
+	private double tmpBCValue;
 
 	private Richards1DFiniteVolumeSolver richardsSolver;
 	private ProblemQuantities variables;
@@ -378,24 +374,30 @@ public class RichardsLysimeterSolver1DMain {
 
 
 		variables.richardsTopBCValue = 0.0;
+		tmpBCValue = inTopBC.get(stationID)[0];
+		if (isNovalue(tmpBCValue)) tmpBCValue = 0;
 		if(topBCType.equalsIgnoreCase("Top Neumann") || topBCType.equalsIgnoreCase("TopNeumann") || topBCType.equalsIgnoreCase("Top Coupled") || topBCType.equalsIgnoreCase("TopCoupled")) {
-			variables.richardsTopBCValue = (inTopBC.get(stationID)[0]/1000)/tTimeStep;
+			variables.richardsTopBCValue = (tmpBCValue/1000)/tTimeStep;
 		} else {
-			variables.richardsTopBCValue = inTopBC.get(stationID)[0]/1000;
+			variables.richardsTopBCValue = tmpBCValue/1000;
 		}
 		
 
 		variables.richardsBottomBCValue = 0.0;
+		tmpBCValue = inBottomBC.get(stationID)[0];
+		if (isNovalue(tmpBCValue)) tmpBCValue = 0;
 		if(inBottomBC != null) {
-			variables.richardsBottomBCValue = inBottomBC.get(stationID)[0];
+			variables.richardsBottomBCValue = tmpBCValue;
 		}
 
-		saveDate = -1.0;
+		saveDate = 1.0;
 		if(inSaveDate != null) {
 			saveDate = inSaveDate.get(stationID)[0];
-		}		
+		}
 
-		computeQuantitiesLysimeter.computeEvapoTranspirations(KMAX, tTimeStep, stressedETs);
+		
+
+		computeQuantitiesLysimeter.computeEvapoTranspirations(KMAX, tTimeStep, timeDelta, stressedETs);
 
 		computeQuantitiesRichards.resetRunOff();
 		
@@ -428,7 +430,7 @@ public class RichardsLysimeterSolver1DMain {
 			/*
 			 * Check the sink term for ET
 			 */
-			computeQuantitiesLysimeter.checkEvapoTranspirations(KMAX, timeDelta);
+			computeQuantitiesLysimeter.checkEvapoTranspirations(KMAX);
 
 			
 			/*

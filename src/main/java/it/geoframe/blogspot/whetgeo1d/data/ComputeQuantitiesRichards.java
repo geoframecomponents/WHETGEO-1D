@@ -114,7 +114,9 @@ public class ComputeQuantitiesRichards {
 
 		conductivityEquationFactory = new ConductivityEquationFactory();
 		if(typeClosureEquation[0].equalsIgnoreCase("Water Depth") || typeClosureEquation[0].equalsIgnoreCase("Water Depth")) {
-			typeUHCModel[0] = typeUHCModel[variables.parameterID[variables.parameterID.length-2]];
+//			typeUHCModel[0] = typeUHCModel[variables.parameterID[variables.parameterID.length-2]];
+//			hydraulicConductivity.add(conductivityEquationFactory.create(typeUHCModel[0], closureEquation.get(variables.equationStateID[variables.equationStateID.length-2])));
+			typeUHCModel[0] = typeUHCModel[variables.equationStateID[variables.equationStateID.length-2]];
 			hydraulicConductivity.add(conductivityEquationFactory.create(typeUHCModel[0], closureEquation.get(variables.equationStateID[variables.equationStateID.length-2])));
 			for(int i=1; i<typeUHCModel.length; i++) {
 				hydraulicConductivity.add(conductivityEquationFactory.create(typeUHCModel[i], closureEquation.get(i)));
@@ -176,14 +178,14 @@ public class ComputeQuantitiesRichards {
 	
 	public void computeThetas(int KMAX) {
 		
-		for(int element = 0; element < KMAX-1; element++) {
+		for(int element = 0; element < KMAX; element++) {
 			variables.thetas[element] = closureEquation.get(variables.equationStateID[element]).f(variables.waterSuctions[element], variables.temperatures[element], variables.parameterID[element]);
 		}
 	}
 	
 	public void computeThetasNew(int KMAX) {
 		
-		for(int element = 0; element < KMAX-1; element++) {
+		for(int element = 0; element < KMAX; element++) {
 			variables.thetasNew[element] = closureEquation.get(variables.equationStateID[element]).f(variables.waterSuctions[element], variables.temperatures[element], variables.parameterID[element]);
 		}
 	}

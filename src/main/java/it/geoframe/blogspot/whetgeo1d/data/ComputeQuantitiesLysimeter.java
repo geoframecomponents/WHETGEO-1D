@@ -62,10 +62,10 @@ public class ComputeQuantitiesLysimeter {
 	 * FIXME: check the extreme of the for loops in order to deal with Neumann BC and 
 	 * Dirichlet BC.
 	 */
-	public void computeEvapoTranspirations(int KMAX, double tTimeStep, double[] stressedETs) {
+	public void computeEvapoTranspirations(int KMAX, double tTimeStep, double timeDelta, double[] stressedETs) {
 			
 		for(int element = 0; element < KMAX-2; element++) {
-			variables.ETs[element] = stressedETs[element]/1000/tTimeStep;
+			variables.ETs[element] = stressedETs[element]/1000/tTimeStep*timeDelta;
 		}
 		
 	}
@@ -74,21 +74,30 @@ public class ComputeQuantitiesLysimeter {
 	 * FIXME: check the extreme of the for loops in order to deal with Neumann BC and 
 	 * Dirichlet BC.
 	 */
-	public void checkEvapoTranspirations(int KMAX, double timeDelta) {
+	public void checkEvapoTranspirations(int KMAX) {
 		
 		variables.sumETs = 0.0;
 		
 		for(int element = 0; element < KMAX-1; element++) {
 			
-			variables.ETs[element] = variables.ETs[element]*timeDelta;
-			
-			if(variables.ETs[element] > (variables.volumes[element] - thetaWP[variables.parameterID[element]]*geometry.controlVolume[element])) {
-				variables.ETs[element] = variables.volumes[element] - thetaWP[variables.parameterID[element]]*geometry.controlVolume[element];
-				/*
-				 * FIXME: add a warning if this happens?
-				 */
-				System.out.println("Errore nel calcolo di ETs. E' maggiore di volumes[i] - thetaR[i]*geometry.controlVolumex[i] ");
-			}		
+			if(variables.volumes[element] > thetaWP[variables.parameterID[element]]*geometry.controlVolume[element]) {
+				if(variables.ETs[element] > (variables.volumes[element] - thetaWP[variables.parameterID[element]]*geometry.controlVolume[element])) {
+					variables.ETs[element] = variables.volumes[element] - thetaWP[variables.parameterID[element]]*geometry.controlVolume[element];
+					/*
+					 * FIXME: add a warning if this happens?
+					 */
+					System.out.println("\tETs volume larger than water volume available for evapotranspiration, ETs reduced.");
+				}
+			} else {
+				if(variables.ETs[element] != 0.0) {
+					System.out.println("\tBroker error, g!=0");
+					
+					variables.ETs[element] = 0.0;
+					System.out.println("\tETs set to 0");
+				} else {
+					System.out.println("\tETs is already 0");
+				}
+			}
 			
 			variables.sumETs = variables.sumETs + variables.ETs[element];
 		}
