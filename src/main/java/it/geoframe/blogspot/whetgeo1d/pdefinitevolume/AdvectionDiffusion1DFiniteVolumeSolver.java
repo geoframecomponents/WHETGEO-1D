@@ -21,9 +21,8 @@ package it.geoframe.blogspot.whetgeo1d.pdefinitevolume;
 import java.util.List;
 
 import it.geoframe.blogspot.whetgeo1d.boundaryconditions.*;
-import it.geoframe.blogspot.whetgeo1d.data.*;
 import it.geoframe.blogspot.closureequation.equationstate.EquationState;
-import it.geoframe.blogspot.numerical.newtonalgorithm.NestedNewtonThomas;
+import it.geoframe.blogspot.numerical.linearsystemsolver.Thomas;
 import oms3.annotations.*;
 
 @Description("This code solve the advection-diffusion equatio written in conservative form."
@@ -77,9 +76,6 @@ public class AdvectionDiffusion1DFiniteVolumeSolver {
 
 	private boolean checkData = true;
 
-	@Description("Object to perform the nested Newton algortithm")
-	private NestedNewtonThomas nestedNewtonAlg;
-
 	@Description("This list contains the objects that describes the state equations of the problem")
 	private List<EquationState> equationState;
 
@@ -89,17 +85,16 @@ public class AdvectionDiffusion1DFiniteVolumeSolver {
 	@Description("This object compute the diagonal and right hand side entries for the lowermost cell accordingly with the prescribed bottom boundary condition.")
 	private BoundaryCondition bottomBoundaryCondition;
 	
+	private Thomas thomasAlg = new Thomas();
     //////////////////////////////
 
 
 
-	public AdvectionDiffusion1DFiniteVolumeSolver( BoundaryCondition topBoundaryCondition, BoundaryCondition bottomBoundaryCondition, int KMAX, int nestedNewton, double newtonTolerance, double delta,
-			int MAXITER_NEWT, List<EquationState> equationState) {
+	public AdvectionDiffusion1DFiniteVolumeSolver( BoundaryCondition topBoundaryCondition, BoundaryCondition bottomBoundaryCondition, int KMAX) {
 
 		this.topBoundaryCondition = topBoundaryCondition;		
 		this.bottomBoundaryCondition = bottomBoundaryCondition;	
 
-		nestedNewtonAlg = new NestedNewtonThomas(nestedNewton, newtonTolerance, MAXITER_NEWT, KMAX, equationState, delta);
 
 		this.KMAX = KMAX;
 
@@ -120,7 +115,7 @@ public class AdvectionDiffusion1DFiniteVolumeSolver {
 	 * @param inCurrentDate
 	 * @param timeDelta
 	 */
-	public double[] solve(double timeDelta, double bottomBCValue, double topBCValue, int KMAX, double[] kappasInterface, double[] conservedQuantities, double[] spaceDeltaZ,
+	public double[] solve(double timeDelta, double bottomBCValue, double topBCValue, int KMAX, double[] kappasInterface, double[] conservedQuantitiesNew, double[] conservedQuantities, double[] spaceDeltaZ,
 			double[] sourceSinkTerm, double[] x, double[] y, double[] velocities, double[] transportedQuantities, int[] parameterID, int[] rheologyID) {
 
 
@@ -138,10 +133,14 @@ public class AdvectionDiffusion1DFiniteVolumeSolver {
 			
 				kP = kappasInterface[i+1];
 				kM = kappasInterface[i];
-				lowerDiagonal[i] = -kM*timeDelta/spaceDeltaZ[i];
-				mainDiagonal[i] = kM*timeDelta/spaceDeltaZ[i] + kP*timeDelta/spaceDeltaZ[i+1];
-				upperDiagonal[i] = -kP*timeDelta/spaceDeltaZ[i+1];
-				rhss[i] = conservedQuantities[i] - sourceSinkTerm[i]; 
+				lowerDiagonal[i] = -kM*timeDelta/spaceDeltaZ[i] + timeDelta*transportedQuantities[i]*(-0.5*velocities[i] - 0.5*Math.abs(velocities[i]));
+				
+				mainDiagonal[i] = conservedQuantitiesNew[i] + kM*timeDelta/spaceDeltaZ[i] + kP*timeDelta/spaceDeltaZ[i+1] 
+						+ timeDelta*transportedQuantities[i]*(0.5*velocities[i+1] + 0.5*Math.abs(velocities[i+1]) - 0.5*velocities[i] + 0.5*Math.abs(velocities[i]) );
+				
+				upperDiagonal[i] = -kP*timeDelta/spaceDeltaZ[i+1] + timeDelta*transportedQuantities[i]*(0.5*velocities[i+1] -0.5*Math.abs(velocities[i+1]));
+				
+				rhss[i] = conservedQuantities[i]*x[i] - sourceSinkTerm[i]; 
 				
 		}
 		
@@ -150,17 +149,32 @@ public class AdvectionDiffusion1DFiniteVolumeSolver {
 		kP = kappasInterface[1];
 		kM = kappasInterface[0];
 		lowerDiagonal[0] =  bottomBoundaryCondition.lowerDiagonal(-999.0, kP, kM, spaceDeltaZ[1], spaceDeltaZ[0], timeDelta);
-		mainDiagonal[0] = bottomBoundaryCondition.mainDiagonal(-999.0, kP, kM, spaceDeltaZ[1], spaceDeltaZ[0], timeDelta);
-		upperDiagonal[0] = bottomBoundaryCondition.upperDiagonal(-999.0, kP, kM, spaceDeltaZ[1], spaceDeltaZ[0], timeDelta);
-		rhss[0] = conservedQuantities[0] + bottomBoundaryCondition.rightHandSide(bottomBCValue, kP, kM, spaceDeltaZ[1], spaceDeltaZ[0], timeDelta) - sourceSinkTerm[0];
+		
+		mainDiagonal[0] = conservedQuantitiesNew[0] + bottomBoundaryCondition.mainDiagonal(-999.0, kP, kM, spaceDeltaZ[1], spaceDeltaZ[0], timeDelta)
+				+ timeDelta*transportedQuantities[0]*(0.5*velocities[1] + 0.5*Math.abs(velocities[1]) - 0.5*velocities[0] + 0.5*Math.abs(velocities[0]));
+		
+		upperDiagonal[0] = bottomBoundaryCondition.upperDiagonal(-999.0, kP, kM, spaceDeltaZ[1], spaceDeltaZ[0], timeDelta)
+				+ timeDelta*transportedQuantities[0]*(0.5*velocities[1] -0.5*Math.abs(velocities[1]));
+		
+		rhss[0] = conservedQuantities[0]*x[0] + bottomBoundaryCondition.rightHandSide(bottomBCValue, kP, kM, spaceDeltaZ[1], spaceDeltaZ[0], timeDelta) 
+				- timeDelta*transportedQuantities[0]*(-0.5*velocities[0]*bottomBCValue - 0.5*Math.abs(velocities[0])*bottomBCValue)
+				- sourceSinkTerm[0];
 
+		
 		// i == KMAX -1
 		kP = kappasInterface[KMAX];
 		kM = kappasInterface[KMAX-1];
-		lowerDiagonal[KMAX-1] = topBoundaryCondition.lowerDiagonal(-999.0, kP, kM, spaceDeltaZ[KMAX], spaceDeltaZ[KMAX-1], timeDelta); 
-		mainDiagonal[KMAX-1] = topBoundaryCondition.mainDiagonal(-999.0, kP, kM, spaceDeltaZ[KMAX], spaceDeltaZ[KMAX-1], timeDelta);
+		lowerDiagonal[KMAX-1] = topBoundaryCondition.lowerDiagonal(-999.0, kP, kM, spaceDeltaZ[KMAX], spaceDeltaZ[KMAX-1], timeDelta) 
+				+ timeDelta*transportedQuantities[KMAX-1]*( -0.5*velocities[KMAX-1] - 0.5*Math.abs(velocities[KMAX-1])); 
+		
+		mainDiagonal[KMAX-1] = conservedQuantitiesNew[KMAX-1] + topBoundaryCondition.mainDiagonal(-999.0, kP, kM, spaceDeltaZ[KMAX], spaceDeltaZ[KMAX-1], timeDelta)
+				+ timeDelta*transportedQuantities[KMAX-1]*( 0.5*velocities[KMAX] + 0.5*Math.abs(velocities[KMAX]) - 0.5*velocities[KMAX-1] + 0.5*Math.abs(velocities[KMAX-1]) );
+		
 		upperDiagonal[KMAX-1] = topBoundaryCondition.upperDiagonal(-999.0, kP, kM, spaceDeltaZ[KMAX], spaceDeltaZ[KMAX-1], timeDelta);
-		rhss[KMAX -1] = conservedQuantities[KMAX-1] + topBoundaryCondition.rightHandSide(topBCValue, kP, kM, spaceDeltaZ[KMAX], spaceDeltaZ[KMAX-1], timeDelta) - sourceSinkTerm[KMAX-1];
+		
+		rhss[KMAX -1] = conservedQuantities[KMAX-1]*x[KMAX-1] + topBoundaryCondition.rightHandSide(topBCValue, kP, kM, spaceDeltaZ[KMAX], spaceDeltaZ[KMAX-1], timeDelta)
+				- timeDelta*transportedQuantities[KMAX-1]*( 0.5*velocities[KMAX]*topBCValue - 0.5*Math.abs(velocities[KMAX])*topBCValue )
+				- sourceSinkTerm[KMAX-1];
 
 		 
 //		if(checkData == true) {
@@ -186,12 +200,8 @@ public class AdvectionDiffusion1DFiniteVolumeSolver {
 //			}
 //		}
 		
-		/* 
-		 * NESTED NEWTON ALGORITHM /
-		 */
-	
-		nestedNewtonAlg.set(x, y, mainDiagonal, upperDiagonal, lowerDiagonal, rhss, KMAX, parameterID, rheologyID);
-		return x = nestedNewtonAlg.solver();
+		thomasAlg.set(upperDiagonal,mainDiagonal,lowerDiagonal,rhss,KMAX);
+		return x = thomasAlg.solver();
 
 
 

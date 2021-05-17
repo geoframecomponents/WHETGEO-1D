@@ -376,11 +376,6 @@ public class RichardsSolver1DMain {
 
 		double sumTimeDelta = 0;
 
-		computeQuantitiesRichards.resetRunOff();
-		
-		if(step==184) {
-			picardIteration = 1;
-		}
 
 		while(sumTimeDelta < tTimeStep) {
 
@@ -395,9 +390,7 @@ public class RichardsSolver1DMain {
 			 * Compute water volumes
 			 */
 			computeQuantitiesRichards.computeWaterVolume(KMAX);
-//			for(int k=0; k<KMAX;k++) {
-//				System.out.println(variables.volumes[k]);
-//			}
+
 			
 			/*
 			 * Compute xStar
@@ -415,15 +408,10 @@ public class RichardsSolver1DMain {
 				 * 
 				 */	
 				computeQuantitiesRichards.computeHydraulicConductivity(KMAX);
-//				for(int k=0; k<KMAX;k++) {
-//					System.out.println(variables.kappas[k]);
-//				}
-//				System.out.println("\n\n");
+
 
 				computeQuantitiesRichards.computeInterfaceHydraulicConductivity(KMAX);
-//				for(int k=0; k<KMAX+1;k++) {
-//					System.out.println(variables.kappasInterface[k]);
-//				}
+
 
 				
 				/*
@@ -459,20 +447,12 @@ public class RichardsSolver1DMain {
 			computeQuantitiesRichards.computePoreVelocities(KMAX);
 			computeQuantitiesRichards.computeCelerities(KMAX);
 			computeQuantitiesRichards.computeKinematicRatio(KMAX);
-//			System.out.println("\n\n");
-//			for(int k=0; k<KMAX;k++) {
-//				System.out.println(variables.waterSuctions[k]);
-//			}
-//			System.out.println("\n\n");
-//			for(int k=0; k<KMAX;k++) {
-//				System.out.println(variables.darcyVelocities[k]);
-//			}
+
 			
 			/*
 			 * compute error
 			 */
 			computeQuantitiesRichards.computeError(KMAX, timeDelta);
-//			System.out.println(variables.errorVolume);
 
 		}
 
@@ -488,12 +468,12 @@ public class RichardsSolver1DMain {
 			outputToBuffer.add(variables.celerities);
 			outputToBuffer.add(variables.kinematicRatio);
 			outputToBuffer.add(new double[] {variables.errorVolume});
-			outputToBuffer.add(new double[] {variables.richardsTopBCValue*tTimeStep*1000}); // I want to have rainfall height instead of water flux
+			outputToBuffer.add(new double[] {variables.richardsTopBCValue*tTimeStep*1000}); 
 			outputToBuffer.add(new double[] {variables.richardsBottomBCValue});
 			outputToBuffer.add(new double[] {variables.runOff/tTimeStep}); // surface runoff
 			doProcessBuffer = true;
 		} else {
-			//			System.out.println("SaveDate = " + saveDate);
+			
 		}
 		step++;
 

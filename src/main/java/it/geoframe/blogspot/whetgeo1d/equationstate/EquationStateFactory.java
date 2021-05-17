@@ -41,6 +41,14 @@ public class EquationStateFactory {
 			myModel = new SoilWaterVolumeGardner(closureEquation);
 		} else if(model.equalsIgnoreCase("Water Depth") || model.equalsIgnoreCase("WaterDepth") ) {
 			myModel = new WaterDepth(closureEquation);
+		} else if(model.equalsIgnoreCase("Soil Internal Energy") || model.equalsIgnoreCase("SoilInternalEnergy")) {
+			myModel = new SoilInternalEnergy(closureEquation);
+		} else if(model.equalsIgnoreCase("Freezing Soil Internal Energy") || model.equalsIgnoreCase("FreezingSoilInternalEnergy")) {
+			myModel = new FreezingSoilInternalEnergy(closureEquation);
+		} else if(model.equalsIgnoreCase("Soil heat capacity") || model.equalsIgnoreCase("SoilHeatCapacity")) {
+			myModel = new SoilHeatCapacity(closureEquation);
+		} else if(model.equalsIgnoreCase("Water heat capacity") || model.equalsIgnoreCase("WaterHeatCapacity")) {
+			myModel = new PureWaterHeatCapacity(closureEquation);
 		} else {
 			System.out.println("\n\n\tERROR: please check the stateEquationModel");
 		}
