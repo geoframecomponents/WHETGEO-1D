@@ -21,7 +21,8 @@ public class ProblemQuantities {
 	public double[] temperatures;
 	
 	public double[] thetas;
-    public double[] thetasNew;    
+    public double[] thetasNew;  
+    public double[] iceContent;
 	public double[] kappas;
 	public double[] kappasInterface;
 	public double[] volumes;
@@ -38,9 +39,14 @@ public class ProblemQuantities {
 	
 	public double[] internalEnergys;
 	public double[] internalEnergysNew;
+	public double[] heatCapacitys;
+	public double[] heatCapacitysNew;
+	public double[] waterCapacityTransported;
 	public double[] lambdas;
 	public double[] lambdasInterface;
 	public double[] conductionHeatFluxs;
+	public double[] advectionHeatFluxs;
+	public double[] heatFluxs;
 	public double[] heatSourcesSinksTerm;
 	public double[] temperatureStar1;
 	public double[] temperatureStar2;
@@ -62,10 +68,33 @@ public class ProblemQuantities {
 	public double internalEnergyNew;
 	public double errorInternalEnergy;
 	public double internalEnergyTopBCValue;
+	public double shortWaveIn;
+	public double longWaveIn;
+	public double shortWaveOut;
+	public double longWaveOut;
+	public double airT;
+	public double windVelocity;
+	public double potentialLatentHeatFlux;
+	public double actualLatentHeatFlux;
+	public double sensibleHeatFlux;
+	public double referenceHeight;
+	public double surfaceRoughness;
+	public double surfaceZeroHeightDisplacement;
+	public double h1;
+	public double h2;
+	public double h3;
+	public double h4;
+	public double sensibleHeatCoefficient;
 	public double internalEnergyBottomBCValue;
 	public double heatFluxTop;
 	public double heatFluxBottom;
-
+	public double surfaceAlbedo;
+	public double surfaceEmissivity;
+	public double linearizedLongWaveOut;
+	public final double constantStefanBoltzmann = 5.67*Math.pow(10, -8);
+	public final double airDensity = 1.225;
+	public final double airHeatCapacity = 1000;
+	
 
 	public double sumETs;
 	public double[] ETs;
@@ -76,6 +105,7 @@ public class ProblemQuantities {
 		temperatures = icTemperature.clone();
 		thetas = new double[icWaterSuction.length];
 		thetasNew = new double[icWaterSuction.length];
+		iceContent = new double[icWaterSuction.length];
 		kappas = new double[icWaterSuction.length];
 		kappasInterface = new double[icWaterSuction.length+1];
 		volumes = new double[icWaterSuction.length];
@@ -93,9 +123,14 @@ public class ProblemQuantities {
 		
 		internalEnergys = new double[icWaterSuction.length];
 		internalEnergysNew = new double[icWaterSuction.length];
+		heatCapacitys = new double[icWaterSuction.length];
+		heatCapacitysNew = new double[icWaterSuction.length];
+		waterCapacityTransported = new double[icWaterSuction.length];
 		lambdas = new double[icWaterSuction.length];
 		lambdasInterface = new double[icWaterSuction.length+1];
 		conductionHeatFluxs = new double[icWaterSuction.length+1];
+		advectionHeatFluxs = new double[icWaterSuction.length+1];
+		heatFluxs = new double[icWaterSuction.length+1];
 		heatSourcesSinksTerm = new double[icWaterSuction.length];
 		temperatureStar1 = new double[icWaterSuction.length];
 		temperatureStar2 = new double[icWaterSuction.length];

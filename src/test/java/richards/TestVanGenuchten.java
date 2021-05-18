@@ -54,7 +54,7 @@ public class TestVanGenuchten {
 		String pathBottomBC = "resources/input/TimeSeries/bottom.csv";
 		String pathSaveDates = "resources/input/TimeSeries/save.csv"; 
 		String pathGrid =  "resources/input/Grid_NetCDF/RichardsCoupled_VG.nc";
-		String pathOutput = "resources/output/Sim_RichardsCoupled_VG_cancella.nc";
+		String pathOutput = "resources/output/Sim_RichardsCoupled_VG.nc";
 		
 		String topBC = "Top Coupled";
 		String bottomBC = "Bottom free drainage";

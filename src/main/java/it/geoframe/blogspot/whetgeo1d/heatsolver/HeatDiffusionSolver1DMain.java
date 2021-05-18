@@ -17,41 +17,74 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package it.geoframe.blogspot.whetgeo1d.richardssolver;
-
-import static org.jgrasstools.gears.libs.modules.JGTConstants.isNovalue;
+package it.geoframe.blogspot.whetgeo1d.heatsolver;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-import static org.jgrasstools.gears.libs.modules.JGTConstants.isNovalue;
-
 import it.geoframe.blogspot.closureequation.closureequation.Parameters;
 import it.geoframe.blogspot.closureequation.equationstate.EquationState;
+
 import it.geoframe.blogspot.whetgeo1d.boundaryconditions.BoundaryCondition;
-import it.geoframe.blogspot.whetgeo1d.boundaryconditions.RichardsSimpleBoundaryConditionFactory;
-import it.geoframe.blogspot.whetgeo1d.data.ComputeQuantitiesRichards;
+import it.geoframe.blogspot.whetgeo1d.boundaryconditions.DiffusionSimpleBoundaryConditionFactory;
+import it.geoframe.blogspot.whetgeo1d.data.ComputeQuantitiesInternalEnergy;
 import it.geoframe.blogspot.whetgeo1d.data.Geometry;
 import it.geoframe.blogspot.whetgeo1d.data.ProblemQuantities;
-import it.geoframe.blogspot.whetgeo1d.pdefinitevolume.Richards1DFiniteVolumeSolver;
-
+import it.geoframe.blogspot.whetgeo1d.pdefinitevolume.Diffusion1DFiniteVolumeSolver;
 import oms3.annotations.*;
 
 
-
-
-
-@Description("Solve the Richards equation for the 1D domain.")
+@Description("Solve the pure heat diffusion equation in the conservative form for the 1D domain.")
 @Documentation("")
 @Author(name = "Niccolo' Tubini, and Riccardo Rigon", contact = "tubini.niccolo@gmail.com")
-@Keywords("Hydrology, Richards, Infiltration")
+@Keywords("Hydrology, heat diffusion")
 @Bibliography("Casulli (2010)")
 //@Label()
 //@Name()
 //@Status()
 @License("General Public License Version 3 (GPLv3)")
-public class RichardsSolver1DMain {
+public class HeatDiffusionSolver1DMain {
+
+	/*
+	 * WATER THERMAL PROPERTIES
+	 */
+	
+	@Description("Water density. Default value 1000.0 [kg m-3].")
+	@In 
+	@Unit ("kg m-3")
+	public double waterDensity = 1000.0;
+
+	@Description("Ice density. Default value 920.0 [kg m-3].")
+	@In 
+	@Unit ("kg m-3")
+	public double iceDensity = 920.0;
+
+	@Description("Specific thermal capacity of water. Default value 4188.0 [J kg-1 K-1].")
+	@In 
+	@Unit ("J kg-1 K-1")
+	public double specificThermalCapacityWater = 4188.0;
+
+	@Description("Specific thermal capacity of ice. Default value 2117.0 [J kg-1 K-1].")
+	@In 
+	@Unit ("J kg-1 K-1")
+	public double specificThermalCapacityIce = 2117.0;
+
+	@Description("Thermal conductivity of water. Default value 0.6 [W m-1 K-1].")
+	@In 
+	@Unit ("W m-1 K-1")
+	public double thermalConductivityWater = 0.6;
+
+	@Description("Thermal conductivity of ice. Default value 2.29 [W m-1 K-1].")
+	@In 
+	@Unit ("W m-1 K-1")
+	public double thermalConductivityIce = 2.29;
+
+	@Description("Latent heat of fusion. Default value 333700 [J kg-1].")
+	@In 
+	@Unit ("J kg-1")
+	public double latentHeatFusion = 333700;
+	
 
 	/*
 	 * SOIL PARAMETERS
@@ -116,6 +149,31 @@ public class RichardsSolver1DMain {
 	@Unit ("K")
 	public double referenceTemperatureSWRC = 278.15;
 	
+	@Description("Reference temperature to compute internal energy")
+	@In 
+	@Unit ("K")
+	public double referenceTemperatureInternalEnergy = 273.15;
+	
+	@Description("Soil particles density")
+	@In 
+	@Unit ("kg m-3")
+	public double[] soilParticlesDensity;
+
+	@Description("Specific thermal capacity of soil particles")
+	@In 
+	@Unit ("J kg-1 K-1")
+	public double[] specificThermalCapacitySoilParticles;
+
+	@Description("Thermal conductivity of soil particles")
+	@In 
+	@Unit ("W m-1 K-1")
+	public double[] thermalConductivitySoilParticles;
+
+	@Description("Melting temperature")
+	@In 
+	@Unit ("K")
+	public double[] meltingTemperature;
+	
 	@Description("Control volume label defining the equation state")
 	@In 
 	@Unit("-")
@@ -132,34 +190,25 @@ public class RichardsSolver1DMain {
 	 * - conductivity model
 	 * - interface conductivity model
 	 */
-	@Description("It is possibile to chose between 3 different models to compute "
-			+ "the soil hydraulic properties: Van Genuchten; Brooks and Corey; Kosugi unimodal")
+	@Description("Closure equation models")
 	@In 
 	public String[] typeClosureEquation;
 	
-	@Description("It is possibile to chose between 3 different models to compute "
-			+ "the soil hydraulic properties: Van Genuchten; Brooks and Corey; Kosugi unimodal")
+	@Description("Equation state")
 	@In 
 	public String[] typeEquationState;
-	
-	@Description("It is possible to choose among these models:"
-			+ "Mualem Van Genuchten, Mualem Brooks Corey, ....")
+
+	@Description("Thermal conductivity models")
 	@In 
-	public String[] typeUHCModel;
+	public String[] typeThermalConductivity;
 
-	@Description("It is possible to choose among these models:"
-			+ "notemperature, ....")
-	@In 
-	public String typeUHCTemperatureModel;
-
-
-	@Description("Hydraulic conductivity at control volume interface can be evaluated as"
+	@Description("Thermal conductivity at control volume interface can be evaluated as"
 			+ " the average of kappas[i] and kappas[i+1]"
 			+ " the maximum between kappas[i] and kappas[i+1]"
 			+ " the minimum between kappas[i] and kappas[i+1]"
 			+ " a weighted average of kappas[i] and kappas[i+1] where weights are dx[i] and dx[i+1]")
 	@In
-	public String interfaceHydraulicConductivityModel;
+	public String interfaceThermalConductivityModel;
 
 
 	/*
@@ -192,11 +241,6 @@ public class RichardsSolver1DMain {
 	@In 
 	@Unit("m")
 	public double[] controlVolume;
-
-	@Description("Maximum ponding depth")
-	@In 
-	@Unit("m")
-	public double maxPonding;
 
 	/*
 	 * TIME STEP
@@ -256,19 +300,18 @@ public class RichardsSolver1DMain {
 	@In
 	@Unit ("m")
 	public HashMap<Integer, double[]> inBottomBC;
+	
+	@Description("It is possibile to chose among 2 different kind "
+			+ "of boundary condition at the bottom of the domain: "
+			+ "- Dirichlet boundary condition --> Bottom Dirichlet"
+			+ "- Neumann boundary condition --> Bottom Neumann")
+	@In 
+	public String bottomBCType;
 
 	@Description("")
 	@In
 	@Unit ("")
 	public HashMap<Integer, double[]> inSaveDate;
-
-	@Description("It is possibile to chose among 3 different kind "
-			+ "of boundary condition at the bottom of the domain: "
-			+ "- Dirichlet boundary condition --> Bottom Dirichlet"
-			+ "- Neumann boundary condition --> Bottom Neumann"
-			+ "- Impervious boundary condition --> Bottom Impervious")
-	@In 
-	public String bottomBCType;
 
 	@Description("The current date of the simulation.")
 	@In
@@ -308,17 +351,15 @@ public class RichardsSolver1DMain {
 			+ "- 0 do not save")
 	private double saveDate;
 
-	@Description("Temporary variable to read boundary conditions")
-	private double tmpBCValue;
 
-	private Richards1DFiniteVolumeSolver richardsSolver;
+	private Diffusion1DFiniteVolumeSolver diffusionSolver;
 	private ProblemQuantities variables;
 	private Geometry geometry;
 	private Parameters parameters;
-	private ComputeQuantitiesRichards computeQuantitiesRichards;
+	private ComputeQuantitiesInternalEnergy computeQuantitiesInternalEnergy;
 	private BoundaryCondition topBoundaryCondition;
 	private BoundaryCondition bottomBoundaryCondition;
-	private RichardsSimpleBoundaryConditionFactory boundaryConditionFactory;
+	private DiffusionSimpleBoundaryConditionFactory boundaryConditionFactory;
 
 	@Execute
 	public void solve() {
@@ -330,19 +371,23 @@ public class RichardsSolver1DMain {
 
 			variables = ProblemQuantities.getInstance(psiIC, temperature, inEquationStateID, inParameterID);
 			geometry = Geometry.getInstance(z, spaceDeltaZ, controlVolume);
-			parameters = Parameters.getInstance(referenceTemperatureSWRC, beta0, thetaS, thetaR, par1SWRC, par2SWRC, par3SWRC, par4SWRC, par5SWRC, ks, alphaSpecificStorage, betaSpecificStorage);
+			parameters = Parameters.getInstance(waterDensity, iceDensity, specificThermalCapacityWater,
+					specificThermalCapacityIce, thermalConductivityWater, thermalConductivityIce, latentHeatFusion, referenceTemperatureInternalEnergy,
+					referenceTemperatureSWRC, beta0,
+					thetaS, thetaR, soilParticlesDensity, specificThermalCapacitySoilParticles, thermalConductivitySoilParticles,
+					meltingTemperature, par1SWRC, par2SWRC, par3SWRC, par4SWRC, par5SWRC, ks, alphaSpecificStorage, betaSpecificStorage);
 
-			computeQuantitiesRichards = new ComputeQuantitiesRichards(typeClosureEquation, typeEquationState, typeUHCModel, typeUHCTemperatureModel, interfaceHydraulicConductivityModel, topBCType, bottomBCType);
+			computeQuantitiesInternalEnergy = new ComputeQuantitiesInternalEnergy(typeClosureEquation, typeEquationState, typeThermalConductivity, interfaceThermalConductivityModel, topBCType, bottomBCType);
 			
 			outputToBuffer = new ArrayList<double[]>();
 
-			List<EquationState> equationState = computeQuantitiesRichards.getRichardsStateEquation();
+			List<EquationState> equationState = computeQuantitiesInternalEnergy.getInternalEnergyStateEquation();
 			
-			boundaryConditionFactory = new RichardsSimpleBoundaryConditionFactory();
+			boundaryConditionFactory = new DiffusionSimpleBoundaryConditionFactory();
 			topBoundaryCondition = boundaryConditionFactory.createBoundaryCondition(topBCType);
 			bottomBoundaryCondition = boundaryConditionFactory.createBoundaryCondition(bottomBCType);
-
-			richardsSolver = new Richards1DFiniteVolumeSolver(topBoundaryCondition, bottomBoundaryCondition, KMAX, nestedNewton, newtonTolerance, delta, MAXITER_NEWT, equationState);
+			
+			diffusionSolver = new Diffusion1DFiniteVolumeSolver(topBoundaryCondition, bottomBoundaryCondition, KMAX, nestedNewton, newtonTolerance, delta, MAXITER_NEWT, equationState);
 
 
 		} // close step==0
@@ -350,33 +395,28 @@ public class RichardsSolver1DMain {
 		doProcessBuffer = false;
 
 
-		variables.richardsTopBCValue = 0.0;
-		tmpBCValue = inTopBC.get(stationID)[0];
-		if (isNovalue(tmpBCValue)) tmpBCValue = 0;
-		if(topBCType.equalsIgnoreCase("Top Neumann") || topBCType.equalsIgnoreCase("TopNeumann") || topBCType.equalsIgnoreCase("Top Coupled") || topBCType.equalsIgnoreCase("TopCoupled")) {
-			variables.richardsTopBCValue = (tmpBCValue/1000)/tTimeStep;
+		variables.internalEnergyTopBCValue = 0.0;
+		if(topBCType.equalsIgnoreCase("Top Neumann") || topBCType.equalsIgnoreCase("TopNeumann")) {
+			variables.internalEnergyTopBCValue = inTopBC.get(stationID)[0]/tTimeStep;
 		} else {
-			variables.richardsTopBCValue = tmpBCValue/1000;
+			variables.internalEnergyTopBCValue = inTopBC.get(stationID)[0]+273.15;
 		}
 		
 
-		variables.richardsBottomBCValue = 0.0;
-		tmpBCValue = inBottomBC.get(stationID)[0];
-		if (isNovalue(tmpBCValue)) tmpBCValue = 0;
-		if(inBottomBC != null) {
-			variables.richardsBottomBCValue = tmpBCValue;
+		variables.internalEnergyBottomBCValue = 0.0;
+		if(topBCType.equalsIgnoreCase("Bottom Neumann") || topBCType.equalsIgnoreCase("BottomNeumann")) {
+			variables.internalEnergyBottomBCValue = inBottomBC.get(stationID)[0]/tTimeStep;
+		} else {
+			variables.internalEnergyBottomBCValue = inBottomBC.get(stationID)[0]+273.15;
 		}
 
-		saveDate = 1.0;
-		if(inSaveDate != null) {
-			saveDate = inSaveDate.get(stationID)[0];
-		}
-
+		saveDate = -1.0;
+		saveDate = inSaveDate.get(stationID)[0];
 		outputToBuffer.clear();
 
 		double sumTimeDelta = 0;
 
-
+		
 		while(sumTimeDelta < tTimeStep) {
 
 			
@@ -387,15 +427,15 @@ public class RichardsSolver1DMain {
 
 
 			/*
-			 * Compute water volumes
+			 * Compute internal energy
 			 */
-			computeQuantitiesRichards.computeWaterVolume(KMAX);
+			computeQuantitiesInternalEnergy.computeInternalEnergy(KMAX);
 
 			
 			/*
 			 * Compute xStar
 			 */
-			computeQuantitiesRichards.computeXStar(KMAX);
+			computeQuantitiesInternalEnergy.computeXStar(KMAX);
 			
 
 			/*
@@ -404,82 +444,60 @@ public class RichardsSolver1DMain {
 			for(int picard=0; picard<picardIteration; picard++) {
 
 				/*
-				 * Compute hydraulic conductivity
+				 * Compute thermal conductivity
 				 * 
 				 */	
-				computeQuantitiesRichards.computeHydraulicConductivity(KMAX);
+				computeQuantitiesInternalEnergy.computeThermalConductivity(KMAX);
 
+				computeQuantitiesInternalEnergy.computeInterfaceThermalConductivity(KMAX);
 
-				computeQuantitiesRichards.computeInterfaceHydraulicConductivity(KMAX);
-
-
-				
 				/*
 				 * Solve PDE
 				 */
-				variables.waterSuctions = richardsSolver.solve(timeDelta, variables.richardsBottomBCValue, variables.richardsTopBCValue, KMAX, variables.kappasInterface,
-						variables.volumes, geometry.spaceDeltaZ, variables.ETs, variables.waterSuctions, variables.temperatures, variables.parameterID, variables.equationStateID);
+				variables.temperatures = diffusionSolver.solve(timeDelta, variables.internalEnergyBottomBCValue, variables.internalEnergyTopBCValue, KMAX, variables.lambdasInterface,
+						variables.internalEnergys, geometry.spaceDeltaZ, variables.heatSourcesSinksTerm, variables.temperatures, variables.waterSuctions, variables.parameterID, variables.equationStateID);
 
 			} // close Picard iteration
 			
 
 			/*
-			 * compute run-off
-			 */
-			computeQuantitiesRichards.computeRunOff(KMAX, maxPonding);
-			
-
-			/*
 			 * Compute 
-			 * - water volume and total water volume
-			 * - water content
+			 * - internal energy and total internal energy
 			 */
-			computeQuantitiesRichards.computeWaterVolumeNew(KMAX);
-			computeQuantitiesRichards.computeThetasNew(KMAX);
-			
+			computeQuantitiesInternalEnergy.computeInternalEnergyNew(KMAX);
+		
 
 			/*
-			 * Fluxes
+			 * Compute fluxes
 			 */
-			computeQuantitiesRichards.computeDarcyVelocities(KMAX);
-			computeQuantitiesRichards.computeDarcyVelocitiesCapillary(KMAX);
-			computeQuantitiesRichards.computeDarcyVelocitiesGravity(KMAX);
-			computeQuantitiesRichards.computePoreVelocities(KMAX);
-			computeQuantitiesRichards.computeCelerities(KMAX);
-			computeQuantitiesRichards.computeKinematicRatio(KMAX);
+			computeQuantitiesInternalEnergy.computeConductionHeatFlux(KMAX);
 
 			
 			/*
-			 * compute error
+			 * Compute error
 			 */
-			computeQuantitiesRichards.computeError(KMAX, timeDelta);
+			computeQuantitiesInternalEnergy.computeErrorDiffusion(KMAX, timeDelta);
 
 		}
 
 
 		if(saveDate == 1) {
-			outputToBuffer.add(variables.waterSuctions);
-			outputToBuffer.add(variables.thetasNew);
-			outputToBuffer.add(variables.volumesNew);
-			outputToBuffer.add(variables.darcyVelocities);
-			outputToBuffer.add(variables.darcyVelocitiesCapillary);
-			outputToBuffer.add(variables.darcyVelocitiesGravity);
-			outputToBuffer.add(variables.poreVelocities);
-			outputToBuffer.add(variables.celerities);
-			outputToBuffer.add(variables.kinematicRatio);
-			outputToBuffer.add(new double[] {variables.errorVolume});
-			outputToBuffer.add(new double[] {variables.richardsTopBCValue*tTimeStep*1000}); 
-			outputToBuffer.add(new double[] {variables.richardsBottomBCValue});
-			outputToBuffer.add(new double[] {variables.runOff/tTimeStep}); // surface runoff
+			outputToBuffer.add(variables.temperatures);
+			outputToBuffer.add(variables.thetas);
+			outputToBuffer.add(variables.internalEnergys);
+			outputToBuffer.add(variables.conductionHeatFluxs);
+			outputToBuffer.add(new double[] {variables.errorInternalEnergy});
+			outputToBuffer.add(new double[] {variables.heatFluxTop});
+			outputToBuffer.add(new double[] {variables.heatFluxBottom});
 			doProcessBuffer = true;
 		} else {
-			
+			//			System.out.println("SaveDate = " + saveDate);
 		}
 		step++;
 
 	} //// MAIN CYCLE END ////
 
-}  /// CLOSE Richards1d ///
+}  /// CLOSE ///
 
 
 
