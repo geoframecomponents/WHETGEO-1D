@@ -406,7 +406,7 @@ public class ComputeQuantitiesRichards {
 	
 	public void computeRunOff(int KMAX, double maxPonding) {
 		
-		if(this.topBCType.equalsIgnoreCase("Top Neumann") || this.topBCType.equalsIgnoreCase("TopNeumann")) {
+		if(this.topBCType.equalsIgnoreCase("Top Coupled") || this.topBCType.equalsIgnoreCase("TopCoupled")) {
 			
 			if(maxPonding>0 && variables.waterSuctions[KMAX -1]>maxPonding) {
 				variables.volumeLost = (variables.waterSuctions[KMAX -1] - maxPonding);
