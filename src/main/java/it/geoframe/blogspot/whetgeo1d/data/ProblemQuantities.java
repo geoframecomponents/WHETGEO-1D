@@ -1,3 +1,22 @@
+/*
+ * GNU GPL v3 License
+ *
+ * Copyright 2021 Niccolo` Tubini
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 package it.geoframe.blogspot.whetgeo1d.data;
 
 
@@ -21,7 +40,8 @@ public class ProblemQuantities {
 	public double[] temperatures;
 	
 	public double[] thetas;
-    public double[] thetasNew;  
+    public double[] thetasNew;
+    public double[] saturationDegree;
     public double[] iceContent;
 	public double[] kappas;
 	public double[] kappasInterface;
@@ -105,6 +125,7 @@ public class ProblemQuantities {
 		temperatures = icTemperature.clone();
 		thetas = new double[icWaterSuction.length];
 		thetasNew = new double[icWaterSuction.length];
+		saturationDegree = new double[icWaterSuction.length];
 		iceContent = new double[icWaterSuction.length];
 		kappas = new double[icWaterSuction.length];
 		kappasInterface = new double[icWaterSuction.length+1];

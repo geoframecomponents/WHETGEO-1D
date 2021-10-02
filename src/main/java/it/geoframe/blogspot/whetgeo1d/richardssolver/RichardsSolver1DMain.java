@@ -376,7 +376,8 @@ public class RichardsSolver1DMain {
 
 		double sumTimeDelta = 0;
 
-
+		computeQuantitiesRichards.resetRunOff();
+		
 		while(sumTimeDelta < tTimeStep) {
 
 			
@@ -408,7 +409,7 @@ public class RichardsSolver1DMain {
 				 * 
 				 */	
 				computeQuantitiesRichards.computeHydraulicConductivity(KMAX);
-
+					
 
 				computeQuantitiesRichards.computeInterfaceHydraulicConductivity(KMAX);
 
@@ -433,9 +434,11 @@ public class RichardsSolver1DMain {
 			 * Compute 
 			 * - water volume and total water volume
 			 * - water content
+			 * - saturation degree
 			 */
 			computeQuantitiesRichards.computeWaterVolumeNew(KMAX);
 			computeQuantitiesRichards.computeThetasNew(KMAX);
+			computeQuantitiesRichards.computeSaturationDegree(KMAX);
 			
 
 			/*
@@ -456,11 +459,11 @@ public class RichardsSolver1DMain {
 
 		}
 
-
 		if(saveDate == 1) {
 			outputToBuffer.add(variables.waterSuctions);
 			outputToBuffer.add(variables.thetasNew);
 			outputToBuffer.add(variables.volumesNew);
+			outputToBuffer.add(variables.saturationDegree);
 			outputToBuffer.add(variables.darcyVelocities);
 			outputToBuffer.add(variables.darcyVelocitiesCapillary);
 			outputToBuffer.add(variables.darcyVelocitiesGravity);

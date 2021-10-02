@@ -10,7 +10,7 @@ sourceCompatibility = '1.8'
 if (project.hasProperty('projVersion')) {
       project.version = project.projVersion
 } else {
-      project.version = '0.98'
+      project.version = '1.0.1'
 }
 
 // name with versioning of the jar file
@@ -44,10 +44,10 @@ repositories {
 }
 
 dependencies {
-	compile name: 'closureequation-1.0-beta'
-	compile name: 'netcdf-1.0-beta'
-	compile name: 'numerical-1.0-beta'
-	compile name: 'buffer-1.0-beta'
+	compile name: 'closureequation-1.0.1'
+	compile name: 'netcdf-1.0.1'
+	compile name: 'numerical-1.0.1'
+	compile name: 'buffer-1.0.1'
     
     // This dependency is exported to consumers, that is to say found on their compile classpath.
     //api 'org.apache.commons:commons-math3:3.6.1'

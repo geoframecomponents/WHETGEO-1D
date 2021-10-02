@@ -35,7 +35,7 @@ public class PureWaterInternalEnergy extends EquationState {
 
 	private Geometry geometry;
 	private ProblemQuantities variables;
-
+	private double epsilon;
 
 	public PureWaterInternalEnergy(ClosureEquation closureEquation) {
 		super(closureEquation);
@@ -48,16 +48,36 @@ public class PureWaterInternalEnergy extends EquationState {
 	@Override
 	public double equationState(double x, double y, int id, int element) {
 		
-		return ( super.closureEquation.parameters.waterDensity*super.closureEquation.parameters.specificThermalCapacityWater*(x-super.closureEquation.parameters.referenceTemperatureInternalEnergy)
-				+ super.closureEquation.parameters.waterDensity*super.closureEquation.parameters.latentHeatFusion ) * geometry.controlVolume[element];
+		epsilon = super.closureEquation.parameters.referenceTemperatureInternalEnergy-super.closureEquation.parameters.meltingTemperature[id];
 
+		if(x<=super.closureEquation.parameters.meltingTemperature[id]) {
+			return  ( super.closureEquation.parameters.iceDensity*super.closureEquation.parameters.specificThermalCapacityIce*(x-super.closureEquation.parameters.referenceTemperatureInternalEnergy) ) * geometry.controlVolume[element];
+		} else if(x>273.15) {
+			return  ( super.closureEquation.parameters.waterDensity*super.closureEquation.parameters.specificThermalCapacityWater*(x-super.closureEquation.parameters.referenceTemperatureInternalEnergy)
+						+ super.closureEquation.parameters.waterDensity*super.closureEquation.parameters.latentHeatFusion ) * geometry.controlVolume[element];
+		} else {
+			return  super.closureEquation.parameters.iceDensity*super.closureEquation.parameters.specificThermalCapacityIce*(super.closureEquation.parameters.meltingTemperature[id]-super.closureEquation.parameters.referenceTemperatureInternalEnergy)*geometry.controlVolume[element] +
+					(super.closureEquation.parameters.waterDensity*super.closureEquation.parameters.latentHeatFusion*geometry.controlVolume[element] - super.closureEquation.parameters.iceDensity*super.closureEquation.parameters.specificThermalCapacityIce*(super.closureEquation.parameters.meltingTemperature[id]-super.closureEquation.parameters.referenceTemperatureInternalEnergy)*geometry.controlVolume[element] )/epsilon*(x-(super.closureEquation.parameters.meltingTemperature[id]));
+		
+		}
+		
 	}
 
 
 	@Override
 	public double dEquationState(double x, double y, int id, int element) {
 
-		return super.closureEquation.parameters.waterDensity*super.closureEquation.parameters.specificThermalCapacityWater * geometry.controlVolume[element];
+		epsilon = super.closureEquation.parameters.referenceTemperatureInternalEnergy-super.closureEquation.parameters.meltingTemperature[id];
+
+		if(x<=super.closureEquation.parameters.meltingTemperature[id]) {
+			return  super.closureEquation.parameters.iceDensity*super.closureEquation.parameters.specificThermalCapacityIce * geometry.controlVolume[element];
+		} else if(x>273.15) {
+			return  super.closureEquation.parameters.waterDensity*super.closureEquation.parameters.specificThermalCapacityWater * geometry.controlVolume[element];
+		} else {
+			return ( super.closureEquation.parameters.waterDensity*super.closureEquation.parameters.latentHeatFusion*geometry.controlVolume[element] 
+					- 	super.closureEquation.parameters.iceDensity*super.closureEquation.parameters.specificThermalCapacityIce*(super.closureEquation.parameters.meltingTemperature[id]-super.closureEquation.parameters.referenceTemperatureInternalEnergy)*geometry.controlVolume[element]  ) /epsilon;
+							
+		}
 
 	}
 
@@ -73,7 +93,14 @@ public class PureWaterInternalEnergy extends EquationState {
 	@Override
 	public double p(double x, double y, int id, int element) {
 
-		return dEquationState(x, y, id, element);  
+		epsilon = super.closureEquation.parameters.referenceTemperatureInternalEnergy-super.closureEquation.parameters.meltingTemperature[id];
+		
+		if(x<=variables.temperatureStar1[element]) {
+			return dEquationState(x, y, id, element);
+		} else {
+			return ( super.closureEquation.parameters.waterDensity*super.closureEquation.parameters.latentHeatFusion*geometry.controlVolume[element] 
+					- 	super.closureEquation.parameters.iceDensity*super.closureEquation.parameters.specificThermalCapacityIce*(super.closureEquation.parameters.meltingTemperature[id]-super.closureEquation.parameters.referenceTemperatureInternalEnergy)*geometry.controlVolume[element]  ) /epsilon;
+		}
 
 	}
 
@@ -81,7 +108,14 @@ public class PureWaterInternalEnergy extends EquationState {
 	@Override
 	public double pIntegral(double x, double y, int id, int element) {
 
-		return equationState(x, y, id, element);  
+		epsilon = super.closureEquation.parameters.referenceTemperatureInternalEnergy-super.closureEquation.parameters.meltingTemperature[id];
+
+		if(x<=variables.temperatureStar1[element]) {
+			return equationState(x, y, id, element);
+		} else {
+			return super.closureEquation.parameters.iceDensity*super.closureEquation.parameters.specificThermalCapacityIce*(super.closureEquation.parameters.meltingTemperature[id]-super.closureEquation.parameters.referenceTemperatureInternalEnergy)*geometry.controlVolume[element] +
+					(super.closureEquation.parameters.waterDensity*super.closureEquation.parameters.latentHeatFusion*geometry.controlVolume[element] - super.closureEquation.parameters.iceDensity*super.closureEquation.parameters.specificThermalCapacityIce*(super.closureEquation.parameters.meltingTemperature[id]-super.closureEquation.parameters.referenceTemperatureInternalEnergy)*geometry.controlVolume[element] )/epsilon*(x-super.closureEquation.parameters.meltingTemperature[id]);
+		}
 
 	}
 
@@ -90,7 +124,7 @@ public class PureWaterInternalEnergy extends EquationState {
 	@Override
 	public void computeXStar(double y, int id, int element) {
 		
-		variables.temperatureStar1[element] = -9999.0;
+		variables.temperatureStar1[element] = super.closureEquation.parameters.meltingTemperature[id];
 		variables.temperatureStar2[element] = -9999.0;
 		variables.temperatureStar3[element] = -9999.0;
 		
@@ -99,7 +133,7 @@ public class PureWaterInternalEnergy extends EquationState {
 	@Override
 	public double initialGuess(double x, int id, int element) {
 		
-		return variables.temperatures[element];
+		return Math.min(variables.temperatures[element], variables.temperatureStar1[element]);
 		
 	}
 

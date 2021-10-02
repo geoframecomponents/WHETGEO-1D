@@ -44,7 +44,8 @@ public class RichardsSimpleBoundaryConditionFactory {
 			boundaryCondition = new RichardsBottomBoundaryConditionImpervious();
 		} else if(type.equalsIgnoreCase("Bottom Neumann") || type.equalsIgnoreCase("BottomNeumann")){
 			boundaryCondition = new RichardsBottomBoundaryConditionNeumann();
-		} else if(type.equalsIgnoreCase("Bottom Free Drainage") || type.equalsIgnoreCase("BottomFreeDrainage")){
+		} else if(type.equalsIgnoreCase("Bottom Free Drainage") || type.equalsIgnoreCase("BottomFreeDrainage") 
+				|| type.equalsIgnoreCase("Bottom Seepage") || type.equalsIgnoreCase("BottomSeepage")){
 			boundaryCondition = new RichardsBottomBoundaryConditionFreeDrainage();
 		} else {
 			System.out.println("\n\n\tERROR: please check the boundary condition name.");

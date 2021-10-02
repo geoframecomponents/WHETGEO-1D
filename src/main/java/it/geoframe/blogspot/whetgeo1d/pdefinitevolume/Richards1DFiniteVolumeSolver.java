@@ -153,6 +153,7 @@ public class Richards1DFiniteVolumeSolver {
 		upperDiagonal[0] = bottomBoundaryCondition.upperDiagonal(-999.0, kP, kM, spaceDeltaZ[1], spaceDeltaZ[0], timeDelta);
 		rhss[0] = volumes[0] + bottomBoundaryCondition.rightHandSide(richardsBottomBCValue, kP, kM, spaceDeltaZ[1], spaceDeltaZ[0], timeDelta) - ets[0];
 
+		
 		// i == KMAX -1
 		kP = kappasInterface[KMAX];
 		kM = kappasInterface[KMAX-1];

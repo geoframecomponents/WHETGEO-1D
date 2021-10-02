@@ -49,6 +49,8 @@ public class EquationStateFactory {
 			myModel = new SoilHeatCapacity(closureEquation);
 		} else if(model.equalsIgnoreCase("Water heat capacity") || model.equalsIgnoreCase("WaterHeatCapacity")) {
 			myModel = new PureWaterHeatCapacity(closureEquation);
+		}  else if(model.equalsIgnoreCase("Water internal energy") || model.equalsIgnoreCase("Waterinternalenergy")) {
+			myModel = new PureWaterInternalEnergy(closureEquation);
 		} else {
 			System.out.println("\n\n\tERROR: please check the stateEquationModel");
 		}

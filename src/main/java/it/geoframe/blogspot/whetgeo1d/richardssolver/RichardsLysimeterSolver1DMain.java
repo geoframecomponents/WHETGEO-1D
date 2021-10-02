@@ -404,6 +404,8 @@ public class RichardsLysimeterSolver1DMain {
 		outputToBuffer.clear();
 
 		double sumTimeDelta = 0;
+		
+		computeQuantitiesRichards.resetRunOff();
 
 		while(sumTimeDelta < tTimeStep) {
 

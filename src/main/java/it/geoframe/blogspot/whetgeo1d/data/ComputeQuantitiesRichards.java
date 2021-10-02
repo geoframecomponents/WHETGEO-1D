@@ -190,6 +190,13 @@ public class ComputeQuantitiesRichards {
 		}
 	}
 	
+	public void computeSaturationDegree(int KMAX) {
+		
+		for(int element = 0; element < KMAX; element++) {
+			variables.saturationDegree[element] = (closureEquation.get(variables.equationStateID[element]).f(variables.waterSuctions[element], variables.temperatures[element], variables.parameterID[element])-closureEquation.get(variables.equationStateID[element]).parameters.thetaR[variables.parameterID[element]])/
+					(closureEquation.get(variables.equationStateID[element]).parameters.thetaS[variables.parameterID[element]]-closureEquation.get(variables.equationStateID[element]).parameters.thetaR[variables.parameterID[element]]);
+		}
+	}
 	
 	public void computeXStar(int KMAX) {
 		
@@ -223,7 +230,13 @@ public class ComputeQuantitiesRichards {
 		// element == 0
 		if(this.bottomBCType.equalsIgnoreCase("Bottom Free Drainage") || this.bottomBCType.equalsIgnoreCase("BottomFreeDrainage")){
 			variables.kappasInterface[0] =  variables.kappas[0];
-		} else if (this.bottomBCType.equalsIgnoreCase("Bottom Impervious") || this.bottomBCType.equalsIgnoreCase("BottomImpervious")) {
+		} else if (this.bottomBCType.equalsIgnoreCase("Bottom Seepage") || this.bottomBCType.equalsIgnoreCase("BottomSeepage")) {
+			if(variables.kappas[0]<parameters.kappaSaturation[variables.parameterID[0]]) {
+				variables.kappasInterface[0] = + 0.0;
+			} else {
+				variables.kappasInterface[0] = variables.kappas[0];
+			}
+		}  else if (this.bottomBCType.equalsIgnoreCase("Bottom Impervious") || this.bottomBCType.equalsIgnoreCase("BottomImpervious")) {
 			variables.kappasInterface[0] = + 0.0;
 		} else {
 			variables.kappasInterface[0] = hydraulicConductivity.get(variables.equationStateID[0]).k(variables.richardsBottomBCValue, variables.temperatures[0], variables.parameterID[0], 0);
@@ -251,6 +264,12 @@ public class ComputeQuantitiesRichards {
 		// element == 0
 		if(this.bottomBCType.equalsIgnoreCase("Bottom Free Drainage") || this.bottomBCType.equalsIgnoreCase("BottomFreeDrainage")){
 			variables.darcyVelocities[0] = -variables.kappasInterface[0];
+		} else if (this.bottomBCType.equalsIgnoreCase("Bottom Seepage") || this.bottomBCType.equalsIgnoreCase("BottomSeepage")) {
+			if(variables.kappas[0]<parameters.kappaSaturation[variables.parameterID[0]]) {
+				variables.darcyVelocities[0] = + 0.0;
+			} else {
+				variables.darcyVelocities[0] = -variables.kappasInterface[0];
+			}		
 		} else if (this.bottomBCType.equalsIgnoreCase("Bottom Impervious") || this.bottomBCType.equalsIgnoreCase("BottomImpervious")) {
 			variables.darcyVelocities[0] = + 0.0;
 		} else if (this.bottomBCType.equalsIgnoreCase("Bottom Dirichlet") || this.bottomBCType.equalsIgnoreCase("BottomDirichlet")) {
@@ -282,6 +301,8 @@ public class ComputeQuantitiesRichards {
 		// element == 0
 		if(this.bottomBCType.equalsIgnoreCase("Bottom Free Drainage") || this.bottomBCType.equalsIgnoreCase("BottomFreeDrainage")){
 			variables.darcyVelocitiesCapillary[0] = + 0.0;
+		} else if (this.bottomBCType.equalsIgnoreCase("Bottom Seepage") || this.bottomBCType.equalsIgnoreCase("BottomSeepage")) {
+			variables.darcyVelocitiesCapillary[0] = + 0.0;
 		} else if (this.bottomBCType.equalsIgnoreCase("Bottom Impervious") || this.bottomBCType.equalsIgnoreCase("BottomImpervious")) {
 			variables.darcyVelocitiesCapillary[0] = + 0.0;
 		} else if (this.bottomBCType.equalsIgnoreCase("Bottom Dirichlet") || this.bottomBCType.equalsIgnoreCase("BottomDirichlet")) {
@@ -311,6 +332,12 @@ public class ComputeQuantitiesRichards {
 		// element == 0
 		if(this.bottomBCType.equalsIgnoreCase("Bottom Free Drainage") || this.bottomBCType.equalsIgnoreCase("BottomFreeDrainage")){
 			variables.darcyVelocitiesGravity[0] = -variables.kappasInterface[0];
+		} else if (this.bottomBCType.equalsIgnoreCase("Bottom Seepage") || this.bottomBCType.equalsIgnoreCase("BottomSeepage")) {
+			if(variables.kappas[0]<parameters.kappaSaturation[variables.parameterID[0]]) {
+				variables.darcyVelocitiesGravity[0] = + 0.0;
+			} else {
+				variables.darcyVelocitiesGravity[0] = -variables.kappasInterface[0];
+			}	
 		} else if (this.bottomBCType.equalsIgnoreCase("Bottom Impervious") || this.bottomBCType.equalsIgnoreCase("BottomImpervious")) {
 			variables.darcyVelocitiesGravity[0] = + 0.0;
 		} else if (this.bottomBCType.equalsIgnoreCase("Bottom Dirichlet") || this.bottomBCType.equalsIgnoreCase("BottomDirichlet")) {
@@ -340,6 +367,8 @@ public class ComputeQuantitiesRichards {
 		
 		// element == 0
 		if(this.bottomBCType.equalsIgnoreCase("Bottom Free Drainage") || this.bottomBCType.equalsIgnoreCase("BottomFreeDrainage")){
+			variables.poreVelocities[0] = variables.darcyVelocities[0]/(variables.thetas[0]-parameters.thetaR[variables.parameterID[0]]);
+		} else if (this.bottomBCType.equalsIgnoreCase("Bottom Seepage") || this.bottomBCType.equalsIgnoreCase("BottomSeepage")) {
 			variables.poreVelocities[0] = variables.darcyVelocities[0]/(variables.thetas[0]-parameters.thetaR[variables.parameterID[0]]);
 		} else if (this.bottomBCType.equalsIgnoreCase("Bottom Impervious") || this.bottomBCType.equalsIgnoreCase("BottomImpervious")) {
 			variables.poreVelocities[0] = + 0.0;
@@ -376,6 +405,8 @@ public class ComputeQuantitiesRichards {
 		
 		// element == 0
 		if(this.bottomBCType.equalsIgnoreCase("Bottom Free Drainage") || this.bottomBCType.equalsIgnoreCase("BottomFreeDrainage")){
+			variables.celerities[0] = -9999.0;
+		} else if (this.bottomBCType.equalsIgnoreCase("Bottom Seepage") || this.bottomBCType.equalsIgnoreCase("BottomSeepage")) {
 			variables.celerities[0] = -9999.0;
 		} else if (this.bottomBCType.equalsIgnoreCase("Bottom Impervious") || this.bottomBCType.equalsIgnoreCase("BottomImpervious")) {
 			variables.celerities[0] = + 0.0;
@@ -419,7 +450,7 @@ public class ComputeQuantitiesRichards {
 	
 	public void computeError(int KMAX, double timeDelta) {
 
-		variables.errorVolume = variables.waterVolumeNew - variables.waterVolume - timeDelta*(-variables.darcyVelocities[KMAX] + variables.darcyVelocities[0]) + variables.sumETs + variables.volumeLost;
+		variables.errorVolume = variables.waterVolumeNew - variables.waterVolume - timeDelta*(-variables.darcyVelocities[KMAX] + variables.darcyVelocities[0]) + variables.sumETs + variables.runOff;
 
 	}
 	

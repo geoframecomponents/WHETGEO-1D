@@ -156,7 +156,8 @@ public class SoilWaterVolumeRomano extends EquationState {
 	@Override
 	public double initialGuess(double x, int id, int element) {
 		
-		return Math.min(variables.waterSuctions[element], variables.waterSuctionStar1[element]);
+//		return Math.min(variables.waterSuctions[element], variables.waterSuctionStar1[element]);
+		return Math.min(x, variables.waterSuctionStar1[element]);
 		
 	}
 

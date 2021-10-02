@@ -74,9 +74,12 @@ public class SoilWaterVolumeVanGenuchten extends EquationState {
 
 		if(x<=variables.waterSuctionStar1[id]) {
 			return dEquationState(x, y, id, element);  
-		} else {
+		} else if (x>variables.waterSuctionStar1[id] && x<0) {
 			return dEquationState(variables.waterSuctionStar1[id], y, id, element);
+		} else {
+			return dEquationState(variables.waterSuctionStar1[id], y, id, element) + dEquationState(x, y, id, element);
 		}
+		
 
 	}
 
@@ -86,9 +89,13 @@ public class SoilWaterVolumeVanGenuchten extends EquationState {
 
 		if(x<=variables.waterSuctionStar1[id]) {
 			return equationState(x, y, id, element);  
-		} else {
+		} else if (x>variables.waterSuctionStar1[id] && x<0) {
 			return equationState(variables.waterSuctionStar1[id], y, id, element) + dEquationState(variables.waterSuctionStar1[id], y, id, element)*(x-variables.waterSuctionStar1[id]);
+		} else {
+			return equationState(variables.waterSuctionStar1[id], y, id, element) + dEquationState(variables.waterSuctionStar1[id], y, id, element)*(x-variables.waterSuctionStar1[id])
+					+ dEquationState(x, y, id, element)*(x-0);
 		}
+		
 
 	}
 
@@ -106,7 +113,8 @@ public class SoilWaterVolumeVanGenuchten extends EquationState {
 	@Override
 	public double initialGuess(double x, int id, int element) {
 		
-		return Math.min(variables.waterSuctions[element], variables.waterSuctionStar1[element]);
+//		return Math.min(variables.waterSuctions[element], variables.waterSuctionStar1[element]);
+		return Math.min(x, variables.waterSuctionStar1[element]);
 		
 	}
 

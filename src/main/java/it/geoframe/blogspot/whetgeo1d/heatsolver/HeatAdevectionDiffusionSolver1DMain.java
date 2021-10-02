@@ -473,7 +473,7 @@ public class HeatAdevectionDiffusionSolver1DMain {
 		
 
 		doProcessBuffer = false;
-
+		System.out.println(inCurrentDate);
 		variables.richardsTopBCValue = 0.0;
 		if(topRichardsBCType.equalsIgnoreCase("Top Neumann") || topRichardsBCType.equalsIgnoreCase("TopNeumann") || topRichardsBCType.equalsIgnoreCase("Top Coupled") || topRichardsBCType.equalsIgnoreCase("TopCoupled")) {
 			variables.richardsTopBCValue = (inRichardsTopBC.get(stationID)[0]/1000)/tTimeStep;
