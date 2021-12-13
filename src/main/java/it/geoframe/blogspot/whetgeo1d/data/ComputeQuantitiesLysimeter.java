@@ -90,13 +90,13 @@ public class ComputeQuantitiesLysimeter {
 				}
 			} else {
 				if(variables.ETs[element] != 0.0) {
-					System.out.println("\tBroker error, g!=0");
+					//System.out.println("\tBroker error, g!=0");
 					
 					variables.ETs[element] = 0.0;
 					System.out.println("\tETs set to 0");
-				} else {
-					System.out.println("\tETs is already 0");
-				}
+				} //else {
+					//System.out.println("\tETs is already 0");
+				//}
 			}
 			
 			variables.sumETs = variables.sumETs + variables.ETs[element];
