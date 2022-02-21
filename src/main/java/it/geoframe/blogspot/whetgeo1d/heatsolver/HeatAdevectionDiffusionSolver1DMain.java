@@ -19,7 +19,7 @@
 
 package it.geoframe.blogspot.whetgeo1d.heatsolver;
 
-import static org.jgrasstools.gears.libs.modules.JGTConstants.isNovalue;
+import static org.hortonmachine.gears.libs.modules.HMConstants.isNovalue;
 
 import java.util.ArrayList;
 import java.util.HashMap;

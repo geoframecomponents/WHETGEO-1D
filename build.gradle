@@ -2,7 +2,7 @@ apply plugin: 'java'
 apply plugin: 'eclipse'
 
 [compileJava, compileTestJava]*.options*.encoding = 'UTF-8'
-sourceCompatibility = '1.8'
+sourceCompatibility = 11
 
 // to get project version from command line, just type
 // $ gradle -PprojVersion=<version_number> build
@@ -10,7 +10,7 @@ sourceCompatibility = '1.8'
 if (project.hasProperty('projVersion')) {
       project.version = project.projVersion
 } else {
-      project.version = '1.0.1'
+      project.version = '1.0.2'
 }
 
 // name with versioning of the jar file
@@ -36,7 +36,7 @@ repositories {
         url "https://artifacts.unidata.ucar.edu/repository/unidata-all/"
     }
 
-    mavenCentral() //jgt
+    mavenCentral()
     
     flatDir {
     	dirs 'lib'
@@ -44,10 +44,10 @@ repositories {
 }
 
 dependencies {
-	compile name: 'closureequation-1.0.1'
-	compile name: 'netcdf-1.0.1'
-	compile name: 'numerical-1.0.1'
-	compile name: 'buffer-1.0.1'
+	compile name: 'closureequation-1.0.2'
+	compile name: 'netcdf-1.0.2'
+	compile name: 'numerical-1.0.2'
+	compile name: 'buffer-1.0.2'
     
     // This dependency is exported to consumers, that is to say found on their compile classpath.
     //api 'org.apache.commons:commons-math3:3.6.1'
@@ -59,12 +59,9 @@ dependencies {
     testImplementation 'junit:junit:4.12'
     
     // OMS annotation
-    // https://mvnrepository.com/artifact/org.jgrasstools/jgt-oms3
-    compile group: 'org.jgrasstools', name: 'jgt-oms3', version: '0.7.8'
+    // https://mvnrepository.com/artifact/org.hortonmachine/hm-gears
+    implementation group: 'org.hortonmachine', name: 'hm-gears', version: '0.10.4'
     
-    // https://mvnrepository.com/artifact/org.jgrasstools/jgt-jgrassgears
-    compile group: 'org.jgrasstools', name: 'jgt-jgrassgears', version: '0.7.8'
-
 	// https://mvnrepository.com/artifact/edu.ucar/netcdf
 	compile group: 'edu.ucar', name: 'netcdf', version: '4.3.22'
 	

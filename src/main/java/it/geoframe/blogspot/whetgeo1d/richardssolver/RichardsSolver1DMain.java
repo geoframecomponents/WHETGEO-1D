@@ -19,13 +19,11 @@
 
 package it.geoframe.blogspot.whetgeo1d.richardssolver;
 
-import static org.jgrasstools.gears.libs.modules.JGTConstants.isNovalue;
+import static org.hortonmachine.gears.libs.modules.HMConstants.isNovalue;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-
-import static org.jgrasstools.gears.libs.modules.JGTConstants.isNovalue;
 
 import it.geoframe.blogspot.closureequation.closureequation.Parameters;
 import it.geoframe.blogspot.closureequation.equationstate.EquationState;

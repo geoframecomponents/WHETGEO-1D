@@ -21,8 +21,8 @@ package richards;
 
 import java.net.URISyntaxException;
 import java.util.*;
-import org.jgrasstools.gears.io.timedependent.OmsTimeSeriesIteratorReader;
-import org.jgrasstools.gears.io.timedependent.OmsTimeSeriesIteratorWriter;
+import org.hortonmachine.gears.io.timedependent.OmsTimeSeriesIteratorReader;
+import org.hortonmachine.gears.io.timedependent.OmsTimeSeriesIteratorWriter;
 
 import it.geoframe.blogspot.buffer.buffertowriter.RichardsBuffer1D;
 import it.geoframe.blogspot.whetgeo1d.richardssolver.RichardsSolver1DMain;

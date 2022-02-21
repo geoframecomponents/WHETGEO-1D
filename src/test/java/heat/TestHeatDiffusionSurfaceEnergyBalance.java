@@ -21,7 +21,7 @@ package heat;
 
 import java.net.URISyntaxException;
 import java.util.*;
-import org.jgrasstools.gears.io.timedependent.OmsTimeSeriesIteratorReader;
+import org.hortonmachine.gears.io.timedependent.OmsTimeSeriesIteratorReader;
 
 import it.geoframe.blogspot.buffer.buffertowriter.HeatDiffusionBufferWithSurfaceEnergyBudget1D;
 import it.geoframe.blogspot.whetgeo1d.heatsolver.HeatDiffusionSolverWithSurfaceEnergyBalance1DMain;
