@@ -17,7 +17,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package it.geoframe.blogspot.whetgeo1d.soultetransport;
+package it.geoframe.blogspot.whetgeo1d.solutetransport;
 
 import static org.hortonmachine.gears.libs.modules.HMConstants.isNovalue;
 
