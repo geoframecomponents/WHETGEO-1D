@@ -19,6 +19,7 @@
 
 package it.geoframe.blogspot.whetgeo1d.solutetransport;
 
+import static java.lang.Math.pow;
 import static org.hortonmachine.gears.libs.modules.HMConstants.isNovalue;
 
 import java.util.ArrayList;
@@ -42,11 +43,11 @@ import it.geoframe.blogspot.whetgeo1d.pdefinitevolume.Richards1DFiniteVolumeSolv
 import oms3.annotations.*;
 
 
-@Description("Solve the heat advection diffusion equation in the conservative form for the 1D domain.")
+@Description("Solve the solute advection dispersion equation in the conservative form for the 1D domain")
 @Documentation("")
-@Author(name = "Niccolo' Tubini, and Riccardo Rigon", contact = "tubini.niccolo@gmail.com")
-@Keywords("Hydrology, Richards, Infiltration")
-@Bibliography("Casulli (2010)")
+@Author(name = "Concetta D'Amato, Niccolo' Tubini, and Riccardo Rigon", contact = "concetta.damato@unitn.it")
+@Keywords("Hydrology, Richards, Solute transport, Infiltration")
+@Bibliography("Casulli (2010), Stumpp et al., 2012")
 //@Label()
 //@Name()
 //@Status()
@@ -91,6 +92,14 @@ public class ConservativeSoluteAdevectionDispersionSolver1DMain {
 	@In 
 	@Unit ("J kg-1")
 	public double latentHeatFusion = 333700;
+	
+	/* 
+	 * TRANSPORT PARAMETERS
+	 */
+	@Description("Molecular Diffusionin free water. Default value 10-9[m2 s-1].")
+	@In 
+	@Unit ("m2 s-1")
+	public double molecularDiffusion = 1 * pow(10,-9);
 	
 
 	/*
@@ -259,6 +268,11 @@ public class ConservativeSoluteAdevectionDispersionSolver1DMain {
 	@In
 	@Unit("K")
 	public double[] temperature;
+	
+	@Description("Initial condition for concentration read from grid NetCDF file")
+	@In
+	@Unit("-")
+	public double[] concentration;
 
 	/*
 	 * GEOMETRY
@@ -425,10 +439,10 @@ public class ConservativeSoluteAdevectionDispersionSolver1DMain {
 	private ComputeQuantitiesHeatAdvectionDiffusion computeQuantitiesHeatAdvectionDiffusion;
 	private BoundaryCondition topRichardsBoundaryCondition;
 	private BoundaryCondition bottomRichardsBoundaryCondition;
-	private BoundaryCondition topInternalEnergyBoundaryCondition;
-	private BoundaryCondition bottomInternalEnergyBoundaryCondition;
+	private BoundaryCondition topInternalEnergyBoundaryCondition; //questo si dovrà cambiare
+	private BoundaryCondition bottomInternalEnergyBoundaryCondition;  //questo si dovrà cambiare
 	private RichardsSimpleBoundaryConditionFactory boundaryRichardsConditionFactory;
-	private DiffusionSimpleBoundaryConditionFactory boundaryDiffusionConditionFactory;
+	private DiffusionSimpleBoundaryConditionFactory boundaryDiffusionConditionFactory;  //questo si dovrà cambiare
 
 	@Execute
 	public void solve() {
@@ -438,13 +452,13 @@ public class ConservativeSoluteAdevectionDispersionSolver1DMain {
 		if(step==0){
 			KMAX = psiIC.length;
 
-			variables = ProblemQuantities.getInstance(psiIC, temperature, inEquationStateID, inParameterID);
+			variables = ProblemQuantities.getInstance(psiIC, temperature, concentration, inEquationStateID, inParameterID);
 			geometry = Geometry.getInstance(z, spaceDeltaZ, controlVolume);
-			parameters = Parameters.getInstance(waterDensity, iceDensity, specificThermalCapacityWater,
+			parameters = Parameters.getInstance(molecularDiffusion,waterDensity, iceDensity, specificThermalCapacityWater,
 					specificThermalCapacityIce, thermalConductivityWater, thermalConductivityIce, latentHeatFusion, referenceTemperatureInternalEnergy,
 					referenceTemperatureSWRC, beta0,
 					thetaS, thetaR, soilParticlesDensity, specificThermalCapacitySoilParticles, thermalConductivitySoilParticles,
-					meltingTemperature, par1SWRC, par2SWRC, par3SWRC, par4SWRC, par5SWRC, ks, alphaSpecificStorage, betaSpecificStorage);
+					meltingTemperature, par1SWRC, par2SWRC, par3SWRC, par4SWRC, par5SWRC, ks, alphaSpecificStorage, betaSpecificStorage); // HO FATTO UN NUOVO getInstance su closure equation quindi possiamo chiamarci i parametri che vogliamo ma attenzione a quelli che servono anche a Richards
 
 			computeQuantitiesRichards = new ComputeQuantitiesRichards(typeClosureEquation, typeRichardsEquationState, typeUHCModel, typeUHCTemperatureModel, interfaceHydraulicConductivityModel, topRichardsBCType, bottomRichardsBCType);
 
@@ -534,7 +548,8 @@ public class ConservativeSoluteAdevectionDispersionSolver1DMain {
 			 */
 			computeQuantitiesHeatAdvectionDiffusion.computeThermalConductivity(KMAX);
 			computeQuantitiesHeatAdvectionDiffusion.computeInterfaceThermalConductivity(KMAX);
-			variables.lambdasInterface[KMAX] = 0.6;
+			//variables.lambdasInterface[KMAX] = 0.6;
+			variables.lambdasInterface[KMAX] = variables.lambdasInterface[KMAX-1];
 
 			computeQuantitiesHeatAdvectionDiffusion.computeTransportedQuantity(KMAX);
 			

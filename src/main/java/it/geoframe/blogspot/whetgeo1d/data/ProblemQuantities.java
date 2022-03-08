@@ -35,9 +35,17 @@ public class ProblemQuantities {
 		return uniqueInstance;
 	}
 	
+	public static ProblemQuantities getInstance(double[] icWaterSuction, double[] icTemperature, double[] icConcentration, int[] equationStateID, int[] parameterID) {
+		if (uniqueInstance == null) {
+			uniqueInstance = new ProblemQuantities(icWaterSuction, icTemperature, icConcentration, equationStateID, parameterID);
+		}
+		return uniqueInstance;
+	}
+	
 	
 	public double[] waterSuctions;
 	public double[] temperatures;
+	public double[] concentrations;
 	
 	public double[] thetas;
     public double[] thetasNew;
@@ -163,6 +171,48 @@ public class ProblemQuantities {
 		
 		
 	}
-
+	private ProblemQuantities(double[] icWaterSuction, double[] icTemperature, double[] icConcentration, int[] equationStateID, int[] parameterID) {
+		waterSuctions = icWaterSuction.clone();
+		temperatures = icTemperature.clone();
+		concentrations = icConcentration.clone();
+		
+		thetas = new double[icWaterSuction.length];
+		thetasNew = new double[icWaterSuction.length];
+		saturationDegree = new double[icWaterSuction.length];
+		iceContent = new double[icWaterSuction.length];
+		kappas = new double[icWaterSuction.length];
+		kappasInterface = new double[icWaterSuction.length+1];
+		volumes = new double[icWaterSuction.length];
+		volumesNew = new double[icWaterSuction.length];
+		darcyVelocities = new double[icWaterSuction.length+1];
+		darcyVelocitiesCapillary = new double[icWaterSuction.length+1];
+		darcyVelocitiesGravity = new double[icWaterSuction.length+1];
+		poreVelocities = new double[icWaterSuction.length+1];
+		celerities = new double[icWaterSuction.length+1];
+		kinematicRatio = new double[icWaterSuction.length+1];
+		ETs = new double[icWaterSuction.length];
+		waterSuctionStar1 = new double[icWaterSuction.length];
+		waterSuctionStar2 = new double[icWaterSuction.length];
+		waterSuctionStar3 = new double[icWaterSuction.length];
+		
+		internalEnergys = new double[icWaterSuction.length];
+		internalEnergysNew = new double[icWaterSuction.length];
+		heatCapacitys = new double[icWaterSuction.length];
+		heatCapacitysNew = new double[icWaterSuction.length];
+		waterCapacityTransported = new double[icWaterSuction.length];
+		lambdas = new double[icWaterSuction.length];
+		lambdasInterface = new double[icWaterSuction.length+1];
+		conductionHeatFluxs = new double[icWaterSuction.length+1];
+		advectionHeatFluxs = new double[icWaterSuction.length+1];
+		heatFluxs = new double[icWaterSuction.length+1];
+		heatSourcesSinksTerm = new double[icWaterSuction.length];
+		temperatureStar1 = new double[icWaterSuction.length];
+		temperatureStar2 = new double[icWaterSuction.length];
+		temperatureStar3 = new double[icWaterSuction.length];
+		
+		
+		this.equationStateID = equationStateID.clone();
+		this.parameterID = parameterID.clone();
+	}
 
 }
