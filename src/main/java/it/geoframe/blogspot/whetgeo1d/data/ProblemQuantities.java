@@ -45,7 +45,6 @@ public class ProblemQuantities {
 	
 	public double[] waterSuctions;
 	public double[] temperatures;
-	public double[] concentrations;
 	
 	public double[] thetas;
     public double[] thetasNew;
@@ -126,6 +125,16 @@ public class ProblemQuantities {
 
 	public double sumETs;
 	public double[] ETs;
+	
+	public double[] concentrations;
+	public double soluteTopBCValue;
+	public double soluteBottomBCValue;
+	public double thetaConcentration;
+	public double thetaConcentrationNew;
+	public double[] thetaConcentrations;
+	public double[] thetaConcentrationsNew;
+	public double[] dispersionCoefficients;
+	public double[] dispersionCoefficientsInterface;
 	
 	private ProblemQuantities(double[] icWaterSuction, double[] icTemperature, int[] equationStateID, int[] parameterID) {
 		
