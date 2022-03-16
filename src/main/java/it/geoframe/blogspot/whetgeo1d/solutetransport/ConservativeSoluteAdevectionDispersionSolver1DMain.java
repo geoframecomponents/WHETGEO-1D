@@ -58,7 +58,7 @@ public class ConservativeSoluteAdevectionDispersionSolver1DMain {
 	 * WATER THERMAL PROPERTIES
 	 */
 	
-	@Description("Water density. Default value 1000.0 [kg m-3].")
+	/*@Description("Water density. Default value 1000.0 [kg m-3].")
 	@In 
 	@Unit ("kg m-3")
 	public double waterDensity = 1000.0;
@@ -91,7 +91,7 @@ public class ConservativeSoluteAdevectionDispersionSolver1DMain {
 	@Description("Latent heat of fusion. Default value 333700 [J kg-1].")
 	@In 
 	@Unit ("J kg-1")
-	public double latentHeatFusion = 333700;
+	public double latentHeatFusion = 333700;*/
 	
 	/* 
 	 * TRANSPORT PARAMETERS
@@ -100,6 +100,16 @@ public class ConservativeSoluteAdevectionDispersionSolver1DMain {
 	@In 
 	@Unit ("m2 s-1")
 	public double molecularDiffusion = 1 * pow(10,-9);
+	
+	@Description("")
+	@In 
+	@Unit ("")
+	public double longitudinalDispersivity; 
+	
+	@Description("")
+	@In 
+	@Unit ("")
+	public double tortuosityFactor; 
 	
 
 	/*
@@ -254,6 +264,14 @@ public class ConservativeSoluteAdevectionDispersionSolver1DMain {
 			+ " a weighted average of kappas[i] and kappas[i+1] where weights are dx[i] and dx[i+1]")
 	@In
 	public String interfaceThermalConductivityModel;
+	
+	@Description("Thermal conductivity at control volume interface can be evaluated as"
+			+ " the average of kappas[i] and kappas[i+1]"
+			+ " the maximum between kappas[i] and kappas[i+1]"
+			+ " the minimum between kappas[i] and kappas[i+1]"
+			+ " a weighted average of kappas[i] and kappas[i+1] where weights are dx[i] and dx[i+1]")
+	@In
+	public String interfaceDispersionModel;
 
 
 	/*
@@ -455,7 +473,7 @@ public class ConservativeSoluteAdevectionDispersionSolver1DMain {
 	private double saveDate;
 
 	private Richards1DFiniteVolumeSolver richardsSolver;
-	private AdvectionDiffusion1DFiniteVolumeSolver advectionDiffusionSolver;
+	private AdvectionDiffusion1DFiniteVolumeSolver advectionDispersionSolver;
 	private ProblemQuantities variables;
 	private Geometry geometry;
 	private Parameters parameters;
@@ -466,7 +484,7 @@ public class ConservativeSoluteAdevectionDispersionSolver1DMain {
 	private BoundaryCondition topSoluteBoundaryCondition; //cambiato
 	private BoundaryCondition bottomSoluteBoundaryCondition;  //cambiato
 	private RichardsSimpleBoundaryConditionFactory boundaryRichardsConditionFactory;
-	private RichardsSimpleBoundaryConditionFactory boundarySoluteConditionFactory;  //cambiato
+	private DiffusionSimpleBoundaryConditionFactory boundarySoluteConditionFactory;  //cambiato
 
 	@Execute
 	public void solve() {
@@ -478,12 +496,13 @@ public class ConservativeSoluteAdevectionDispersionSolver1DMain {
 
 			variables = ProblemQuantities.getInstance(psiIC, temperature, concentration, inEquationStateID, inParameterID);
 			geometry = Geometry.getInstance(z, spaceDeltaZ, controlVolume);
-			parameters = Parameters.getInstance(molecularDiffusion,referenceTemperatureSWRC, beta0,
-					thetaS, thetaR,par1SWRC, par2SWRC, par3SWRC, par4SWRC, par5SWRC, ks, alphaSpecificStorage, betaSpecificStorage); // HO FATTO UN NUOVO getInstance su closure equation 
+			parameters = Parameters.getInstance(molecularDiffusion,longitudinalDispersivity, tortuosityFactor,referenceTemperatureSWRC, beta0,
+					thetaS, thetaR, par1SWRC, par2SWRC, par3SWRC, par4SWRC, par5SWRC, ks, alphaSpecificStorage, betaSpecificStorage); // HO FATTO UN NUOVO getInstance su closure equation 
 
 			computeQuantitiesRichards = new ComputeQuantitiesRichards(typeClosureEquation, typeRichardsEquationState, typeUHCModel, typeUHCTemperatureModel, interfaceHydraulicConductivityModel, topRichardsBCType, bottomRichardsBCType);
 
-			computeQuantitiesSoluteAdvectionDispersion = new ComputeQuantitiesSoluteAdvectionDispersion(typeClosureEquation, typeInternalEnergyEquationState, typeThermalConductivity, interfaceThermalConductivityModel, topInternalEnergyBCType, bottomInternalEnergyBCType);
+			computeQuantitiesSoluteAdvectionDispersion = new ComputeQuantitiesSoluteAdvectionDispersion(typeClosureEquation, 
+					typeInternalEnergyEquationState, interfaceDispersionModel, topSoluteBCType, bottomSoluteBCType); //	CAPIRE SE SI DEVE LASCIARE typeInternalEnergyEquationState
 			
 			outputToBuffer = new ArrayList<double[]>();
 
@@ -497,11 +516,11 @@ public class ConservativeSoluteAdevectionDispersionSolver1DMain {
 			richardsSolver = new Richards1DFiniteVolumeSolver(topRichardsBoundaryCondition, bottomRichardsBoundaryCondition, KMAX, nestedNewton, newtonTolerance, delta, MAXITER_NEWT, richardsEquationState);
 
 			
-			boundarySoluteConditionFactory = new RichardsSimpleBoundaryConditionFactory();
-			topSoluteBoundaryCondition = boundarySoluteConditionFactory.createBoundaryCondition(topInternalEnergyBCType);
-			bottomSoluteBoundaryCondition = boundarySoluteConditionFactory.createBoundaryCondition(bottomInternalEnergyBCType);	
+			boundarySoluteConditionFactory = new DiffusionSimpleBoundaryConditionFactory();
+			topSoluteBoundaryCondition = boundarySoluteConditionFactory.createBoundaryCondition(topSoluteBCType);
+			bottomSoluteBoundaryCondition = boundarySoluteConditionFactory.createBoundaryCondition(bottomSoluteBCType);	
 			
-			advectionDiffusionSolver = new AdvectionDiffusion1DFiniteVolumeSolver(topSoluteBoundaryCondition, bottomSoluteBoundaryCondition, KMAX);
+			advectionDispersionSolver = new AdvectionDiffusion1DFiniteVolumeSolver(topSoluteBoundaryCondition, bottomSoluteBoundaryCondition, KMAX);
 
 			for(int element = 0; element < KMAX; element++) {
 			variables.waterCapacityTransported [element] = 1 ;}
@@ -581,14 +600,15 @@ public class ConservativeSoluteAdevectionDispersionSolver1DMain {
 			 */
 			//computeQuantitiesSoluteAdvectionDispersion.computeHeatCapacity(KMAX); //Non mi serve 
 			
-			
+			computeQuantitiesSoluteAdvectionDispersion.computeThetaC(KMAX);
 			/*
 			 * Compute thermal conductivity
 			 */
 			computeQuantitiesSoluteAdvectionDispersion.computeDispersionCoefficient(KMAX); // qui facciamo solo il calcolo di D, poi al solutore però passiamo D*theta
-			computeQuantitiesSoluteAdvectionDispersion.computeInterfaceDispersionCoefficient(KMAX);
+			computeQuantitiesSoluteAdvectionDispersion.computeDispersionFactors(KMAX);
+			computeQuantitiesSoluteAdvectionDispersion.computeInterfaceDispersionFactors(KMAX);
 			//variables.lambdasInterface[KMAX] = 0.6;
-			variables.dispersionCoefficientsInterface[KMAX] = variables.dispersionCoefficientsInterface[KMAX-1];
+			variables.dispersionFactorsInterface[KMAX] = variables.dispersionFactorsInterface[KMAX-1];
 
 			//computeQuantitiesSoluteAdvectionDispersion.computeTransportedQuantity(KMAX); //Non mi serve
 			
@@ -676,8 +696,11 @@ public class ConservativeSoluteAdevectionDispersionSolver1DMain {
 						variables.waterCapacityTransported, variables.parameterID, variables.equationStateID);
 			*/
 			
-			variables.concentrations = advectionDiffusionSolver.solve(timeDelta, variables.soluteBottomBCValue, variables.soluteTopBCValue, KMAX, variables.dispersionCoefficientsInterface,
-					variables.thetas, variables.thetasNew, geometry.spaceDeltaZ, variables.heatSourcesSinksTerm, variables.concentrations, variables.waterSuctions, variables.darcyVelocities, 
+			//La variabile dispersionCoefficientsInterface che passiamo al solve non va bene perchè nell'equazione abbiamo il prodotto D*theta. Quindi dobbiamo creare una nuova variabile
+			
+			
+			variables.concentrations = advectionDispersionSolver.solve(timeDelta, variables.soluteBottomBCValue, variables.soluteTopBCValue, KMAX, variables.dispersionFactorsInterface,
+					variables.thetasNew, variables.thetas, geometry.spaceDeltaZ, variables.heatSourcesSinksTerm, variables.concentrations, variables.waterSuctions, variables.darcyVelocities, 
 					variables.waterCapacityTransported, variables.parameterID, variables.equationStateID);
 		
 			
@@ -690,27 +713,25 @@ public class ConservativeSoluteAdevectionDispersionSolver1DMain {
 */
 			
 			computeQuantitiesSoluteAdvectionDispersion.computeThetaCNew(KMAX);
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-			// SIAMO ARRIVATI QUI //
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-			
+
+	
 			computeQuantitiesSoluteAdvectionDispersion.computeConductionHeatFlux(KMAX); //	QUESTI SONO DA CAMBIARE COMPLETAMENTE NELLA STRUTTURA E SERVONO LE EQUAZIONI 
 			computeQuantitiesSoluteAdvectionDispersion.computeAdvectionHeatFlux(KMAX);
 			computeQuantitiesSoluteAdvectionDispersion.computeHeatFlux(KMAX);
 			
+			computeQuantitiesSoluteAdvectionDispersion.computeAverageSoluteConcentration(KMAX);
+			computeQuantitiesSoluteAdvectionDispersion.computeAverageSoluteThetaConcentration(KMAX);
 			
 			/*
 			 * Compute error heat equation 
 			 */
-			computeQuantitiesSoluteAdvectionDispersion.computeError(KMAX, timeDelta);
+			computeQuantitiesSoluteAdvectionDispersion.computeError(KMAX, timeDelta); //	QUESTI SONO DA CAMBIARE
 
+			///// Cosa fa qui?
+			
 			if(variables.thetasNew[variables.thetasNew.length-1]<=0) {
 				KMAX = KMAX+1;
-				variables.temperatures[KMAX-1] = variables.temperatures[KMAX-2];
+				variables.temperatures[KMAX-1] = variables.temperatures[KMAX-2]; //farlo uguale per la concentrazione 
 			}
 
 		

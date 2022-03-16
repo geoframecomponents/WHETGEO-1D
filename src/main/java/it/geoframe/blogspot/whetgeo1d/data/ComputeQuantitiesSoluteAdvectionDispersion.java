@@ -76,9 +76,13 @@ public class ComputeQuantitiesSoluteAdvectionDispersion {
 	private List<ConductivityEquation> thermalConductivity;
 	private ConductivityEquationFactory conductivityEquationFactory;
 
-	@Description("This object compute the interface thermal conductivity accordingly with the prescribed method.")
+	/*@Description("This object compute the interface thermal conductivity accordingly with the prescribed method.")
 	private InterfaceConductivity interfaceConductivity;
-	private SimpleInterfaceConductivityFactory interfaceConductivityFactory;
+	private SimpleInterfaceConductivityFactory interfaceConductivityFactory;*/
+	
+	@Description("This object compute the interface thermal conductivity accordingly with the prescribed method.")
+	private InterfaceConductivity interfaceDispersion;
+	private SimpleInterfaceConductivityFactory interfaceDispersionFactory;
 
 
 	private String topBCType;
@@ -86,8 +90,8 @@ public class ComputeQuantitiesSoluteAdvectionDispersion {
 	
 //	private double tmp;
 	
-	public ComputeQuantitiesSoluteAdvectionDispersion(String[] typeClosureEquation, String[] typeEquationState, String[] typeThermalConductivity,
-			String interfaceHydraulicConductivityModel, String topBCType, String bottomBCType) {
+	public ComputeQuantitiesSoluteAdvectionDispersion(String[] typeClosureEquation, String[] typeEquationState,
+			String interfaceDispersionModel, String topBCType, String bottomBCType) {
 		
 		variables = ProblemQuantities.getInstance();
 		geometry = Geometry.getInstance();
@@ -108,14 +112,14 @@ public class ComputeQuantitiesSoluteAdvectionDispersion {
 			equationState.add(equationStateFactory.create(typeEquationState[i], soilWaterRetentionCurve.get(i)));
 		}
 
-		conductivityEquationFactory = new ConductivityEquationFactory();
+		/*conductivityEquationFactory = new ConductivityEquationFactory();
 		thermalConductivity = new ArrayList<ConductivityEquation>();
 		for(int i=0; i<typeThermalConductivity.length; i++) {
 			thermalConductivity.add(conductivityEquationFactory.create(typeThermalConductivity[i], soilWaterRetentionCurve.get(i)));
-		}
+		}*/
 		
-		interfaceConductivityFactory = new SimpleInterfaceConductivityFactory();
-		interfaceConductivity = interfaceConductivityFactory.createInterfaceConductivity(interfaceHydraulicConductivityModel);
+		interfaceDispersionFactory = new SimpleInterfaceConductivityFactory();
+		interfaceDispersion = interfaceDispersionFactory.createInterfaceConductivity(interfaceDispersionModel);
 		
 		this.topBCType = topBCType;
 		this.bottomBCType = bottomBCType;
@@ -174,7 +178,23 @@ public class ComputeQuantitiesSoluteAdvectionDispersion {
 		
 		for(int element = 0; element < KMAX; element++) {
 			//variables.lambdas[element] = thermalConductivity.get(variables.equationStateID[element]).k(variables.temperatures[element], variables.waterSuctions[element], variables.parameterID[element], element);
-			variables.dispersionCoefficients[element] = 1; //Qui poi metteremo il metodo
+			
+			//QUESTO SI POTREBBE COMMENTARE
+			//variables.dispersionCoefficients[element] = 1; //Qui poi metteremo il metodo
+			
+			//CALCOLO DEL COEFFICIENTE DI DISPERSIONE secondo Bear(1972) da Stumpp et all., (2012)
+			
+			variables.dispersionCoefficients[element] = (parameters.longitudinalDispersivity * variables.darcyVelocities[element])/variables.thetas[element] + parameters.molecularDiffusion * parameters.tortuosityFactor;
+		}			
+
+	}
+
+// This method compute D*theta
+public void computeDispersionFactors(int KMAX) {
+		
+		for(int element = 0; element < KMAX; element++) {
+			
+			variables.dispersionFactors[element] = variables.dispersionCoefficients[element] * variables.thetas[element];
 		}			
 
 	}
@@ -201,24 +221,27 @@ public class ComputeQuantitiesSoluteAdvectionDispersion {
 		
 	}*/
 	
-public void computeInterfaceDispersionCoefficient(int KMAX) {
+public void computeInterfaceDispersionFactors(int KMAX) {
 	
 		for(int k = 1; k <= KMAX-1; k++) {
-			variables.dispersionCoefficientsInterface[k] = interfaceConductivity.compute(variables.dispersionCoefficients[k-1],variables.dispersionCoefficients[k], geometry.controlVolume[k-1], geometry.controlVolume[k]);
+			variables.dispersionFactorsInterface[k] = interfaceDispersion.compute(variables.dispersionFactors[k-1],variables.dispersionFactors[k], geometry.controlVolume[k-1], geometry.controlVolume[k]);
 		}			
 		
-		// bottom interface 
+		variables.dispersionFactorsInterface[0] = variables.dispersionFactorsInterface[1]; 
+		variables.dispersionFactorsInterface[KMAX] = variables.dispersionFactorsInterface[KMAX-1]; 
+		
+		/*// bottom interface 
 		if(this.bottomBCType.equalsIgnoreCase("Bottom Dirichlet") || this.bottomBCType.equalsIgnoreCase("BottomDirichlet")){
-			variables.dispersionCoefficientsInterface[0] = thermalConductivity.get(variables.equationStateID[0]).k(variables.soluteBottomBCValue, variables.waterSuctions[0], variables.parameterID[0], 0);
+			variables.lambdasInterface[0] = thermalConductivity.get(variables.equationStateID[0]).k(variables.soluteBottomBCValue, variables.waterSuctions[0], variables.parameterID[0], 0);
 		} else {
-			variables.dispersionCoefficientsInterface[0] = - 9999.0;
+			variables.lambdasInterface[0] = - 9999.0;
 		}
 		
 		if(this.topBCType.equalsIgnoreCase("Top Dirichlet") || this.bottomBCType.equalsIgnoreCase("TopDirichlet")){
-			variables.dispersionCoefficientsInterface[KMAX] = thermalConductivity.get(variables.equationStateID[0]).k(variables.soluteBottomBCValue, variables.waterSuctions[0], variables.parameterID[0], 0);
+			variables.lambdasInterface[KMAX] = thermalConductivity.get(variables.equationStateID[0]).k(variables.soluteBottomBCValue, variables.waterSuctions[0], variables.parameterID[0], 0);
 		} else {
-			variables.dispersionCoefficientsInterface[KMAX] = - 9999.0;
-		}
+			variables.lambdasInterface[KMAX] = - 9999.0;
+		}*/
 
 		
 	}
@@ -274,6 +297,27 @@ public void computeInterfaceDispersionCoefficient(int KMAX) {
 		
 		for(int k = 0; k <= KMAX; k++) {
 			variables.heatFluxs[k] = variables.conductionHeatFluxs[k]+variables.advectionHeatFluxs[k];
+		}
+		
+	}
+	
+	public void computeAverageSoluteConcentration(int KMAX) {
+		
+		variables.averageSoluteConcentration=0;
+		
+		for(int k = 0; k <= KMAX; k++) {
+			variables.averageSoluteConcentration = (variables.averageSoluteConcentration + variables.concentrations[k])/KMAX;
+		}
+		
+	}
+	
+	public void computeAverageSoluteThetaConcentration(int KMAX) {
+		
+		variables.averageSoluteThetaConcentration=0;
+		
+		for(int k = 0; k <= KMAX; k++) {
+			
+			variables.averageSoluteThetaConcentration = (variables.averageSoluteThetaConcentration + variables.concentrations[k]* variables.thetas[k])/KMAX;
 		}
 		
 	}
