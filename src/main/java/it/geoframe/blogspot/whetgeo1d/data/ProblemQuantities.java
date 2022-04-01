@@ -138,6 +138,10 @@ public class ProblemQuantities {
 	public double[] dispersionFactorsInterface;
 	public double averageSoluteConcentration;
 	public double averageSoluteThetaConcentration;
+	public double[] dispersionSoluteFluxs;
+	public double[] advectionSoluteFluxs;
+	public double[] soluteFluxs;
+	public double errorThetaConcentration;
 	
 	private ProblemQuantities(double[] icWaterSuction, double[] icTemperature, int[] equationStateID, int[] parameterID) {
 		

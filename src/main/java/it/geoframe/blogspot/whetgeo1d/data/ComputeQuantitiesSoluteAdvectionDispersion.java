@@ -144,7 +144,7 @@ public class ComputeQuantitiesSoluteAdvectionDispersion {
 		
 		variables.thetaConcentration = 0.0;
 		for(int element = 0; element < KMAX; element++) {
-//			variables.internalEnergys[element] = equationState.get(variables.equationStateID[element]).equationState(variables.temperatures[element], variables.waterSuctions[element], variables.parameterID[element], element);
+
 			variables.thetaConcentrations[element] = variables.thetas[element] * variables.concentrations[element];
 			variables.thetaConcentration += variables.thetaConcentrations[element];
 		}
@@ -161,18 +161,18 @@ public class ComputeQuantitiesSoluteAdvectionDispersion {
 		
 		variables.thetaConcentrationNew = 0.0;
 		for(int element = 0; element < KMAX; element++) {
-//			variables.internalEnergys[element] = equationState.get(variables.equationStateID[element]).equationState(variables.temperatures[element], variables.waterSuctions[element], variables.parameterID[element], element);
+
 			variables.thetaConcentrationsNew[element] = variables.thetas[element] * variables.concentrations[element];;
 			variables.thetaConcentrationNew += variables.thetaConcentrationsNew[element];
 		}
 	}
 	
-	public void computeTransportedQuantity(int KMAX) {
+	/*public void computeTransportedQuantity(int KMAX) {
 		
 		for(int element = 0; element < KMAX; element++) {
 			variables.waterCapacityTransported[element] =  parameters.waterDensity*parameters.specificThermalCapacityWater;
 		}
-	}
+	}*/
 	
 	public void computeDispersionCoefficient(int KMAX) {
 		
@@ -246,7 +246,7 @@ public void computeInterfaceDispersionFactors(int KMAX) {
 		
 	}
 	
-	public void computeConductionHeatFlux(int KMAX) {
+	/*public void computeConductionHeatFlux(int KMAX) {
 		
 		for(int k = 1; k <= KMAX-1; k++) {
 			variables.conductionHeatFluxs[k] = -variables.lambdasInterface[k] * (variables.temperatures[k]-variables.temperatures[k-1])/geometry.spaceDeltaZ[k];
@@ -266,9 +266,31 @@ public void computeInterfaceDispersionFactors(int KMAX) {
 			variables.conductionHeatFluxs[KMAX] = -variables.internalEnergyTopBCValue;
 		}
 		
+	}*/
+	
+public void computeDispersionSoluteFlux(int KMAX) {
+		
+		for(int k = 1; k <= KMAX-1; k++) {
+			variables.dispersionSoluteFluxs[k] = -variables.dispersionFactorsInterface[k] * (variables.concentrations[k]-variables.concentrations[k-1])/geometry.spaceDeltaZ[k];
+		}
+		
+		// bottom interface
+		if (this.bottomBCType.equalsIgnoreCase("Bottom Dirichlet") || this.bottomBCType.equalsIgnoreCase("BottomDirichlet")) {
+			variables.dispersionSoluteFluxs[0] = -variables.dispersionFactorsInterface[0] * (variables.concentrations[0]-variables.soluteBottomBCValue)/geometry.spaceDeltaZ[0];
+		} else {
+			variables.dispersionSoluteFluxs[0] = -variables.soluteBottomBCValue;
+		}
+		
+		// top interface
+		if (this.topBCType.equalsIgnoreCase("Top Dirichlet") || this.topBCType.equalsIgnoreCase("TopDirichlet")) {
+			variables.dispersionSoluteFluxs[KMAX] = -variables.dispersionFactorsInterface[KMAX] * (variables.soluteTopBCValue-variables.concentrations[KMAX-1])/geometry.spaceDeltaZ[KMAX];
+		} else {
+			variables.dispersionSoluteFluxs[KMAX] = -variables.soluteTopBCValue;
+		}
+		
 	}
 	
-	public void computeAdvectionHeatFlux(int KMAX) {
+	/*public void computeAdvectionHeatFlux(int KMAX) {
 		
 		for(int k = 1; k <= KMAX-1; k++) {
 			variables.advectionHeatFluxs[k] = variables.waterCapacityTransported[k]*( 0.5*variables.darcyVelocities[k]*(variables.temperatures[k]-parameters.referenceTemperatureInternalEnergy+variables.temperatures[k-1]-parameters.referenceTemperatureInternalEnergy)
@@ -285,18 +307,36 @@ public void computeInterfaceDispersionFactors(int KMAX) {
 		 * FIXME: check the case for Neumann boundary condition: T_BC = Flux*DeltaZ/lambda_0 - T_0
 		 */
 		// top interface
-		variables.advectionHeatFluxs[KMAX] = variables.waterCapacityTransported[KMAX-1]*( 0.5*variables.darcyVelocities[KMAX]*(variables.internalEnergyTopBCValue-parameters.referenceTemperatureInternalEnergy + variables.temperatures[KMAX-1]-parameters.referenceTemperatureInternalEnergy)
+/*		variables.advectionHeatFluxs[KMAX] = variables.waterCapacityTransported[KMAX-1]*( 0.5*variables.darcyVelocities[KMAX]*(variables.internalEnergyTopBCValue-parameters.referenceTemperatureInternalEnergy + variables.temperatures[KMAX-1]-parameters.referenceTemperatureInternalEnergy)
 				- 0.5*Math.abs(variables.darcyVelocities[KMAX])*(variables.internalEnergyTopBCValue-parameters.referenceTemperatureInternalEnergy - variables.temperatures[KMAX-1]+parameters.referenceTemperatureInternalEnergy));
 
 //		variables.advectionHeatFluxs[KMAX] = variables.waterCapacityTransported[KMAX-1]*( 0.5*variables.darcyVelocities[KMAX]*(variables.internalEnergyTopBCValue + variables.temperatures[KMAX-1])
 //				- 0.5*Math.abs(variables.darcyVelocities[KMAX])*(variables.internalEnergyTopBCValue - variables.temperatures[KMAX-1]));
 		
+	}*/
+	
+public void computeAdvectionSoluteFlux(int KMAX) {
+		
+		for(int k = 1; k <= KMAX-1; k++) {
+			variables.advectionSoluteFluxs[k] = 0.5*variables.darcyVelocities[k]*(variables.concentrations[k]+variables.concentrations[k-1])-0.5*Math.abs(variables.darcyVelocities[k])*(variables.concentrations[k]-variables.concentrations[k-1]);
+		}
+		
+		// bottom interface
+		variables.advectionSoluteFluxs[0] = 0.5*variables.darcyVelocities[0]*(variables.concentrations[0]+variables.soluteBottomBCValue)-0.5*Math.abs(variables.darcyVelocities[0])*(variables.concentrations[0]- variables.soluteBottomBCValue); 
+
+		/*
+		 * FIXME: check the case for Neumann boundary condition: T_BC = Flux*DeltaZ/lambda_0 - T_0
+		 */
+		
+		// top interface
+		variables.advectionSoluteFluxs[KMAX] = 0.5*variables.darcyVelocities[KMAX]*(variables.soluteTopBCValue+ variables.concentrations[KMAX-1])-0.5*Math.abs(variables.darcyVelocities[KMAX])*(variables.soluteTopBCValue - variables.concentrations[KMAX-1]);
+	
 	}
 
-	public void computeHeatFlux(int KMAX) {
+	public void computeSoluteFlux(int KMAX) {
 		
 		for(int k = 0; k <= KMAX; k++) {
-			variables.heatFluxs[k] = variables.conductionHeatFluxs[k]+variables.advectionHeatFluxs[k];
+			variables.soluteFluxs[k] = variables.dispersionSoluteFluxs[k]+variables.advectionSoluteFluxs[k];
 		}
 		
 	}
@@ -323,8 +363,13 @@ public void computeInterfaceDispersionFactors(int KMAX) {
 	}
 	
 
-	public void computeError(int KMAX, double timeDelta) {
+	/*public void computeError(int KMAX, double timeDelta) {
 		variables.errorInternalEnergy = variables.internalEnergyNew - variables.internalEnergy - timeDelta*(-variables.conductionHeatFluxs[KMAX]-variables.advectionHeatFluxs[KMAX] + variables.conductionHeatFluxs[0] + variables.advectionHeatFluxs[0]);
+
+	}*/
+	
+	public void computeError(int KMAX, double timeDelta) {
+		variables.errorThetaConcentration = variables.thetaConcentrationNew - variables.thetaConcentration - timeDelta*(-variables.dispersionSoluteFluxs[KMAX]-variables.advectionSoluteFluxs[KMAX] + variables.dispersionSoluteFluxs[0] + variables.advectionSoluteFluxs[0]);
 
 	}
 	
