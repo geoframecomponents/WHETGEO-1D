@@ -27,7 +27,7 @@ import oms3.annotations.*;
 
 @Description("This code solve the advection-diffusion equatio written in conservative form."
 		+ "A semi-implicit finite volume method is used to discretize the equation, and the non-linear system is solved using the nested Newton algorithm.")
-@Documentation("Casulli, V., & Zanolli, P. (2005). High resolution methods for multidimensional advection–diffusion problems in free-surface hydrodynamics. Ocean Modelling, 10(1-2), 137-151."
+@Documentation("Casulli, V., & Zanolli, P. (2005). High resolution methods for multidimensional advectionï¿½diffusion problems in free-surface hydrodynamics. Ocean Modelling, 10(1-2), 137-151."
 		+ "Casulli, V., & Zanolli, P. (2010). A nested Newton-type algorithm for finite volume methods solving Richards' equation in mixed form. SIAM Journal on Scientific Computing, 32(4), 2255-2273.")
 @Author(name = "Niccolo' Tubini and Riccardo Rigon", contact = "tubini.niccolo@gmail.com")
 @Keywords("Advection-diffusion equation, numerical solver, finite volume ")
@@ -115,8 +115,9 @@ public class AdvectionDiffusion1DFiniteVolumeSolver {
 	 * @param inCurrentDate
 	 * @param timeDelta
 	 */
-	public double[] solve(double timeDelta, double bottomBCValue, double topBCValue, int KMAX, double[] kappasInterface, double[] conservedQuantitiesNew, double[] conservedQuantities, double[] spaceDeltaZ,
-			double[] sourceSinkTerm, double[] x, double[] y, double[] velocities, double[] transportedQuantities, int[] parameterID, int[] rheologyID) {
+	public double[] solve(double timeDelta, double bottomBCValue, double topBCValue, int KMAX, double[] kappasInterface, 
+			double[] conservedQuantitiesNew, double[] conservedQuantities, double[] spaceDeltaZ, double[] sourceSinkTerm, double[] x, double[] y, double[] velocities, 
+			double[] transportedQuantities, int[] parameterID, int[] rheologyID) {
 
 
 		this.timeDelta = timeDelta;
@@ -133,6 +134,7 @@ public class AdvectionDiffusion1DFiniteVolumeSolver {
 			
 				kP = kappasInterface[i+1];
 				kM = kappasInterface[i];
+				
 				lowerDiagonal[i] = -kM*timeDelta/spaceDeltaZ[i] + timeDelta*transportedQuantities[i]*(-0.5*velocities[i] - 0.5*Math.abs(velocities[i]));
 				
 				mainDiagonal[i] = conservedQuantitiesNew[i] + kM*timeDelta/spaceDeltaZ[i] + kP*timeDelta/spaceDeltaZ[i+1] 

@@ -129,19 +129,25 @@ public class ProblemQuantities {
 	public double[] concentrations;
 	public double soluteTopBCValue;
 	public double soluteBottomBCValue;
-	public double thetaConcentration;
-	public double thetaConcentrationNew;
-	public double[] thetaConcentrations;
-	public double[] thetaConcentrationsNew;
+	public double waterVolumeConcentration;
+	public double waterVolumeConcentrationNew;
+	public double[] waterVolumeConcentrations;
+	public double[] waterVolumeConcentrationsNew;
+	
 	public double[] dispersionCoefficients;
 	public double[] dispersionFactors;
-	public double[] dispersionFactorsInterface;
+	public double[] thetasInterface;
+	
 	public double averageSoluteConcentration;
-	public double averageSoluteThetaConcentration;
-	public double[] dispersionSoluteFluxs;
-	public double[] advectionSoluteFluxs;
-	public double[] soluteFluxs;
-	public double errorThetaConcentration;
+	public double averageWaterVolumeSoluteConcentration;
+	public double[] dispersionSoluteFluxes;
+	public double[] advectionSoluteFluxes;
+	public double[] soluteFluxes;
+	public double errorWaterVolumeConcentration;
+	public double[] soluteQuantitiesTransported;
+	public double[] soluteSourcesSinksTerm;
+	
+	
 	
 	private ProblemQuantities(double[] icWaterSuction, double[] icTemperature, int[] equationStateID, int[] parameterID) {
 		
@@ -190,7 +196,6 @@ public class ProblemQuantities {
 	private ProblemQuantities(double[] icWaterSuction, double[] icTemperature, double[] icConcentration, int[] equationStateID, int[] parameterID) {
 		waterSuctions = icWaterSuction.clone();
 		temperatures = icTemperature.clone();
-		concentrations = icConcentration.clone();
 		
 		thetas = new double[icWaterSuction.length];
 		thetasNew = new double[icWaterSuction.length];
@@ -226,7 +231,21 @@ public class ProblemQuantities {
 		temperatureStar2 = new double[icWaterSuction.length];
 		temperatureStar3 = new double[icWaterSuction.length];
 		
+		concentrations = icConcentration.clone();
 		
+		waterVolumeConcentrations = new double[icWaterSuction.length];
+		waterVolumeConcentrationsNew = new double[icWaterSuction.length];
+		dispersionCoefficients = new double[icWaterSuction.length+1];
+		dispersionFactors = new double[icWaterSuction.length+1];
+		thetasInterface = new double[icWaterSuction.length+1];
+		dispersionSoluteFluxes = new double[icWaterSuction.length];
+		advectionSoluteFluxes = new double[icWaterSuction.length];
+		soluteFluxes = new double[icWaterSuction.length];
+		soluteQuantitiesTransported = new double[icWaterSuction.length];
+		soluteSourcesSinksTerm = new double[icWaterSuction.length];
+		
+
+			
 		this.equationStateID = equationStateID.clone();
 		this.parameterID = parameterID.clone();
 	}
