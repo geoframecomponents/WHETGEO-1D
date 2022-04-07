@@ -54,49 +54,11 @@ import ucar.nc2.Variable;
 //@Name()
 //@Status()
 @License("General Public License Version 3 (GPLv3)")
-public class ConservativeSoluteAdevectionDispersionSolver1DMain {
+public class ConservativeSoluteAdvectionDispersionSolver1DMain {
 
-	/*
-	 * WATER THERMAL PROPERTIES
-	 */
-	
-	/*@Description("Water density. Default value 1000.0 [kg m-3].")
-	@In 
-	@Unit ("kg m-3")
-	public double waterDensity = 1000.0;
-
-	@Description("Ice density. Default value 920.0 [kg m-3].")
-	@In 
-	@Unit ("kg m-3")
-	public double iceDensity = 920.0;
-
-	@Description("Specific thermal capacity of water. Default value 4188.0 [J kg-1 K-1].")
-	@In 
-	@Unit ("J kg-1 K-1")
-	public double specificThermalCapacityWater = 4188.0;
-
-	@Description("Specific thermal capacity of ice. Default value 2117.0 [J kg-1 K-1].")
-	@In 
-	@Unit ("J kg-1 K-1")
-	public double specificThermalCapacityIce = 2117.0;
-
-	@Description("Thermal conductivity of water. Default value 0.6 [W m-1 K-1].")
-	@In 
-	@Unit ("W m-1 K-1")
-	public double thermalConductivityWater = 0.6;
-
-	@Description("Thermal conductivity of ice. Default value 2.29 [W m-1 K-1].")
-	@In 
-	@Unit ("W m-1 K-1")
-	public double thermalConductivityIce = 2.29;
-
-	@Description("Latent heat of fusion. Default value 333700 [J kg-1].")
-	@In 
-	@Unit ("J kg-1")
-	public double latentHeatFusion = 333700;*/
 	
 	/* 
-	 * TRANSPORT PARAMETERS
+	 * SOLUTE TRANSPORT PARAMETERS
 	 */
 	@Description("Molecular Diffusionin free water. Default value 10-9[m2 s-1].")
 	@In 
@@ -177,7 +139,7 @@ public class ConservativeSoluteAdevectionDispersionSolver1DMain {
 	@Unit ("K")
 	public double referenceTemperatureSWRC = 278.15;
 	
-	@Description("Reference temperature to compute internal energy")
+	/*@Description("Reference temperature to compute internal energy")
 	@In 
 	@Unit ("K")
 	public double referenceTemperatureInternalEnergy = 273.15;
@@ -200,7 +162,7 @@ public class ConservativeSoluteAdevectionDispersionSolver1DMain {
 	@Description("Melting temperature")
 	@In 
 	@Unit ("K")
-	public double[] meltingTemperature;
+	public double[] meltingTemperature;*/
 	
 	@Description("Control volume label defining the equation state")
 	@In 
@@ -251,7 +213,7 @@ public class ConservativeSoluteAdevectionDispersionSolver1DMain {
 	public String interfaceHydraulicConductivityModel;
 	
 	// Heat equation	
-	@Description("Equation state")
+	/*@Description("Equation state")
 	@In 
 	public String[] typeInternalEnergyEquationState;
 
@@ -265,7 +227,7 @@ public class ConservativeSoluteAdevectionDispersionSolver1DMain {
 			+ " the minimum between kappas[i] and kappas[i+1]"
 			+ " a weighted average of kappas[i] and kappas[i+1] where weights are dx[i] and dx[i+1]")
 	@In
-	public String interfaceThermalConductivityModel;
+	public String interfaceThermalConductivityModel;*/
 	
 	@Description("Dispersion Coefficient at control volume interface can be evaluated as"
 			+ " the average of kappas[i] and kappas[i+1]"
@@ -383,7 +345,7 @@ public class ConservativeSoluteAdevectionDispersionSolver1DMain {
 	@In 
 	public String bottomRichardsBCType;
 	
-	@Description("The HashMap with the time series of the boundary condition at the top of soil column")
+	/*@Description("The HashMap with the time series of the boundary condition at the top of soil column")
 	@In
 	@Unit ("m")
 	public HashMap<Integer, double[]> inInternalEnergyTopBC;
@@ -406,7 +368,7 @@ public class ConservativeSoluteAdevectionDispersionSolver1DMain {
 			+ "- Dirichlet boundary condition --> Bottom Dirichlet"
 			+ "- Neumann boundary condition --> Bottom Neumann")
 	@In 
-	public String bottomInternalEnergyBCType;
+	public String bottomInternalEnergyBCType;*/
 	
 	@Description("The HashMap with the time series of the boundary condition at the top of soil column")
 	@In
@@ -690,12 +652,12 @@ public class ConservativeSoluteAdevectionDispersionSolver1DMain {
 			}
 			variables.internalEnergyTopBCValue = variables.internalEnergyTopBCValue-273.15; 
 			variables.internalEnergyBottomBCValue = variables.internalEnergyBottomBCValue-273.15; 
-			
+			*/
 			if(variables.thetasNew[variables.thetasNew.length-1]<=0) {
 				KMAX = KMAX-1;
-				variables.internalEnergy-=variables.internalEnergys[variables.thetasNew.length-1];
+				variables.waterVolumeConcentration-=variables.waterVolumeConcentrations[variables.thetasNew.length-1];
 			}
-			*/
+			
 
 			/*variables.temperatures = advectionDiffusionSolver.solve(timeDelta, variables.internalEnergyBottomBCValue, variables.internalEnergyTopBCValue, KMAX, variables.lambdasInterface,
 						variables.heatCapacitysNew, variables.heatCapacitys, geometry.spaceDeltaZ, variables.heatSourcesSinksTerm, variables.temperatures, variables.waterSuctions, variables.darcyVelocities, 

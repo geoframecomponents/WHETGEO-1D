@@ -181,7 +181,7 @@ public class ComputeQuantitiesSoluteAdvectionDispersion {
 		}			
 		
 		variables.thetasInterface[0] = variables.thetas[0];
-		variables.thetasInterface[KMAX] = variables.thetas[KMAX];
+		variables.thetasInterface[KMAX] = variables.thetas[KMAX-1];
 		
 		/*// bottom interface 
 		if(this.bottomBCType.equalsIgnoreCase("Bottom Dirichlet") || this.bottomBCType.equalsIgnoreCase("BottomDirichlet")){
@@ -202,7 +202,7 @@ public class ComputeQuantitiesSoluteAdvectionDispersion {
 	
 	public void computeDispersionCoefficients(int KMAX) {
 		
-		for(int element = 0; element < KMAX; element++) {
+		for(int element = 0; element <= KMAX; element++) {
 			
 			
 			//CALCOLO DEL COEFFICIENTE DI DISPERSIONE secondo Bear(1972) da Stumpp et all., (2012)
@@ -215,7 +215,7 @@ public class ComputeQuantitiesSoluteAdvectionDispersion {
 
 public void computeDispersionFactors(int KMAX) {
 		
-		for(int element = 0; element < KMAX; element++) {
+		for(int element = 0; element <= KMAX; element++) {
 			
 			variables.dispersionFactors[element] = variables.dispersionCoefficients[element] * variables.thetasInterface[element];
 		}			
@@ -284,7 +284,7 @@ public void computeDispersionSoluteFluxes(int KMAX) {
 		// top interface
 		if (this.topBCType.equalsIgnoreCase("Top Dirichlet") || this.topBCType.equalsIgnoreCase("TopDirichlet")) {
 			variables.dispersionSoluteFluxes[KMAX] = -variables.dispersionFactors[KMAX] * (variables.soluteTopBCValue-variables.concentrations[KMAX-1])/geometry.spaceDeltaZ[KMAX];
-		} else {
+ 		} else {
 			variables.dispersionSoluteFluxes[KMAX] = -variables.soluteTopBCValue;
 		}
 		
@@ -345,9 +345,9 @@ public void computeAdvectionSoluteFluxes(int KMAX) {
 		
 		variables.averageSoluteConcentration=0;
 		
-		for(int k = 0; k <= KMAX; k++) {
+		for(int k = 0; k <= KMAX-1; k++) {
 			variables.averageSoluteConcentration += variables.concentrations[k];}
-		variables.averageSoluteConcentration = variables.averageSoluteConcentration/KMAX;
+		variables.averageSoluteConcentration = variables.averageSoluteConcentration/(KMAX-1);
 		}
 	
 	
@@ -357,10 +357,10 @@ public void computeAdvectionSoluteFluxes(int KMAX) {
 		
 		variables.averageWaterVolumeSoluteConcentration=0;
 		
-		for(int k = 0; k <= KMAX; k++) {
+		for(int k = 0; k <= KMAX-1; k++) {
 			
 			variables.averageWaterVolumeSoluteConcentration += variables.concentrations[k]*variables.volumes[k];}
-		variables.averageWaterVolumeSoluteConcentration = variables.averageWaterVolumeSoluteConcentration/KMAX;
+		variables.averageWaterVolumeSoluteConcentration = variables.averageWaterVolumeSoluteConcentration/(KMAX-1);
 		}
 	
 
@@ -371,7 +371,7 @@ public void computeAdvectionSoluteFluxes(int KMAX) {
 	
 	public void computeError(int KMAX, double timeDelta) {
 		variables.errorWaterVolumeConcentration = variables.waterVolumeConcentrationNew - variables.waterVolumeConcentration - timeDelta*(-variables.dispersionSoluteFluxes[KMAX]-variables.advectionSoluteFluxes[KMAX] + variables.dispersionSoluteFluxes[0] + variables.advectionSoluteFluxes[0]);
-
+		//variables.errorWaterVolumeConcentration = variables.waterVolumeConcentrationNew - variables.waterVolumeConcentration - timeDelta*(-variables.dispersionSoluteFluxes[KMAX] + variables.dispersionSoluteFluxes[0]);
 	}
 	
 }

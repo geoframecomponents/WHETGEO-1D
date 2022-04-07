@@ -238,9 +238,9 @@ public class ProblemQuantities {
 		dispersionCoefficients = new double[icWaterSuction.length+1];
 		dispersionFactors = new double[icWaterSuction.length+1];
 		thetasInterface = new double[icWaterSuction.length+1];
-		dispersionSoluteFluxes = new double[icWaterSuction.length];
-		advectionSoluteFluxes = new double[icWaterSuction.length];
-		soluteFluxes = new double[icWaterSuction.length];
+		dispersionSoluteFluxes = new double[icWaterSuction.length+1];
+		advectionSoluteFluxes = new double[icWaterSuction.length+1];
+		soluteFluxes = new double[icWaterSuction.length+1];
 		soluteQuantitiesTransported = new double[icWaterSuction.length];
 		soluteSourcesSinksTerm = new double[icWaterSuction.length];
 		

@@ -1,7 +1,7 @@
 /*
   * GNU GPL v3 License
  *
- * Copyright 2020 Niccolo` Tubini
+ * Copyright 2022 Concetta D'Amato
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,17 +17,16 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package heat;
+package soluteTransport;
 
 import java.net.URISyntaxException;
 import java.util.*;
 import org.hortonmachine.gears.io.timedependent.OmsTimeSeriesIteratorReader;
 
-import it.geoframe.blogspot.buffer.buffertowriter.HeatAdvectionDiffusionBuffer1D;
-import it.geoframe.blogspot.whetgeo1d.heatsolver.HeatAdevectionDiffusionSolver1DMain;
-import it.geoframe.blogpsot.netcdf.monodimensionalproblemtimedependent.ReadNetCDFHeatAdvectionDiffusionGrid1D;
-import it.geoframe.blogpsot.netcdf.monodimensionalproblemtimedependent.ReadNetCDFHeatAdvectionDiffusionOutput1D;
-import it.geoframe.blogpsot.netcdf.monodimensionalproblemtimedependent.WriteNetCDFHeatAdvectionDiffusion1D;
+import it.geoframe.blogspot.buffer.buffertowriter.*;
+import it.geoframe.blogspot.whetgeo1d.solutetransport.*;
+import it.geoframe.blogpsot.netcdf.monodimensionalproblemtimedependent.*;
+
 
 import org.junit.Test;
 
@@ -35,7 +34,7 @@ import org.junit.Test;
  * Test the {@link TestSoluteAdvectionDispersion} module.
  * 
  * 
- * @author Niccolo' Tubini
+ * @author Concetta D'Amato and Niccolo' Tubini
  */
 public class TestSoluteAdvectionDispersion {
 
@@ -44,54 +43,59 @@ public class TestSoluteAdvectionDispersion {
 
 
 		String startDate = "2003-01-01 00:00";
-		String endDate = "2004-01-01 00:00";
+		String endDate = "2003-01-01 01:00";
 		int timeStepMinutes = 60;
 		String fId = "ID";
 				
-		String pathInternalEnergyTopBC = "resources/input/TimeSeries/airT_T0135.csv";
-		String pathInternalEnergyBottomBC = "resources/input/TimeSeries/bottomT_T0135.csv";
+		String pathSoluteTopBC = "resources/input/TimeSeries/ConcTop_T0135.csv";
+		String pathSoluteBottomBC = "resources/input/TimeSeries/ConcBottom_T0135.csv";
 		String pathRichardsTopBC = "resources/input/TimeSeries/Precip_T0135.csv";
-		String pathRichardsBottomBC = "resources/input/TimeSeries/Precip_T0135.csv";
-		String pathSaveDates = "resources/input/TimeSeries/tmpsaveDates_T0135.csv"; 
-		String pathGrid =  "resources/input/Grid_NetCDF/Heat_advection_diffusion.nc";
-		String pathOutput = "resources/output/Sim_heat_advection_diffusion_tmp.nc";
+		String pathRichardsBottomBC = "resources/input/TimeSeries/noFlux_T0135.csv";
+		String pathSaveDates = "resources/input/TimeSeries/saveAll_T0135.csv"; 
+		String pathGrid =  "resources/input/Grid_NetCDF/Grid_Richards_Solute.nc";
+		String pathOutput = "resources/output/Sim_solute_advection_dispersion.nc";
 		
-		String topInternalEnergyBC = "Top dirichlet";
-		String bottomInternalEnergyBC = "Bottom dirichlet";
+		String topSoluteBC = "Top dirichlet";
+		String bottomSoluteBC = "Bottom dirichlet";
 		String topRichardsBC = "Top Coupled";
-		String bottomRichardsBC = "Bottom Free drainage";
+		String bottomRichardsBC = "Bottom Impervious"; //"Bottom Free drainage"
 
 		String outputDescription = "\n"
-				+ "Richards' equation coupled with the heat advection-diffusion equation";
+				+ "Richards' equation coupled with the solute advection-dispersion equation";
 		
 		int writeFrequency = 1000000;
 		
-		OmsTimeSeriesIteratorReader topInternalEnergyBCReader = getTimeseriesReader(pathInternalEnergyTopBC, fId, startDate, endDate, timeStepMinutes);
-		OmsTimeSeriesIteratorReader bottomInternalEnergyBCReader = getTimeseriesReader(pathInternalEnergyBottomBC, fId, startDate, endDate, timeStepMinutes);
+		OmsTimeSeriesIteratorReader topSoluteBCReader = getTimeseriesReader(pathSoluteTopBC, fId, startDate, endDate, timeStepMinutes);
+		OmsTimeSeriesIteratorReader bottomSoluteBCReader = getTimeseriesReader(pathSoluteBottomBC, fId, startDate, endDate, timeStepMinutes);
 		OmsTimeSeriesIteratorReader topRichardsBCReader = getTimeseriesReader(pathRichardsTopBC, fId, startDate, endDate, timeStepMinutes);
 		OmsTimeSeriesIteratorReader bottomRichardsBCReader = getTimeseriesReader(pathRichardsBottomBC, fId, startDate, endDate, timeStepMinutes);
 		OmsTimeSeriesIteratorReader saveDatesReader = getTimeseriesReader(pathSaveDates, fId, startDate, endDate, timeStepMinutes);
 
-		HeatAdvectionDiffusionBuffer1D buffer = new HeatAdvectionDiffusionBuffer1D();
-		WriteNetCDFHeatAdvectionDiffusion1D writeNetCDF = new WriteNetCDFHeatAdvectionDiffusion1D();
-		ReadNetCDFHeatAdvectionDiffusionGrid1D readNetCDF = new ReadNetCDFHeatAdvectionDiffusionGrid1D();
+		SoluteAdvectionDispersionBuffer1D buffer = new SoluteAdvectionDispersionBuffer1D();
+		WriteNetCDFSoluteAdvectionDispersion1D writeNetCDF = new WriteNetCDFSoluteAdvectionDispersion1D();
+		ReadNetCDFGEOSPACEGrid1D readNetCDF = new ReadNetCDFGEOSPACEGrid1D();
 		
-		HeatAdevectionDiffusionSolver1DMain solver = new HeatAdevectionDiffusionSolver1DMain();
+		ConservativeSoluteAdvectionDispersionSolver1DMain solver = new ConservativeSoluteAdvectionDispersionSolver1DMain();
+		
+		double[] concentrationIC = {0,0,1,1,1,1};
+		solver.concentrationIC = concentrationIC;
+		solver.longitudinalDispersivity = 1;
+		solver.tortuosityFactor = 1;
 		
 		
-		readNetCDF.gridFilename = pathGrid;
+		readNetCDF.richardsGridFilename = pathGrid;
 		
 		readNetCDF.read();
 		
 		
 		solver.z = readNetCDF.z;
 		solver.spaceDeltaZ = readNetCDF.spaceDelta;
-		solver.psiIC = readNetCDF.psi;
-		solver.temperature = readNetCDF.temperatureIC;
+		solver.psiIC = readNetCDF.psiIC;
+		solver.temperatureIC = readNetCDF.temperature;
 		solver.controlVolume = readNetCDF.controlVolume;
-		solver.soilParticlesDensity = readNetCDF.soilParticlesDensity;
-		solver.thermalConductivitySoilParticles = readNetCDF.soilParticlesThermalConductivity;
-		solver.specificThermalCapacitySoilParticles = readNetCDF.soilParticlesSpecificHeatCapacity;
+		//solver.soilParticlesDensity = readNetCDF.soilParticlesDensity;
+		//solver.thermalConductivitySoilParticles = readNetCDF.soilParticlesThermalConductivity;
+		//solver.specificThermalCapacitySoilParticles = readNetCDF.soilParticlesSpecificHeatCapacity;
 		solver.ks = readNetCDF.Ks;
 		solver.thetaS = readNetCDF.thetaS;
 		solver.thetaR = readNetCDF.thetaR;
@@ -100,7 +104,7 @@ public class TestSoluteAdvectionDispersion {
 		solver.par3SWRC = readNetCDF.par3SWRC;
 		solver.par4SWRC = readNetCDF.par4SWRC;
 		solver.par5SWRC = readNetCDF.par5SWRC;
-		solver.meltingTemperature = readNetCDF.meltingTemperature;
+		//solver.meltingTemperature = readNetCDF.meltingTemperature;
 		solver.alphaSpecificStorage = readNetCDF.alphaSS;
 		solver.betaSpecificStorage = readNetCDF.betaSS;
 		solver.inEquationStateID = readNetCDF.equationStateID;
@@ -112,13 +116,16 @@ public class TestSoluteAdvectionDispersion {
 		solver.interfaceHydraulicConductivityModel = "max";
 		solver.typeUHCTemperatureModel = "notemperature";
 		
-		solver.typeInternalEnergyEquationState = new String[] {"Water heat capacity", "SoilHeatCapacity"};
-		solver.typeThermalConductivity = new String[] {"Water", "Cosenza"};
-		solver.interfaceThermalConductivityModel = "max";
+		solver.interfaceDispersionModel = "max";
+		solver.maxPonding = 0;
+		
+		//solver.typeInternalEnergyEquationState = new String[] {"Water heat capacity", "SoilHeatCapacity"};
+		//solver.typeThermalConductivity = new String[] {"Water", "Cosenza"};
+		//solver.interfaceThermalConductivityModel = "max";
 		solver.topRichardsBCType = topRichardsBC;
 		solver.bottomRichardsBCType = bottomRichardsBC;
-		solver.topInternalEnergyBCType = topInternalEnergyBC;
-		solver.bottomInternalEnergyBCType = bottomInternalEnergyBC;
+		solver.topSoluteBCType = topSoluteBC;
+		solver.bottomSoluteBCType = bottomSoluteBC;
 		solver.tTimeStep = 3600;
 		solver.timeDelta = 3600;
 		solver.newtonTolerance = Math.pow(10,-12);
@@ -131,25 +138,26 @@ public class TestSoluteAdvectionDispersion {
 		writeNetCDF.fileName = pathOutput;
 		writeNetCDF.briefDescritpion = outputDescription;
 		writeNetCDF.pathGrid = pathGrid;
-		writeNetCDF.pathHeatBottomBC = ""; 
-		writeNetCDF.pathHeatTopBC = ""; 
+		writeNetCDF.pathSoluteBottomBC = ""; 
+		writeNetCDF.pathSoluteTopBC = ""; 
 		writeNetCDF.pathRichardsBottomBC = ""; 
 		writeNetCDF.pathRichardsTopBC = ""; 
-		writeNetCDF.bottomHeatBC = "";
-		writeNetCDF.topHeatBC = "";
+		writeNetCDF.bottomSoluteBC = "";
+		writeNetCDF.topSoluteBC = "";
 		writeNetCDF.bottomRichardsBC = "";
 		writeNetCDF.topRichardsBC = "";
 		writeNetCDF.swrcModel = "VG";
 		writeNetCDF.soilHydraulicConductivityModel = "Mualem VG no temperature";
 		writeNetCDF.interfaceHydraulicConductivityModel = "max";
-		writeNetCDF.soilThermalConductivityModel = "Cosenza";
-		writeNetCDF.interfaceThermalConductivityModel = "max";
+		//writeNetCDF.soilThermalConductivityModel = "Cosenza";
+		writeNetCDF.interfaceDispersionCoefficientModel = "max";
 		writeNetCDF.writeFrequency = writeFrequency;
 		writeNetCDF.spatialCoordinate = readNetCDF.eta;
 		writeNetCDF.dualSpatialCoordinate = readNetCDF.etaDual;	
 		writeNetCDF.controlVolume = readNetCDF.controlVolume;
-		writeNetCDF.psi = readNetCDF.psi;
-		writeNetCDF.temperatureIC = readNetCDF.temperatureIC;
+		writeNetCDF.psi = readNetCDF.psiIC;
+		writeNetCDF.concentrationIC = concentrationIC;
+		writeNetCDF.rootIC = readNetCDF.rootIC;;
 		writeNetCDF.timeUnits = "Minutes since 01/01/1970 00:00:00 UTC";
 		writeNetCDF.timeZone = "UTC"; 
 		writeNetCDF.fileSizeMax = 10000;
@@ -157,14 +165,14 @@ public class TestSoluteAdvectionDispersion {
 		while( topRichardsBCReader.doProcess  ) {
 		
 			
-			topInternalEnergyBCReader.nextRecord();	
-			HashMap<Integer, double[]> bCValueMap = topInternalEnergyBCReader.outData;
-			solver.inInternalEnergyTopBC= bCValueMap;
+			topSoluteBCReader.nextRecord();	
+			HashMap<Integer, double[]> bCValueMap = topSoluteBCReader.outData;
+			solver.inSoluteTopBC= bCValueMap;
 
 
-			bottomInternalEnergyBCReader.nextRecord();
-			bCValueMap = bottomInternalEnergyBCReader.outData;
-			solver.inInternalEnergyBottomBC = bCValueMap;
+			bottomSoluteBCReader.nextRecord();
+			bCValueMap = bottomSoluteBCReader.outData;
+			solver.inSoluteBottomBC = bCValueMap;
 			
 			topRichardsBCReader.nextRecord();	
 			bCValueMap = topRichardsBCReader.outData;
@@ -200,13 +208,13 @@ public class TestSoluteAdvectionDispersion {
 
 		topRichardsBCReader.close();
 		bottomRichardsBCReader.close();
-		topInternalEnergyBCReader.close();
-		bottomInternalEnergyBCReader.close();
+		topSoluteBCReader.close();
+		bottomSoluteBCReader.close();
 						
 		/*
 		 * ASSERT 
 		 */
-		System.out.println("Assert");
+		/*System.out.println("Assert");
 		ReadNetCDFHeatAdvectionDiffusionOutput1D readTestData = new ReadNetCDFHeatAdvectionDiffusionOutput1D();
 		readTestData.gridFilename = "resources/Output/Check_heat_advection_diffusion_0000.nc";
 		readTestData.read();
@@ -225,7 +233,7 @@ public class TestSoluteAdvectionDispersion {
 			if(Math.abs(readSimData.psi[(readSimData.psi.length)-1][k]-readTestData.psi[(readTestData.psi.length)-1][k])>Math.pow(10,-11)) {
 				System.out.println("\n\n\t\tERROR: psi mismatch");
 			}
-		}
+		}*/
 
 	}
 
