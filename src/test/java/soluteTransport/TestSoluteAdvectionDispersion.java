@@ -19,6 +19,8 @@
 
 package soluteTransport;
 
+import static java.lang.Math.pow;
+
 import java.net.URISyntaxException;
 import java.util.*;
 import org.hortonmachine.gears.io.timedependent.OmsTimeSeriesIteratorReader;
@@ -42,23 +44,27 @@ public class TestSoluteAdvectionDispersion {
 	public void Test() throws Exception {
 
 
-		String startDate = "2003-01-01 00:00";
-		String endDate = "2003-01-01 01:00";
+		String startDate = "2003-01-01 01:00";
+		String endDate = "2003-02-10 05:00";
 		int timeStepMinutes = 60;
 		String fId = "ID";
+		String lab = "11";
 				
-		String pathSoluteTopBC = "resources/input/TimeSeries/ConcTop_T0135.csv";
-		String pathSoluteBottomBC = "resources/input/TimeSeries/ConcBottom_T0135.csv";
-		String pathRichardsTopBC = "resources/input/TimeSeries/Precip_T0135.csv";
+		String pathSoluteTopBC = "resources/input/TimeSeries/ConcTopVar2_T0135.csv";
+		String pathSoluteBottomBC = "resources/input/TimeSeries/ConcBottom0_T0135.csv";
+		String pathRichardsTopBC = "resources/input/TimeSeries/PrecipVar2_T0135.csv";
 		String pathRichardsBottomBC = "resources/input/TimeSeries/noFlux_T0135.csv";
 		String pathSaveDates = "resources/input/TimeSeries/saveAll_T0135.csv"; 
-		String pathGrid =  "resources/input/Grid_NetCDF/Grid_Richards_Solute.nc";
-		String pathOutput = "resources/output/Sim_solute_advection_dispersion.nc";
+		String pathGrid =  "data/Grid_NetCDF/Grid_Richards_Solute_1904.nc";
+		String pathOutput = "resources/output/Sim_ADE_test2104_"+lab+".nc";
 		
+		//Solute boundary conditions
 		String topSoluteBC = "Top dirichlet";
 		String bottomSoluteBC = "Bottom dirichlet";
+		
+		//Richards boundary conditions
 		String topRichardsBC = "Top Coupled";
-		String bottomRichardsBC = "Bottom Impervious"; //"Bottom Free drainage"
+		String bottomRichardsBC = "Bottom Free Drainage"; //"Bottom Free drainage"
 
 		String outputDescription = "\n"
 				+ "Richards' equation coupled with the solute advection-dispersion equation";
@@ -77,10 +83,17 @@ public class TestSoluteAdvectionDispersion {
 		
 		ConservativeSoluteAdvectionDispersionSolver1DMain solver = new ConservativeSoluteAdvectionDispersionSolver1DMain();
 		
-		double[] concentrationIC = {0,0,1,1,1,1};
+		double[] concentrationIC = {0,0,0,0,0,0};
 		solver.concentrationIC = concentrationIC;
-		solver.longitudinalDispersivity = 1;
-		solver.tortuosityFactor = 1;
+		
+		solver.molecularDiffusion = 5.91667 * pow(10,-8); 
+		solver.longitudinalDispersivity = 0.05;
+		
+		//solver.molecularDiffusion = 0; 
+		//solver.longitudinalDispersivity = 0;
+		
+		
+		//solver.longitudinalDispersivity = 1;
 		
 		
 		readNetCDF.richardsGridFilename = pathGrid;

@@ -198,7 +198,28 @@ public class ComputeQuantitiesSoluteAdvectionDispersion {
 
 		
 	}
-	
+	public void computeTortuosityFactorsInterface(int KMAX) {
+		
+		for(int element = 0; element <= KMAX-1; element++) {
+			
+			
+			//Computing tortuosity factor according to Millington and Quirk 1961.
+			
+			variables.tortuosityFactors[element] = Math.pow(variables.thetas[element], 2.33333333333333)/ Math.pow(parameters.thetaS[variables.parameterID[element]],2);}
+		
+		
+			//Computing tortuosity factor at the interface.
+		for(int k = 1; k <= KMAX-1; k++) {
+			variables.tortuosityFactorsInterface[k] = interfaceDispersion.compute(variables.tortuosityFactors[k-1],variables.tortuosityFactors[k], geometry.controlVolume[k-1], geometry.controlVolume[k]);
+		}			
+		
+		variables.tortuosityFactorsInterface[0] = variables.tortuosityFactors[0];
+		variables.tortuosityFactorsInterface[KMAX] = variables.tortuosityFactors[KMAX-1];
+		
+		//for(int element = 0; element < KMAX; element++) {
+			//variables.tortuosityFactorsInterface [element] = 1 ;} 
+
+	}
 	
 	public void computeDispersionCoefficients(int KMAX) {
 		
@@ -206,10 +227,15 @@ public class ComputeQuantitiesSoluteAdvectionDispersion {
 			
 			
 			//CALCOLO DEL COEFFICIENTE DI DISPERSIONE secondo Bear(1972) da Stumpp et all., (2012)
-			//il calcolo avviene direttamente all'interfaccia del volume di controllo
+			//The computation of the Dispersion Coefficient is in the interface of the control volume.
 			
-			variables.dispersionCoefficients[element] = (parameters.longitudinalDispersivity * variables.darcyVelocities[element])/variables.thetasInterface[element] + parameters.molecularDiffusion * parameters.tortuosityFactor;
-		}			
+			variables.dispersionCoefficients[element] = (parameters.longitudinalDispersivity * Math.abs(variables.darcyVelocities[element]))/variables.thetasInterface[element] + parameters.molecularDiffusion * variables.tortuosityFactorsInterface[element];
+			if (variables.thetasInterface[element]==0) {variables.dispersionCoefficients[element] = 0;}
+			if (Double.isNaN(variables.dispersionCoefficients[element])) {variables.dispersionCoefficients[element] = 0;}
+			
+			System.out.println("variables.dispersionCoefficients is  = "+ variables.dispersionCoefficients[element]);
+		}	
+		
 
 	}
 
@@ -271,7 +297,7 @@ public void computeDispersionFactors(int KMAX) {
 public void computeDispersionSoluteFluxes(int KMAX) {
 		
 		for(int k = 1; k <= KMAX-1; k++) {
-			variables.dispersionSoluteFluxes[k] = -variables.dispersionFactors[k] * (variables.concentrations[k]-variables.concentrations[k-1])/geometry.spaceDeltaZ[k];
+			variables.dispersionSoluteFluxes[k] = -variables.dispersionFactors[k] * (variables.concentrations[k]-variables.concentrations[k-1])/geometry.spaceDeltaZ[k+1];
 		}
 		
 		// bottom interface
@@ -345,7 +371,7 @@ public void computeAdvectionSoluteFluxes(int KMAX) {
 		
 		variables.averageSoluteConcentration=0;
 		
-		for(int k = 0; k <= KMAX-1; k++) {
+		for(int k = 0; k < KMAX-1; k++) {
 			variables.averageSoluteConcentration += variables.concentrations[k];}
 		variables.averageSoluteConcentration = variables.averageSoluteConcentration/(KMAX-1);
 		}
@@ -357,7 +383,7 @@ public void computeAdvectionSoluteFluxes(int KMAX) {
 		
 		variables.averageWaterVolumeSoluteConcentration=0;
 		
-		for(int k = 0; k <= KMAX-1; k++) {
+		for(int k = 0; k < KMAX-1; k++) {
 			
 			variables.averageWaterVolumeSoluteConcentration += variables.concentrations[k]*variables.volumes[k];}
 		variables.averageWaterVolumeSoluteConcentration = variables.averageWaterVolumeSoluteConcentration/(KMAX-1);

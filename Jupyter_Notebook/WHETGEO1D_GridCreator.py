@@ -6,6 +6,7 @@ This is used to create the grid for WHETGEO 1D model.
 
 @author: Niccolo` Tubini, Concetta D'Amato, Riccardo Rigon
 @license: creative commons 4.0
+Fixed 'numpy.float64' object cannot be interpreted as an integer
 """
 import pandas as pd
 import numpy as np
@@ -13,6 +14,12 @@ import matplotlib.pyplot as plt
 from matplotlib import rc
 from scipy.interpolate import interp1d
 from netCDF4 import Dataset
+from bokeh.models import HoverTool
+from bokeh.models import BoxSelectTool
+from bokeh.plotting import figure
+from bokeh.io import output_notebook,output_file, show
+from bokeh.layouts import gridplot
+from bokeh.models.widgets import Panel, Tabs
 
 def grid1D(data_grid, dz_min, b, dz_max, grid_type, **kwargs):
     '''
@@ -21,7 +28,7 @@ def grid1D(data_grid, dz_min, b, dz_max, grid_type, **kwargs):
     :param data_grid: pandas dataframe containg the grid_input_file.csv
     :type data_grid: pandas dataframe
 
-     :param dz_min: thickness of the first layer
+    :param dz_min: thickness of the first layer
     :type dz_min: float
 
     :param b: growth rate, range [0, 1[.
@@ -66,7 +73,7 @@ def grid1D(data_grid, dz_min, b, dz_max, grid_type, **kwargs):
     elif(grid_type=='mixed'):
         [KMAX, eta, eta_dual, space_delta, z, z_dual, control_volume] = build_grid_mixed(data_grid, dz_min, b, dz_max)    
     else:
-        ('Check grid_type')
+        print('Check grid_type')
         
     if(shallow_water==True):
         KMAX = KMAX+1
@@ -146,20 +153,20 @@ def build_grid(data_grid):
         if data_grid['Type'][i]=='L' and data_grid['Type'][i-1]=='L':
 			
             deta = ( data_grid['eta'][i]-data_grid['eta'][i-1])/data_grid['K'][i-1]
-            tmp_eta=np.append(tmp_eta, np.linspace(data_grid['eta'][i]-deta/2,data_grid['eta'][i-1]+deta/2,num=data_grid['K'][i-1],endpoint=True) )
-            tmp_eta_dual=np.append(tmp_eta_dual, np.linspace(data_grid['eta'][i],data_grid['eta'][i-1],num=data_grid['K'][i-1]+1,endpoint=True) )
+            tmp_eta=np.append(tmp_eta, np.linspace(data_grid['eta'][i]-deta/2,data_grid['eta'][i-1]+deta/2,num=int(data_grid['K'][i-1]),endpoint=True) )
+            tmp_eta_dual=np.append(tmp_eta_dual, np.linspace(data_grid['eta'][i],data_grid['eta'][i-1],num=int(data_grid['K'][i-1]+1),endpoint=True) )
 			
         elif data_grid['Type'][i]=='L' and data_grid['Type'][i-1]=='M':
 			
             deta = ( data_grid['eta'][i]-data_grid['eta'][i-1])/data_grid['K'][i-1]
-            tmp_eta=np.append(tmp_eta, np.linspace(data_grid['eta'][i]-deta/2,data_grid['eta'][i-1],num=data_grid['K'][i-1],endpoint=True) )
-            tmp_eta_dual=np.append(tmp_eta_dual, np.linspace(data_grid['eta'][i],data_grid['eta'][i-1]+deta/2,num=data_grid['K'][i-1],endpoint=True) )
+            tmp_eta=np.append(tmp_eta, np.linspace(data_grid['eta'][i]-deta/2,data_grid['eta'][i-1],num=int(data_grid['K'][i-1]),endpoint=True) )
+            tmp_eta_dual=np.append(tmp_eta_dual, np.linspace(data_grid['eta'][i],data_grid['eta'][i-1]+deta/2,num=int(data_grid['K'][i-1]),endpoint=True) )
 			
         elif data_grid['Type'][i]=='M' and data_grid['Type'][i-1]=='L':
 			
             deta = ( data_grid['eta'][i]-data_grid['eta'][i-1])/data_grid['K'][i-1]
-            tmp_eta=np.append(tmp_eta, np.linspace(data_grid['eta'][i],data_grid['eta'][i-1]+deta/2,num=data_grid['K'][i-1],endpoint=True) )
-            tmp_eta_dual=np.append(tmp_eta_dual, np.linspace(data_grid['eta'][i]-deta/2,data_grid['eta'][i-1],num=data_grid['K'][i-1],endpoint=True) )
+            tmp_eta=np.append(tmp_eta, np.linspace(data_grid['eta'][i],data_grid['eta'][i-1]+deta/2,num=int(data_grid['K'][i-1]),endpoint=True) )
+            tmp_eta_dual=np.append(tmp_eta_dual, np.linspace(data_grid['eta'][i]-deta/2,data_grid['eta'][i-1],num=int(data_grid['K'][i-1]),endpoint=True) )
 			
         else:
             print("ERROR!!")  
@@ -370,7 +377,6 @@ def build_grid_mixed(data_grid, dz_min, b, dz_max):
         z_0 = -data_grid['eta'][layer]
         z_1 = -data_grid['eta'][layer+1]
         z_max = z_1-z_0
-
         dz_sum = 0
         k = 0
         tmp_layer_dz = []
@@ -387,34 +393,37 @@ def build_grid_mixed(data_grid, dz_min, b, dz_max):
                 dz_sum = dz_sum + z_max-dz_sum
 
             k = k+1
+        
         tmp_layer_dz_flipped = list(reversed(tmp_layer_dz))
                 
         combined_tmp_layer_dz= np.minimum(tmp_layer_dz, tmp_layer_dz_flipped)
         
         combined_layer_dz = [x if (x<dz_max) else np.nan for x in combined_tmp_layer_dz]
-
+        
         if np.isnan(combined_layer_dz).any()==False:
             compare = [1 if i/j==1 else 0 for i, j in zip(combined_layer_dz,tmp_layer_dz)]
             index = len(compare)-compare[::-1].index(1)-1
         else:
             index = combined_layer_dz[0:].index(np.nan)
-        constant_layer_dz = np.ones(int (np.ceil( (z_max-np.nansum(combined_layer_dz))/dz_max))) * (z_max-np.nansum(combined_layer_dz))/np.ceil( (z_max-np.nansum(combined_layer_dz))/dz_max)
 
+        constant_layer_dz = np.ones(int (np.ceil( (z_max-np.nansum(combined_layer_dz))/dz_max))) * (z_max-np.nansum(combined_layer_dz))/np.ceil( (z_max-np.nansum(combined_layer_dz))/dz_max)
+        
         tmp = []
         if index == 0:
             tmp.extend(constant_layer_dz)
         else:
-            tmp.extend(combined_layer_dz[0:index])
+            tmp.extend(combined_layer_dz[0:index+1])
             tmp.extend(list(constant_layer_dz))
-            tmp.extend(combined_layer_dz[index+combined_layer_dz.count(np.nan):len(combined_layer_dz)] ) 
+            tmp.extend(combined_layer_dz[index+1:len(combined_layer_dz)] ) 
 
         tmp_dz.extend(tmp)
-
+        
     # get the number og control volumes
     KMAX = len(tmp_dz)
     dz = np.zeros(KMAX,dtype=float)
     
     for i in range(0,KMAX):
+
         dz[i] = tmp_dz[i]
     
     # array containing centroids coordinates measured along eta
@@ -429,6 +438,7 @@ def build_grid_mixed(data_grid, dz_min, b, dz_max):
     space_delta = np.zeros(KMAX+1,dtype=float)
     # array containing control volume size
     control_volume = np.zeros(KMAX,dtype=float)
+	
 	
     tmp = 0
     for i in range(0,KMAX):
@@ -532,6 +542,96 @@ def set_initial_condition(data, eta, psi_interp_model, T_interp_model, **kwargs)
     return [psi_0, T_0]
 
 
+def set_initial_condition_lysimeter(data, dataRoot, eta, psi_interp_model, T_interp_model, root_interp_model, etaR, water_ponding_0, T_water_ponding_0, **kwargs):
+    '''
+    This function define the problem initial condition for water suction, temperature and root distribution.
+    The initial condition is interpolated starting from some pairs (eta,Psi0,T0,Root0) contained in two .csv file.
+    The interpolation is performed using the class scipy.interpolate.interp1d
+    
+    
+    :param data: pandas dataframe containg tuple of (eta, Psi0, T0, Root0)
+    :type data_grid: pandas dataframe
+    
+    :param dataRoot: pandas dataframe containg tuple of (eta, Root0)
+    :type data_grid: pandas dataframe
+    
+    :param eta: vertical coordinate of control volume centroids. It is positive upward with origin set at soil surface.
+    :type eta: list
+    
+    :param interp_model: specifies the kind of interpolation as a string. 
+        https://docs.scipy.org/doc/scipy/reference/generated/scipy.interpolate.interp1d.html#scipy.interpolate.interp1d
+    :type ic_type: str
+
+    :param water_ponding_0: water ponding depth at the beginnig of the simulation
+    :type water_ponding_0: numpy.float64
+    
+    :param T_water_ponding_0:temperature of water ponding depth at the beginnig of the simulation
+    :type T_water_ponding_0: numpy.float64
+    
+    :param root_initial_0: root distribution at the beginnig of the simulation
+    :type root_initial_0:: numpy.float64
+    
+    :param etaR: dept of the root
+    :type etaR: numpy.float64
+
+    :param psi_interp_model: specifies the kind of interpolation for water suction. 
+        https://docs.scipy.org/doc/scipy/reference/generated/scipy.interpolate.interp1d.html#scipy.interpolate.interp1d
+    :type psi_interp_model: str
+    
+    :param T_interp_model: specifies the kind of interpolation for temperature. 
+    https://docs.scipy.org/doc/scipy/reference/generated/scipy.interpolate.interp1d.html#scipy.interpolate.interp1d
+    :type psi_interp_model: str
+    
+    :param root_interp_model: specifies the kind of interpolation for root distribution. 
+    https://docs.scipy.org/doc/scipy/reference/generated/scipy.interpolate.interp1d.html#scipy.interpolate.interp1d
+    :type psi_interp_model: str
+    
+    :**kwargs look at the documentation of scipy.interpolate.interp1d
+    bounds_error
+    fill_value
+    
+    return:
+    
+    psi_0: initial condition for water suction
+    type psi_0: array
+
+    T_0: initial condition for temperature
+    type T_0: array
+    
+    root_0: initial condition for root
+    type root_0: array
+    '''
+    
+    bound_error = kwargs.get('bounds_error',False)
+    fill_value =  kwargs.get('fill_value',np.nan)
+    
+    eta_points = data['eta']
+    etaRoot_points = dataRoot['eta']
+    psi_0_points = data['Psi0']
+    T_0_points = data['T0']
+    root_0_points = dataRoot['Root0']
+    
+    f = interp1d(eta_points, psi_0_points, kind=psi_interp_model, assume_sorted=False, bounds_error=bound_error, fill_value=fill_value)
+    psi_0 = f(eta)
+    psi_0[len(psi_0)-1] = water_ponding_0
+
+    f = interp1d(eta_points, T_0_points, kind=T_interp_model, assume_sorted=False, bounds_error=bound_error, fill_value=fill_value)
+    T_0 = f(eta)
+    T_0[len(T_0)-1] = T_water_ponding_0
+    
+    f = interp1d(etaRoot_points, root_0_points, kind=root_interp_model, assume_sorted=False, bounds_error=bound_error, fill_value=fill_value)
+    root_0 = f(eta)
+    root_0[len(root_0)-1] = 0
+   
+    for i in range(0,len(root_0)-1):
+        if root_0[i] < 0: 
+            root_0[i]=0
+            
+    for i in range(0,len(root_0)-1):
+        if eta[i] < etaR:
+            root_0[i]=0  
+           
+    return [psi_0, T_0, root_0]
 
 
 def set_parameters_richards(data_grid, data_parameter, data_dictionary, KMAX, eta):
@@ -921,7 +1021,6 @@ def set_parameters_heat_diffusion(data_grid, data_parameter, data_dictionary, KM
     return [equation_state_ID, parameter_ID, soil_particles_density, thermal_conductivity_soil_particles, specific_heat_capacity_soil_particles,
          theta_s, theta_r, melting_temperature, par_1, par_2, par_3, par_4, par_5, alpha_ss, beta_ss, ks]
 
-
 def set_parameters_richards_heat_advection_diffusion(data_grid, data_parameter, data_dictionary, KMAX, eta):
     '''
     This function associate to each control volume a label that identifies 
@@ -1058,6 +1157,7 @@ def set_parameters_richards_heat_advection_diffusion(data_grid, data_parameter, 
            alpha_ss, beta_ss, ks]
 
 
+
 def calibration_point_index(data_grid, eta):
     '''
     This function identifies the index of the calibration points.
@@ -1086,4 +1186,91 @@ def calibration_point_index(data_grid, eta):
 
     return control_volume_index
 
+
+
+
+
+#################### Show Grid geometry ###########################
+def showMesh(data):
+     ## list containing centroids coordinates
+    eta = [] 
+    ## list containing control volumes interface coordinates
+    etaDual = []
+
+    
+    for i in range(np.size(data.index)-1,0,-1):
+        if data['Type'][i]=='L' and data['Type'][i-1]=='L':
+            #print("Layer layer")
+            deta = ( data['eta'][i]-data['eta'][i-1])/data['K'][i-1]
+            eta=np.append(eta, np.linspace(data['eta'][i]-deta/2,data['eta'][i-1]+deta/2,num=int(data['K'][i-1]),endpoint=True) )
+            etaDual=np.append(etaDual, np.linspace(data['eta'][i],data['eta'][i-1],num=int(data['K'][i-1]+1),endpoint=True) )
+        elif data['Type'][i]=='L' and data['Type'][i-1]=='M':
+            #print("Layer Meas")
+            deta = ( data['eta'][i]-data['eta'][i-1])/data['K'][i-1]
+            eta=np.append(eta, np.linspace(data['eta'][i]-deta/2,data['eta'][i-1],num=int(data['K'][i-1]),endpoint=True) )
+            etaDual=np.append(etaDual, np.linspace(data['eta'][i],data['eta'][i-1]+deta/2,num=int(data['K'][i-1]),endpoint=True) )
+        elif data['Type'][i]=='M' and data['Type'][i-1]=='L':
+            #print("Meas layer")
+            deta = ( data['eta'][i]-data['eta'][i-1])/data['K'][i-1]
+            eta=np.append(eta, np.linspace(data['eta'][i],data['eta'][i-1]+deta/2,num=int(data['K'][i-1]),endpoint=True) )
+            etaDual=np.append(etaDual, np.linspace(data['eta'][i]-deta/2,data['eta'][i-1],num=int(data['K'][i-1]),endpoint=True) )
+        else:
+            print("ERROR!!")  
+        
+    ## to eliminate doubles
+    eta=[ii for n,ii in enumerate(eta) if ii not in eta[:n]]
+    etaDual=[ii for n,ii in enumerate(etaDual) if ii not in etaDual[:n]]
+
+
+    ## control volume length
+    length = []
+
+    for i in range(0,np.size(etaDual)-1):
+        length = np.append(length, np.abs(etaDual[i]-etaDual[i+1]) )
+
+    
+    ## space length: is used to cumpute gradients
+    spaceDelta = []
+
+    for i in range(0,np.size(etaDual)):
+        if i==0:
+            spaceDelta = np.append(spaceDelta, np.abs(etaDual[i]-eta[i]) )
+        elif i==np.size(etaDual)-1:
+            spaceDelta = np.append(spaceDelta, np.abs(etaDual[i]-eta[i-1]) )
+        else:
+             spaceDelta = np.append(spaceDelta, np.abs(eta[i-1]-eta[i]) )
+    eta= np.append(eta,data['eta'][0])
+    z = []
+    zDual = []
+    for i in range(0, np.size(eta)):
+        z = np.append(z,eta[i]-data['eta'][np.size(data['eta'])-1])
+    
+    for i in range(0, np.size(etaDual)):
+        zDual = np.append(zDual,etaDual[i]-data['eta'][np.size(data['eta'])-1])
+        
+        
+        
+    x=np.zeros(np.size(z))
+
+    fig = plt.figure(figsize=(10,13/1.32))
+    plt.plot(x,eta, '.',color="blue", label='Centroids', markersize=8)
+    plt.plot(x,etaDual, '+',color="red", label ='CV interface',markersize=8)
+
+    for i in range(0,np.size(data.index)-1):
+        if data['Type'][i] == 'L':
+            c = 'red'
+            l = 'layer'
+            plt.plot([-0.2,0.2], [data['eta'][i],data['eta'][i]], color=c,label=l)
+        elif data['Type'][i] == 'M':
+            c = 'green'
+            l = 'meas. point'
+            plt.plot([-0.2,0.2], [data['eta'][i],data['eta'][i]], color=c,label=l)
+        plt.plot([-0.2,0.2], [data['eta'][data['eta'].size-1],data['eta'][data['eta'].size-1]], color="red")
+    
+    plt.xlim([-0.5, 0.5])
+    plt.ylabel('\u03b7 [m]') 
+    plt.legend(bbox_to_anchor=(1.5,0.8))
+    plt.title('Grid geometry')
+    plt.grid(color="black")
+    return
 

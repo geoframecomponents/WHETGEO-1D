@@ -60,7 +60,7 @@ public class ConservativeSoluteAdvectionDispersionSolver1DMain {
 	/* 
 	 * SOLUTE TRANSPORT PARAMETERS
 	 */
-	@Description("Molecular Diffusionin free water. Default value 10-9[m2 s-1].")
+	@Description("Molecular Diffusion in free water. Default value 10-9[m2 s-1].")
 	@In 
 	@Unit ("m2 s-1")
 	public double molecularDiffusion = 1 * pow(10,-9);
@@ -70,10 +70,10 @@ public class ConservativeSoluteAdvectionDispersionSolver1DMain {
 	@Unit ("")
 	public double longitudinalDispersivity; 
 	
-	@Description("")
-	@In 
-	@Unit ("")
-	public double tortuosityFactor; 
+	//@Description("")
+	//@In 
+	//@Unit ("-")
+	//public double tortuosityFactor; 
 	
 
 	/*
@@ -461,7 +461,7 @@ public class ConservativeSoluteAdvectionDispersionSolver1DMain {
 
 			variables = ProblemQuantities.getInstance(psiIC, temperatureIC, concentrationIC, inEquationStateID, inParameterID);
 			geometry = Geometry.getInstance(z, spaceDeltaZ, controlVolume);
-			parameters = Parameters.getInstance(molecularDiffusion,longitudinalDispersivity, tortuosityFactor,referenceTemperatureSWRC, beta0,
+			parameters = Parameters.getInstance(molecularDiffusion,longitudinalDispersivity,referenceTemperatureSWRC, beta0,
 					thetaS, thetaR, par1SWRC, par2SWRC, par3SWRC, par4SWRC, par5SWRC, ks, alphaSpecificStorage, betaSpecificStorage); // HO FATTO UN NUOVO getInstance su closure equation 
 
 			computeQuantitiesRichards = new ComputeQuantitiesRichards(typeClosureEquation, typeRichardsEquationState, typeUHCModel, typeUHCTemperatureModel, interfaceHydraulicConductivityModel, topRichardsBCType, bottomRichardsBCType);
@@ -570,6 +570,9 @@ public class ConservativeSoluteAdvectionDispersionSolver1DMain {
 			 * Compute dispersion coefficient
 			 */
 			computeQuantitiesSoluteAdvectionDispersion.computeThetasInterface(KMAX);
+			
+			computeQuantitiesSoluteAdvectionDispersion.computeTortuosityFactorsInterface(KMAX);
+			
 			computeQuantitiesSoluteAdvectionDispersion.computeDispersionCoefficients(KMAX); 
 			computeQuantitiesSoluteAdvectionDispersion.computeDispersionFactors(KMAX);
 			
