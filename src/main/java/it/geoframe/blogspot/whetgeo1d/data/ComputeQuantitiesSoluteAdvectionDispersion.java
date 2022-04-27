@@ -223,20 +223,21 @@ public class ComputeQuantitiesSoluteAdvectionDispersion {
 	
 	public void computeDispersionCoefficients(int KMAX) {
 		
-		for(int element = 0; element <= KMAX; element++) {
+		
+		for(int element = 1; element <= KMAX-1; element++) {
 			
 			
 			//CALCOLO DEL COEFFICIENTE DI DISPERSIONE secondo Bear(1972) da Stumpp et all., (2012)
 			//The computation of the Dispersion Coefficient is in the interface of the control volume.
 			
-			variables.dispersionCoefficients[element] = (parameters.longitudinalDispersivity * Math.abs(variables.darcyVelocities[element]))/variables.thetasInterface[element] + parameters.molecularDiffusion * variables.tortuosityFactorsInterface[element];
+			variables.dispersionCoefficients[element] = (parameters.longitudinalDispersivity[variables.parameterID[element]] * Math.abs(variables.darcyVelocities[element]))/variables.thetasInterface[element] + parameters.molecularDiffusion[variables.parameterID[element]] * variables.tortuosityFactorsInterface[element];
 			if (variables.thetasInterface[element]==0) {variables.dispersionCoefficients[element] = 0;}
-			if (Double.isNaN(variables.dispersionCoefficients[element])) {variables.dispersionCoefficients[element] = 0;}
-			
-			System.out.println("variables.dispersionCoefficients is  = "+ variables.dispersionCoefficients[element]);
+			if (Double.isNaN(variables.dispersionCoefficients[element])) {variables.dispersionCoefficients[element] = 0;}	
+			//System.out.println("variables.dispersionCoefficients is  = "+ variables.dispersionCoefficients[element]);
 		}	
 		
-
+		variables.dispersionCoefficients[0] = variables.dispersionCoefficients[1];
+		variables.dispersionCoefficients[KMAX] = variables.dispersionCoefficients[KMAX-1];
 	}
 
 public void computeDispersionFactors(int KMAX) {

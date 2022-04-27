@@ -19,8 +19,6 @@
 
 package it.geoframe.blogspot.whetgeo1d.solutetransport;
 
-import static java.lang.Math.pow;
-import static org.hortonmachine.gears.libs.modules.HMConstants.isNovalue;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -33,16 +31,14 @@ import it.geoframe.blogspot.whetgeo1d.boundaryconditions.BoundaryCondition;
 import it.geoframe.blogspot.whetgeo1d.boundaryconditions.DiffusionSimpleBoundaryConditionFactory;
 import it.geoframe.blogspot.whetgeo1d.boundaryconditions.RichardsSimpleBoundaryConditionFactory;
 import it.geoframe.blogspot.whetgeo1d.data.*;
-import it.geoframe.blogspot.whetgeo1d.data.ComputeQuantitiesInternalEnergy;
+
 import it.geoframe.blogspot.whetgeo1d.data.ComputeQuantitiesRichards;
 import it.geoframe.blogspot.whetgeo1d.data.Geometry;
 import it.geoframe.blogspot.whetgeo1d.data.ProblemQuantities;
 import it.geoframe.blogspot.whetgeo1d.pdefinitevolume.AdvectionDiffusion1DFiniteVolumeSolver;
-import it.geoframe.blogspot.whetgeo1d.pdefinitevolume.Diffusion1DFiniteVolumeSolver;
+
 import it.geoframe.blogspot.whetgeo1d.pdefinitevolume.Richards1DFiniteVolumeSolver;
 import oms3.annotations.*;
-import ucar.ma2.ArrayDouble;
-import ucar.nc2.Variable;
 
 
 @Description("Solve the solute advection dispersion equation in the conservative form for the 1D domain")
@@ -63,12 +59,12 @@ public class ConservativeSoluteAdvectionDispersionSolver1DMain {
 	@Description("Molecular Diffusion in free water. Default value 10-9[m2 s-1].")
 	@In 
 	@Unit ("m2 s-1")
-	public double molecularDiffusion = 1 * pow(10,-9);
+	public double[] molecularDiffusion;
 	
 	@Description("")
 	@In 
-	@Unit ("")
-	public double longitudinalDispersivity; 
+	@Unit ("m")
+	public double[] longitudinalDispersivity; 
 	
 	//@Description("")
 	//@In 

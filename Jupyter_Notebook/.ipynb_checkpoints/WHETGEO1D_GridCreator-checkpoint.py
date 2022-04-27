@@ -542,7 +542,7 @@ def set_initial_condition(data, eta, psi_interp_model, T_interp_model, **kwargs)
     return [psi_0, T_0]
 
 
-def set_initial_condition_lysimeter(data, dataRoot, eta, psi_interp_model, T_interp_model, root_interp_model, etaR, water_ponding_0, T_water_ponding_0, **kwargs):
+def set_initial_condition_root(data, dataRoot, eta, psi_interp_model, T_interp_model, root_interp_model, etaR, water_ponding_0, T_water_ponding_0, **kwargs):
     '''
     This function define the problem initial condition for water suction, temperature and root distribution.
     The initial condition is interpolated starting from some pairs (eta,Psi0,T0,Root0) contained in two .csv file.
@@ -633,6 +633,187 @@ def set_initial_condition_lysimeter(data, dataRoot, eta, psi_interp_model, T_int
            
     return [psi_0, T_0, root_0]
 
+def set_initial_condition_solute_advection_dispersion(data, eta, psi_interp_model, T_interp_model, C_interp_model, **kwargs):
+    '''
+    This function define the problem initial condition for water suction, temperature and solute concentration. The initial condition
+    is interpolated starting from some pairs (eta,Psi0,T0,C0) contained in a .csv file.
+    The interpolation is performed using the class scipy.interpolate.interp1d
+    
+    
+    :param data: pandas dataframe containg tuple of (eta, Psi0, T0)
+    :type data_grid: pandas dataframe
+    
+    :param eta: vertical coordinate of control volume centroids. It is positive upward with 
+        origin set at soil surface.
+    :type eta: list
+    
+    :param interp_model: specifies the kind of interpolation as a string. 
+        https://docs.scipy.org/doc/scipy/reference/generated/scipy.interpolate.interp1d.html#scipy.interpolate.interp1d
+    :type ic_type: str
+
+    :param psi_interp_model: specifies the kind of interpolation for water suction. 
+        https://docs.scipy.org/doc/scipy/reference/generated/scipy.interpolate.interp1d.html#scipy.interpolate.interp1d
+    :type psi_interp_model: str
+    
+    :param T_interp_model: specifies the kind of interpolation for temperature. 
+    https://docs.scipy.org/doc/scipy/reference/generated/scipy.interpolate.interp1d.html#scipy.interpolate.interp1d
+    :type psi_interp_model: str
+    
+    :param C_interp_model: specifies the kind of interpolation for concentration. 
+    https://docs.scipy.org/doc/scipy/reference/generated/scipy.interpolate.interp1d.html#scipy.interpolate.interp1d
+    :type C_interp_model: str
+    
+    :param \**kwargs:
+    See below
+    
+    :Keyword Arguments
+        * *bounds_error* look at the documentation of scipy.interpolate.interp1d
+        * *fill_value* look at the documentation of scipy.interpolate.interp1d
+        * *shallow_water* (boolean) value to consider the shallow water
+        * *param water_ponding_0* (numpy.float64) water ponding depth at the beginnig of the simulation   
+        * *param T_water_ponding_0* (numpy.float64) temperature of water ponding depth at the beginnig of the simulation  
+         * *param C_water_ponding_0* (numpy.float64) solute concentration in the water ponding depth at the beginnig of the simulation 
+    
+    return:
+    
+    psi_0: initial condition for water suction
+    type psi_0: array
+
+    T_0: initial condition for temperature
+    type T_0: array
+    
+    C_0: initial condition for solute concentration
+    type T_0: array
+    '''
+    
+    bound_error = kwargs.get('bounds_error',False)
+    fill_value =  kwargs.get('fill_value',np.nan)
+    
+    shallow_water = kwargs.get('shallow_water',False)
+    water_ponding_0 = kwargs.get('water_ponding_0',np.nan)
+    T_water_ponding_0 = kwargs.get('T_water_ponding_0',np.nan)
+    C_water_ponding_0 = kwargs.get('C_water_ponding_0',np.nan)
+    
+    eta_points = data['eta']
+    psi_0_points = data['Psi0']
+    T_0_points = data['T0']
+    C_0_points = data['C0']
+    
+    f = interp1d(eta_points, psi_0_points, kind=psi_interp_model, assume_sorted=False, bounds_error=bound_error, fill_value=fill_value)
+    psi_0 = f(eta)
+    
+    f = interp1d(eta_points, T_0_points, kind=T_interp_model, assume_sorted=False, bounds_error=bound_error, fill_value=fill_value)
+    T_0 = f(eta)
+    
+    f = interp1d(eta_points, C_0_points, kind=C_interp_model, assume_sorted=False, bounds_error=bound_error, fill_value=fill_value)
+    C_0 = f(eta)
+    
+    if(shallow_water==True):
+        psi_0[len(psi_0)-1] = water_ponding_0        
+        T_0[len(T_0)-1] = T_water_ponding_0
+        C_0[len(C_0)-1] = C_water_ponding_0
+
+    return [psi_0, T_0, C_0]
+
+def set_initial_condition_root_solute_advection_dispersion(data, dataRoot, eta, psi_interp_model, T_interp_model, C_interp_model, root_interp_model, etaR, water_ponding_0, T_water_ponding_0, C_water_ponding_0, **kwargs):
+    '''
+    This function define the problem initial condition for water suction, temperature and root distribution.
+    The initial condition is interpolated starting from some pairs (eta,Psi0,T0,Root0) contained in two .csv file.
+    The interpolation is performed using the class scipy.interpolate.interp1d
+    
+    
+    :param data: pandas dataframe containg tuple of (eta, Psi0, T0, Root0)
+    :type data_grid: pandas dataframe
+    
+    :param dataRoot: pandas dataframe containg tuple of (eta, Root0)
+    :type data_grid: pandas dataframe
+    
+    :param eta: vertical coordinate of control volume centroids. It is positive upward with origin set at soil surface.
+    :type eta: list
+    
+    :param interp_model: specifies the kind of interpolation as a string. 
+        https://docs.scipy.org/doc/scipy/reference/generated/scipy.interpolate.interp1d.html#scipy.interpolate.interp1d
+    :type ic_type: str
+
+    :param water_ponding_0: water ponding depth at the beginnig of the simulation
+    :type water_ponding_0: numpy.float64
+    
+    :param T_water_ponding_0:temperature of water ponding depth at the beginnig of the simulation
+    :type T_water_ponding_0: numpy.float64
+    
+    :param C_interp_model: specifies the kind of interpolation for concentration. 
+    https://docs.scipy.org/doc/scipy/reference/generated/scipy.interpolate.interp1d.html#scipy.interpolate.interp1d
+    :type C_interp_model: str
+    
+    :param root_initial_0: root distribution at the beginnig of the simulation
+    :type root_initial_0:: numpy.float64
+    
+    :param etaR: dept of the root
+    :type etaR: numpy.float64
+
+    :param psi_interp_model: specifies the kind of interpolation for water suction. 
+        https://docs.scipy.org/doc/scipy/reference/generated/scipy.interpolate.interp1d.html#scipy.interpolate.interp1d
+    :type psi_interp_model: str
+    
+    :param T_interp_model: specifies the kind of interpolation for temperature. 
+    https://docs.scipy.org/doc/scipy/reference/generated/scipy.interpolate.interp1d.html#scipy.interpolate.interp1d
+    :type psi_interp_model: str
+    
+    :param root_interp_model: specifies the kind of interpolation for root distribution. 
+    https://docs.scipy.org/doc/scipy/reference/generated/scipy.interpolate.interp1d.html#scipy.interpolate.interp1d
+    :type psi_interp_model: str
+    
+    :**kwargs look at the documentation of scipy.interpolate.interp1d
+    bounds_error
+    fill_value
+    
+    return:
+    
+    psi_0: initial condition for water suction
+    type psi_0: array
+
+    T_0: initial condition for temperature
+    type T_0: array
+    
+    root_0: initial condition for root
+    type root_0: array
+    '''
+    
+    bound_error = kwargs.get('bounds_error',False)
+    fill_value =  kwargs.get('fill_value',np.nan)
+    
+    eta_points = data['eta']
+    etaRoot_points = dataRoot['eta']
+    psi_0_points = data['Psi0']
+    T_0_points = data['T0']
+    root_0_points = dataRoot['Root0']
+    C_0_points = data['C0']
+    
+    f = interp1d(eta_points, psi_0_points, kind=psi_interp_model, assume_sorted=False, bounds_error=bound_error, fill_value=fill_value)
+    psi_0 = f(eta)
+    psi_0[len(psi_0)-1] = water_ponding_0
+
+    f = interp1d(eta_points, T_0_points, kind=T_interp_model, assume_sorted=False, bounds_error=bound_error, fill_value=fill_value)
+    T_0 = f(eta)
+    T_0[len(T_0)-1] = T_water_ponding_0
+    
+    f = interp1d(etaRoot_points, root_0_points, kind=root_interp_model, assume_sorted=False, bounds_error=bound_error, fill_value=fill_value)
+    root_0 = f(eta)
+    root_0[len(root_0)-1] = 0
+    
+    f = interp1d(eta_points, C_0_points, kind=C_interp_model, assume_sorted=False, bounds_error=bound_error, fill_value=fill_value)
+    C_0 = f(eta)
+    C_0[len(C_0)-1] = C_water_ponding_0
+   
+    for i in range(0,len(root_0)-1):
+        if root_0[i] < 0: 
+            root_0[i]=0
+            
+    for i in range(0,len(root_0)-1):
+        if eta[i] < etaR:
+            root_0[i]=0  
+           
+    return [psi_0, T_0, C_0, root_0]
 
 def set_parameters_richards(data_grid, data_parameter, data_dictionary, KMAX, eta):
     '''
@@ -753,8 +934,137 @@ def set_parameters_richards(data_grid, data_parameter, data_dictionary, KMAX, et
     return [equation_state_ID, parameter_ID, theta_s, theta_r, par_1, par_2, par_3, par_4, par_5,
            alpha_ss, beta_ss, ks]
 
+def set_parameters_richards_solute_advection_dispersion(data_grid, data_parameter, data_dictionary, KMAX, eta):
+    '''
+    This function associate to each control volume a label that identifies 
+    the rheology model, the set of parameters describing the soil type, and the max/min cell size 
+    for regridding.
+    
+    :param data_grid: pandas dataframe containg the grid_input_file.csv
+    :type data: pandas dataframe
+    
+    :param data_parameter: pandas dataframe containg the parameter_input_file.csv
+    :type data: pandas dataframe
+    
+    :param data_dictionary: pandas dataframe containg a dictionary for the SWRC parameters
+    :type data: pandas dataframe
+    
+    :param KMAX: number of control volumes.
+    :type KMAX: int
+    
+    :param eta: vertical coordinate of control volume centroids. It is positive upward with 
+        origin set at soil surface.
+    :type eta: list
+    
+    return:
+    
+    equation_state_ID: vector containing the ID identifing the state equation of the k-th element
+    type: array
+    
+    parameters_ID: vector containing the ID identifing the set of parameters of the k-th element
+    type: array
+        	
+    theta_s: vector containing the adimensional water content at saturation
+    type:array
+    
+    theta_r: vector containing the residual adimensional water content
+    type:array
+    
+    par_1: vector containing the parameter 1 of the SWRC model
+    type:array
+    
+    par_2: vector containing the parameter 2 of the SWRC model
+    type:array
+    
+    par_3: vector containing the parameter 3 of the SWRC model
+    type:array
+    
+    par_4: vector containing the parameter 4 of the SWRC model
+    type:array
+    
+    par_5: vector containing the parameter 5 of the SWRC model
+    type:array
+    
+    alpha_ss: vector containing the acquitard compressibility 
+    type:array
+    
+    beta_ss: vector containing the water compressibility
+    type:array
+    
+    ks: vector containing the saturated hydraulic conductivity
+    type:array
+    
+    molecularDiffusion: vector containing the molecular diffusion
+    type:array
+    
+    longitudinalDispersivity: vector containing the longitudinal dispersivity
+    type:array
+    
+    '''
+    equation_state_ID = np.zeros(KMAX, dtype=float)
+    parameter_ID = np.zeros(KMAX, dtype=float)
+    
+    theta_s = np.zeros(data_parameter.shape[0]+1, dtype=float)
+    theta_r = np.zeros(data_parameter.shape[0]+1, dtype=float)
+    par_1 = np.zeros(data_parameter.shape[0]+1, dtype=float)
+    par_2 = np.zeros(data_parameter.shape[0]+1, dtype=float)
+    par_3 = np.zeros(data_parameter.shape[0]+1, dtype=float)
+    par_4 = np.zeros(data_parameter.shape[0]+1, dtype=float)
+    par_5 = np.zeros(data_parameter.shape[0]+1, dtype=float)
+    alpha_ss = np.zeros(data_parameter.shape[0]+1, dtype=float)
+    beta_ss = np.zeros(data_parameter.shape[0]+1, dtype=float)
+    ks = np.zeros(data_parameter.shape[0]+1, dtype=float)
+    molecularDiffusion = np.zeros(data_parameter.shape[0]+1, dtype=float)
+    longitudinalDispersivity = np.zeros(data_parameter.shape[0]+1, dtype=float)
+    
+    coord_layer = []
+    tmp_equation_state_ID = []
+    tmp_parameter_ID = []
+    
+    for i in data_grid.index:
 
-def set_parameters_richards_lysimeter(data_grid, data_parameter, data_dictionary, KMAX, eta):
+        if data_grid['Type'][i] == 'L':
+            
+            coord_layer.append(data_grid['eta'][i])
+            tmp_equation_state_ID.append(data_grid['equationStateID'][i])
+            tmp_parameter_ID.append(data_grid['parameterID'][i])
+           
+     
+    for i in range(np.size(coord_layer)-1,0,-1):
+        
+        for j in range(0,KMAX):
+            
+            if(eta[j]>coord_layer[i] and eta[j]<coord_layer[i-1] ):
+                
+                equation_state_ID[j] = tmp_equation_state_ID[i-1]
+                parameter_ID[j] = tmp_parameter_ID[i-1]
+        
+    parameter_ID[KMAX-1] = parameter_ID[KMAX-2]   
+    
+    data_parameter.rename(columns=dict(data_dictionary.values), inplace=True)    
+
+    columns = ['thetaS', 'thetaR', 'par1', 'par2', 'par3', 'par4', 'par5', 'alphaSpecificStorage', 'betaSpecificStorage', 'Ks', 'molecularDiffusion', 'longitudinalDispersivity']
+    tmp_df = pd.DataFrame(columns=columns)
+    tmp_df = pd.concat([tmp_df, data_parameter],sort=False)
+    tmp_df.replace(np.nan, -9999.0, inplace=True)
+    
+    theta_s[1:] = tmp_df['thetaS'].to_numpy()
+    theta_r[1:] = tmp_df['thetaR'].to_numpy()
+    par_1[1:] = tmp_df['par1'].to_numpy()
+    par_2[1:] = tmp_df['par2'].to_numpy()
+    par_3[1:] = tmp_df['par3'].to_numpy()
+    par_4[1:] = tmp_df['par4'].to_numpy()
+    par_5[1:] = tmp_df['par5'].to_numpy()
+    alpha_ss[1:] = tmp_df['alphaSpecificStorage'].to_numpy()
+    beta_ss[1:] = tmp_df['betaSpecificStorage'].to_numpy()
+    ks[1:] = tmp_df['Ks'].to_numpy()
+    molecularDiffusion[1:] = tmp_df['molecularDiffusion'].to_numpy()
+    longitudinalDispersivity[1:] = tmp_df['longitudinalDispersivity'].to_numpy()
+    
+    return [equation_state_ID, parameter_ID, theta_s, theta_r, par_1, par_2, par_3, par_4, par_5,
+           alpha_ss, beta_ss, ks, molecularDiffusion,longitudinalDispersivity]
+
+def set_parameters_richards_root(data_grid, data_parameter, data_dictionary, KMAX, eta):
     '''
     This function associate to each control volume a label that identifies 
     the rheology model, the set of parameters describing the soil type, and the max/min cell size 
@@ -883,6 +1193,138 @@ def set_parameters_richards_lysimeter(data_grid, data_parameter, data_dictionary
     
     return [equation_state_ID, parameter_ID, theta_s, theta_r, theta_wp, theta_fc, par_1, par_2, par_3, par_4, par_5,
            alpha_ss, beta_ss, ks]
+
+def set_parameters_richards_root_solute_advection_dispersion(data_grid, data_parameter, data_dictionary, KMAX, eta):
+    '''
+    This function associate to each control volume a label that identifies 
+    the rheology model, the set of parameters describing the soil type, and the max/min cell size 
+    for regridding.
+    
+    :param data_grid: pandas dataframe containg the grid_input_file.csv
+    :type data: pandas dataframe
+    
+    :param data_parameter: pandas dataframe containg the parameter_input_file.csv
+    :type data: pandas dataframe
+    
+    :param data_dictionary: pandas dataframe containg a dictionary for the SWRC parameters
+    :type data: pandas dataframe
+    
+    :param KMAX: number of control volumes.
+    :type KMAX: int
+    
+    :param eta: vertical coordinate of control volume centroids. It is positive upward with 
+        origin set at soil surface.
+    :type eta: list
+    
+    return:
+    
+    equation_state_ID: vector containing the ID identifing the state equation of to model the k-th element
+    type: array
+    
+    parameters_ID: vector containing the ID identifing the set of parameters of to model the k-th element
+    type: array
+        	
+    theta_s: vector containing the adimensional water content at saturation
+    type:array
+    
+    theta_r: vector containing the residual adimensional water content
+    type:array
+    
+    theta_wp: vector containing the adimensional water content at the wilting point
+    type:array
+    
+    theta_fc: vector containing the adimensional water content of the field capacity
+    type:array
+    
+    par_1: vector containing the parameter 1 of the SWRC model
+    type:array
+    
+    par_2: vector containing the parameter 2 of the SWRC model
+    type:array
+    
+    par_3: vector containing the parameter 3 of the SWRC model
+    type:array
+    
+    par_4: vector containing the parameter 4 of the SWRC model
+    type:array
+    
+    par_5: vector containing the parameter 5 of the SWRC model
+    type:array
+    
+    alpha_ss: vector containing the acquitard compressibility 
+    type:array
+    
+    beta_ss: vector containing the water compressibility
+    type:array
+    
+    ks: vector containing the saturated hydraulic conductivity
+    type:array
+    '''
+    equation_state_ID = np.zeros(KMAX, dtype=float)
+    parameter_ID = np.zeros(KMAX, dtype=float)
+    theta_s = np.zeros(data_parameter.shape[0]+1, dtype=float)
+    theta_r = np.zeros(data_parameter.shape[0]+1, dtype=float)
+    theta_wp = np.zeros(data_parameter.shape[0]+1, dtype=float)
+    theta_fc = np.zeros(data_parameter.shape[0]+1, dtype=float)
+    par_1 = np.zeros(data_parameter.shape[0]+1, dtype=float)
+    par_2 = np.zeros(data_parameter.shape[0]+1, dtype=float)
+    par_3 = np.zeros(data_parameter.shape[0]+1, dtype=float)
+    par_4 = np.zeros(data_parameter.shape[0]+1, dtype=float)
+    par_5 = np.zeros(data_parameter.shape[0]+1, dtype=float)
+    alpha_ss = np.zeros(data_parameter.shape[0]+1, dtype=float)
+    beta_ss = np.zeros(data_parameter.shape[0]+1, dtype=float)
+    ks = np.zeros(data_parameter.shape[0]+1, dtype=float)
+    molecularDiffusion = np.zeros(data_parameter.shape[0]+1, dtype=float)
+    longitudinalDispersivity = np.zeros(data_parameter.shape[0]+1, dtype=float)
+    
+    coord_layer = []
+    tmp_equation_state_ID = []
+    tmp_parameter_ID = []
+    tmp_regrid_ID = []
+
+    for i in data_grid.index:
+
+        if data_grid['Type'][i] == 'L':
+            
+            coord_layer.append(data_grid['eta'][i])
+            tmp_equation_state_ID.append(data_grid['equationStateID'][i])
+            tmp_parameter_ID.append(data_grid['parameterID'][i])
+           
+     
+    for i in range(np.size(coord_layer)-1,0,-1):
+        
+        for j in range(0,KMAX):
+            
+            if(eta[j]>coord_layer[i] and eta[j]<coord_layer[i-1] ):
+                
+                equation_state_ID[j] = tmp_equation_state_ID[i-1]
+                parameter_ID[j] = tmp_parameter_ID[i-1]
+     
+    parameter_ID[KMAX-1] = parameter_ID[KMAX-2]
+        
+    data_parameter.rename(columns=dict(data_dictionary.values), inplace=True)    
+    
+    columns = ['thetaS', 'thetaR', 'thetaWP', 'thetaFC', 'par1', 'par2', 'par3', 'par4', 'par5', 'alphaSpecificStorage', 'betaSpecificStorage', 'Ks', 'molecularDiffusion', 'longitudinalDispersivity']
+    tmp_df = pd.DataFrame(columns=columns)
+    tmp_df = pd.concat([tmp_df, data_parameter],sort=False)
+    tmp_df.replace(np.nan, -9999.0, inplace=True)
+    
+    theta_s[1:] = tmp_df['thetaS'].to_numpy()
+    theta_r[1:] = tmp_df['thetaR'].to_numpy()
+    theta_wp[1:] = tmp_df['thetaWP'].to_numpy()
+    theta_fc[1:] = tmp_df['thetaFC'].to_numpy()
+    par_1[1:] = tmp_df['par1'].to_numpy()
+    par_2[1:] = tmp_df['par2'].to_numpy()
+    par_3[1:] = tmp_df['par3'].to_numpy()
+    par_4[1:] = tmp_df['par4'].to_numpy()
+    par_5[1:] = tmp_df['par5'].to_numpy()
+    alpha_ss[1:] = tmp_df['alphaSpecificStorage'].to_numpy()
+    beta_ss[1:] = tmp_df['betaSpecificStorage'].to_numpy()
+    ks[1:] = tmp_df['Ks'].to_numpy()
+    molecularDiffusion[1:] = tmp_df['molecularDiffusion'].to_numpy()
+    longitudinalDispersivity[1:] = tmp_df['longitudinalDispersivity'].to_numpy()
+    
+    return [equation_state_ID, parameter_ID, theta_s, theta_r, theta_wp, theta_fc, par_1, par_2, par_3, par_4, par_5, alpha_ss, beta_ss, ks, molecularDiffusion,longitudinalDispersivity]
 
 
 def set_parameters_heat_diffusion(data_grid, data_parameter, data_dictionary, KMAX, eta):
