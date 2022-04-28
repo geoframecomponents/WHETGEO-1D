@@ -81,7 +81,7 @@ public class TestRichardsSoluteADEDouble {
 		WriteNetCDFRichardsSoluteADE1DDouble writeNetCDF = new WriteNetCDFRichardsSoluteADE1DDouble();
 		ReadNetCDFRichardsSoluteADEGrid1D readNetCDF = new ReadNetCDFRichardsSoluteADEGrid1D();
 		
-		ConservativeSoluteAdvectionDispersionSolver1DMain solver = new ConservativeSoluteAdvectionDispersionSolver1DMain();
+		RichardsConservativeSoluteADESolver1DMain solver = new RichardsConservativeSoluteADESolver1DMain();
 		
 		//double[] concentrationIC = {0,0,0,0,0,0};
 		//solver.concentrationIC = concentrationIC;

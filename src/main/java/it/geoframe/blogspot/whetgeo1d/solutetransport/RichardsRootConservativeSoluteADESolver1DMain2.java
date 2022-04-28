@@ -50,7 +50,7 @@ import oms3.annotations.*;
 //@Name()
 //@Status()
 @License("General Public License Version 3 (GPLv3)")
-public class ConservativeSoluteAdvectionDispersionSolver1DMain {
+public class RichardsRootConservativeSoluteADESolver1DMain2 {
 
 	
 	/* 
