@@ -35,7 +35,7 @@ import oms3.annotations.License;
 //@Name()
 //@Status()
 @License("General Public License Version 3 (GPLv3)")
-public class ComputeQuantitiesLysimeter {
+public class ComputeQuantitiesRichardsRoot {
 	
 	
 	private ProblemQuantities variables;
@@ -48,7 +48,7 @@ public class ComputeQuantitiesLysimeter {
 	private double[] thetaFC;
 
 	
-	public ComputeQuantitiesLysimeter(double[] thetaWP, double[] thetaFC) {
+	public ComputeQuantitiesRichardsRoot(double[] thetaWP, double[] thetaFC) {
 		
 		variables = ProblemQuantities.getInstance();
 		geometry = Geometry.getInstance();

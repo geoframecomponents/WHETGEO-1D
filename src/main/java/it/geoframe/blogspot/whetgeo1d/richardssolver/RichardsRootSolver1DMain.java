@@ -29,7 +29,7 @@ import it.geoframe.blogspot.closureequation.closureequation.Parameters;
 import it.geoframe.blogspot.closureequation.equationstate.EquationState;
 import it.geoframe.blogspot.whetgeo1d.boundaryconditions.BoundaryCondition;
 import it.geoframe.blogspot.whetgeo1d.boundaryconditions.RichardsSimpleBoundaryConditionFactory;
-import it.geoframe.blogspot.whetgeo1d.data.ComputeQuantitiesLysimeter;
+import it.geoframe.blogspot.whetgeo1d.data.ComputeQuantitiesRichardsRoot;
 import it.geoframe.blogspot.whetgeo1d.data.ComputeQuantitiesRichards;
 import it.geoframe.blogspot.whetgeo1d.data.Geometry;
 import it.geoframe.blogspot.whetgeo1d.data.ProblemQuantities;
@@ -337,7 +337,7 @@ public class RichardsRootSolver1DMain {
 	private Geometry geometry;
 	private Parameters parameters;
 	private ComputeQuantitiesRichards computeQuantitiesRichards;
-	private ComputeQuantitiesLysimeter computeQuantitiesLysimeter;
+	private ComputeQuantitiesRichardsRoot computeQuantitiesLysimeter;
 	private BoundaryCondition topBoundaryCondition;
 	private BoundaryCondition bottomBoundaryCondition;
 	private RichardsSimpleBoundaryConditionFactory boundaryConditionFactory;
@@ -355,7 +355,7 @@ public class RichardsRootSolver1DMain {
 			parameters = Parameters.getInstance(referenceTemperatureSWRC, beta0, thetaS, thetaR, par1SWRC, par2SWRC, par3SWRC, par4SWRC, par5SWRC, ks, alphaSpecificStorage, betaSpecificStorage);
 
 			computeQuantitiesRichards = new ComputeQuantitiesRichards(typeClosureEquation, typeEquationState, typeUHCModel, typeUHCTemperatureModel, interfaceHydraulicConductivityModel, topBCType, bottomBCType);
-			computeQuantitiesLysimeter = new ComputeQuantitiesLysimeter(thetaWP, thetaFC);
+			computeQuantitiesLysimeter = new ComputeQuantitiesRichardsRoot(thetaWP, thetaFC);
 			
 			outputToBuffer = new ArrayList<double[]>();
 
