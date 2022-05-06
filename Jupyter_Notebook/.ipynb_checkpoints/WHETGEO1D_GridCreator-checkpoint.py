@@ -542,7 +542,7 @@ def set_initial_condition(data, eta, psi_interp_model, T_interp_model, **kwargs)
     return [psi_0, T_0]
 
 
-def set_initial_condition_root(data, dataRoot, eta, psi_interp_model, T_interp_model, root_interp_model, etaR, water_ponding_0, T_water_ponding_0, **kwargs):
+def set_initial_condition_geospace(data, dataRoot, eta, psi_interp_model, T_interp_model, root_interp_model, etaR, water_ponding_0, T_water_ponding_0, **kwargs):
     '''
     This function define the problem initial condition for water suction, temperature and root distribution.
     The initial condition is interpolated starting from some pairs (eta,Psi0,T0,Root0) contained in two .csv file.
@@ -633,7 +633,7 @@ def set_initial_condition_root(data, dataRoot, eta, psi_interp_model, T_interp_m
            
     return [psi_0, T_0, root_0]
 
-def set_initial_condition_solute_advection_dispersion(data, eta, psi_interp_model, T_interp_model, C_interp_model, **kwargs):
+def set_initial_condition_richards_solute_ade(data, eta, psi_interp_model, T_interp_model, C_interp_model, **kwargs):
     '''
     This function define the problem initial condition for water suction, temperature and solute concentration. The initial condition
     is interpolated starting from some pairs (eta,Psi0,T0,C0) contained in a .csv file.
@@ -715,7 +715,7 @@ def set_initial_condition_solute_advection_dispersion(data, eta, psi_interp_mode
 
     return [psi_0, T_0, C_0]
 
-def set_initial_condition_root_solute_advection_dispersion(data, dataRoot, eta, psi_interp_model, T_interp_model, C_interp_model, root_interp_model, etaR, water_ponding_0, T_water_ponding_0, C_water_ponding_0, **kwargs):
+def set_initial_condition_geospace_solute_ade(data, dataRoot, eta, psi_interp_model, T_interp_model, C_interp_model, root_interp_model, etaR, water_ponding_0, T_water_ponding_0, C_water_ponding_0, **kwargs):
     '''
     This function define the problem initial condition for water suction, temperature and root distribution.
     The initial condition is interpolated starting from some pairs (eta,Psi0,T0,Root0) contained in two .csv file.
@@ -934,7 +934,7 @@ def set_parameters_richards(data_grid, data_parameter, data_dictionary, KMAX, et
     return [equation_state_ID, parameter_ID, theta_s, theta_r, par_1, par_2, par_3, par_4, par_5,
            alpha_ss, beta_ss, ks]
 
-def set_parameters_richards_solute_advection_dispersion(data_grid, data_parameter, data_dictionary, KMAX, eta):
+def set_parameters_richards_solute_ade(data_grid, data_parameter, data_dictionary, KMAX, eta):
     '''
     This function associate to each control volume a label that identifies 
     the rheology model, the set of parameters describing the soil type, and the max/min cell size 
@@ -1064,7 +1064,7 @@ def set_parameters_richards_solute_advection_dispersion(data_grid, data_paramete
     return [equation_state_ID, parameter_ID, theta_s, theta_r, par_1, par_2, par_3, par_4, par_5,
            alpha_ss, beta_ss, ks, molecularDiffusion,longitudinalDispersivity]
 
-def set_parameters_richards_root(data_grid, data_parameter, data_dictionary, KMAX, eta):
+def set_parameters_geospace(data_grid, data_parameter, data_dictionary, KMAX, eta):
     '''
     This function associate to each control volume a label that identifies 
     the rheology model, the set of parameters describing the soil type, and the max/min cell size 
@@ -1194,7 +1194,7 @@ def set_parameters_richards_root(data_grid, data_parameter, data_dictionary, KMA
     return [equation_state_ID, parameter_ID, theta_s, theta_r, theta_wp, theta_fc, par_1, par_2, par_3, par_4, par_5,
            alpha_ss, beta_ss, ks]
 
-def set_parameters_richards_root_solute_advection_dispersion(data_grid, data_parameter, data_dictionary, KMAX, eta):
+def set_parameters_geospace_solute_ade(data_grid, data_parameter, data_dictionary, KMAX, eta):
     '''
     This function associate to each control volume a label that identifies 
     the rheology model, the set of parameters describing the soil type, and the max/min cell size 

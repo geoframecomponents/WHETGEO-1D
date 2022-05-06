@@ -45,10 +45,10 @@ public class TestRichardsSoluteADEDouble {
 
 
 		String startDate = "2018-05-10 00:00";
-		String endDate = "2018-07-01 23:00";
+		String endDate = "2018-05-10 01:00";
 		int timeStepMinutes = 60;
 		String fId = "ID";
-		String lab = "03Double";
+		String lab = "04Double";
 				
 		String pathSoluteTopBC = "resources/input/TimeSeries/ConcTop100_T0135.csv";
 		String pathSoluteBottomBC = "resources/input/TimeSeries/noFluxSpike_T0135.csv";
@@ -77,7 +77,7 @@ public class TestRichardsSoluteADEDouble {
 		OmsTimeSeriesIteratorReader bottomRichardsBCReader = getTimeseriesReader(pathRichardsBottomBC, fId, startDate, endDate, timeStepMinutes);
 		OmsTimeSeriesIteratorReader saveDatesReader = getTimeseriesReader(pathSaveDates, fId, startDate, endDate, timeStepMinutes);
 
-		SoluteAdvectionDispersionBuffer1D buffer = new SoluteAdvectionDispersionBuffer1D();
+		RichardsSoluteADEBuffer1D buffer = new RichardsSoluteADEBuffer1D();
 		WriteNetCDFRichardsSoluteADE1DDouble writeNetCDF = new WriteNetCDFRichardsSoluteADE1DDouble();
 		ReadNetCDFRichardsSoluteADEGrid1D readNetCDF = new ReadNetCDFRichardsSoluteADEGrid1D();
 		

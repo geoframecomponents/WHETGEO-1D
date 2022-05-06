@@ -33,30 +33,30 @@ import it.geoframe.blogpsot.netcdf.monodimensionalproblemtimedependent.*;
 import org.junit.Test;
 
 /**
- * Test the {@link TestRichardsSoluteADEFloat} module.
+ * Test the {@link TestRichardsRootSoluteADEDouble} module.
  * 
  * 
  * @author Concetta D'Amato and Niccolo' Tubini
  */
-public class TestRichardsSoluteADEFloat {
+public class TestRichardsRootSoluteADEDouble {
 
 	@Test
 	public void Test() throws Exception {
 
 
-		String startDate = "2003-01-01 01:00";
-		String endDate = "2003-01-01 02:00";
+		String startDate = "2018-05-12 19:00";
+		String endDate = "2018-05-12 20:00";
 		int timeStepMinutes = 60;
 		String fId = "ID";
-		String lab = "02Float";
+		String lab = "01";
 				
-		String pathSoluteTopBC = "resources/input/TimeSeries/ConcTopVar2_T0135.csv";
-		String pathSoluteBottomBC = "resources/input/TimeSeries/ConcBottom0_T0135.csv";
-		String pathRichardsTopBC = "resources/input/TimeSeries/PrecipVar2_T0135.csv";
-		String pathRichardsBottomBC = "resources/input/TimeSeries/noFlux_T0135.csv";
-		String pathSaveDates = "resources/input/TimeSeries/saveAll_T0135.csv"; 
-		String pathGrid =  "data/Grid_NetCDF/Grid_WHETGEO_Richards_Solute_2704.nc";
-		String pathOutput = "resources/output/Sim_RichardsADE_test2704_"+lab+".nc";
+		String pathSoluteTopBC = "resources/input/TimeSeries/ConcTopVarSpike_T0135.csv";
+		String pathSoluteBottomBC = "resources/input/TimeSeries/noFluxSpike_T0135.csv";
+		String pathRichardsTopBC = "resources/input/TimeSeries/Prec_Irrig_Height_hourly.csv";
+		String pathRichardsBottomBC = "resources/input/TimeSeries/noFluxSpike_T0135.csv";
+		String pathSaveDates = "resources/input/TimeSeries/saveSpikeAll_T0135.csv"; 
+		String pathGrid =  "data/Grid_NetCDF/Grid_GEOSPACE_Solute_0505.nc";
+		String pathOutput = "resources/output/Sim_SpikeRichardsRootADE_test0505_"+lab+".nc";
 		
 		//Solute boundary conditions
 		String topSoluteBC = "Top dirichlet";
@@ -77,13 +77,13 @@ public class TestRichardsSoluteADEFloat {
 		OmsTimeSeriesIteratorReader bottomRichardsBCReader = getTimeseriesReader(pathRichardsBottomBC, fId, startDate, endDate, timeStepMinutes);
 		OmsTimeSeriesIteratorReader saveDatesReader = getTimeseriesReader(pathSaveDates, fId, startDate, endDate, timeStepMinutes);
 
-		RichardsSoluteADEBuffer1D buffer = new RichardsSoluteADEBuffer1D();
-		WriteNetCDFRichardsSoluteADE1DFloat writeNetCDF = new WriteNetCDFRichardsSoluteADE1DFloat();
-		ReadNetCDFRichardsSoluteADEGrid1D readNetCDF = new ReadNetCDFRichardsSoluteADEGrid1D();
+		GEOSPACESoluteADEBuffer1D buffer = new GEOSPACESoluteADEBuffer1D();
+		WriteNetCDFGEOSPACESoluteADE1DDouble writeNetCDF = new WriteNetCDFGEOSPACESoluteADE1DDouble();
+		ReadNetCDFGEOSPACESoluteADEGrid1D readNetCDF = new ReadNetCDFGEOSPACESoluteADEGrid1D();
 		
-		RichardsConservativeSoluteADESolver1DMain solver = new RichardsConservativeSoluteADESolver1DMain();
+		RichardsRootConservativeSoluteADESolver1DMain solver = new RichardsRootConservativeSoluteADESolver1DMain();
 		
-		//double[] concentrationIC = {0,0,0,0,0,0};
+		double[] stressedETs = {0.3,0.1,0.05,0.05,0.05,0};
 		//solver.concentrationIC = concentrationIC;
 		
 		//solver.molecularDiffusion = 5.91667 * pow(10,-8); 
@@ -107,6 +107,7 @@ public class TestRichardsSoluteADEFloat {
 		solver.temperatureIC = readNetCDF.temperature;
 		solver.controlVolume = readNetCDF.controlVolume;
 		solver.concentrationIC = readNetCDF.concentrationIC;
+		solver.stressedETs = stressedETs;
 		//solver.soilParticlesDensity = readNetCDF.soilParticlesDensity;
 		//solver.thermalConductivitySoilParticles = readNetCDF.soilParticlesThermalConductivity;
 		//solver.specificThermalCapacitySoilParticles = readNetCDF.soilParticlesSpecificHeatCapacity;
@@ -117,6 +118,8 @@ public class TestRichardsSoluteADEFloat {
 		solver.ks = readNetCDF.Ks;
 		solver.thetaS = readNetCDF.thetaS;
 		solver.thetaR = readNetCDF.thetaR;
+		solver.thetaWP = readNetCDF.thetaWP;
+		solver.thetaFC = readNetCDF.thetaFC;
 		solver.par1SWRC = readNetCDF.par1SWRC;
 		solver.par2SWRC = readNetCDF.par2SWRC;
 		solver.par3SWRC = readNetCDF.par3SWRC;
@@ -175,7 +178,7 @@ public class TestRichardsSoluteADEFloat {
 		writeNetCDF.controlVolume = readNetCDF.controlVolume;
 		writeNetCDF.psi = readNetCDF.psiIC;
 		writeNetCDF.concentrationIC = readNetCDF.concentrationIC;
-		//writeNetCDF.rootIC = readNetCDF.rootIC;;
+		writeNetCDF.rootIC = readNetCDF.rootIC;
 		writeNetCDF.timeUnits = "Minutes since 01/01/1970 00:00:00 UTC";
 		writeNetCDF.timeZone = "UTC"; 
 		writeNetCDF.fileSizeMax = 10000;

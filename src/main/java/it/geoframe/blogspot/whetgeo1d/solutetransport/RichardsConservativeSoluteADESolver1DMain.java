@@ -135,31 +135,6 @@ public class RichardsConservativeSoluteADESolver1DMain {
 	@Unit ("K")
 	public double referenceTemperatureSWRC = 278.15;
 	
-	/*@Description("Reference temperature to compute internal energy")
-	@In 
-	@Unit ("K")
-	public double referenceTemperatureInternalEnergy = 273.15;
-	
-	@Description("Soil particles density")
-	@In 
-	@Unit ("kg m-3")
-	public double[] soilParticlesDensity;
-
-	@Description("Specific thermal capacity of soil particles")
-	@In 
-	@Unit ("J kg-1 K-1")
-	public double[] specificThermalCapacitySoilParticles;
-
-	@Description("Thermal conductivity of soil particles")
-	@In 
-	@Unit ("W m-1 K-1")
-	public double[] thermalConductivitySoilParticles;
-
-	@Description("Melting temperature")
-	@In 
-	@Unit ("K")
-	public double[] meltingTemperature;*/
-	
 	@Description("Control volume label defining the equation state")
 	@In 
 	@Unit("-")
@@ -207,23 +182,6 @@ public class RichardsConservativeSoluteADESolver1DMain {
 			+ " a weighted average of kappas[i] and kappas[i+1] where weights are dx[i] and dx[i+1]")
 	@In
 	public String interfaceHydraulicConductivityModel;
-	
-	// Heat equation	
-	/*@Description("Equation state")
-	@In 
-	public String[] typeInternalEnergyEquationState;
-
-	@Description("Thermal conductivity models")
-	@In 
-	public String[] typeThermalConductivity;
-
-	@Description("Thermal conductivity at control volume interface can be evaluated as"
-			+ " the average of kappas[i] and kappas[i+1]"
-			+ " the maximum between kappas[i] and kappas[i+1]"
-			+ " the minimum between kappas[i] and kappas[i+1]"
-			+ " a weighted average of kappas[i] and kappas[i+1] where weights are dx[i] and dx[i+1]")
-	@In
-	public String interfaceThermalConductivityModel;*/
 	
 	@Description("Dispersion Coefficient at control volume interface can be evaluated as"
 			+ " the average of kappas[i] and kappas[i+1]"
@@ -341,30 +299,6 @@ public class RichardsConservativeSoluteADESolver1DMain {
 	@In 
 	public String bottomRichardsBCType;
 	
-	/*@Description("The HashMap with the time series of the boundary condition at the top of soil column")
-	@In
-	@Unit ("m")
-	public HashMap<Integer, double[]> inInternalEnergyTopBC;
-
-	@Description("It is possibile to chose between 2 different kind "
-			+ "of boundary condition at the top of the domain: "
-			+ "- Dirichlet boundary condition --> Top Dirichlet"
-			+ "- Neumann boundary condition --> Top Neumann")
-	@In 
-	public String topInternalEnergyBCType;
-	
-
-	@Description("The HashMap with the time series of the boundary condition at the bottom of soil column")
-	@In
-	@Unit ("")
-	public HashMap<Integer, double[]> inInternalEnergyBottomBC;
-	
-	@Description("It is possibile to chose among 2 different kind "
-			+ "of boundary condition at the bottom of the domain: "
-			+ "- Dirichlet boundary condition --> Bottom Dirichlet"
-			+ "- Neumann boundary condition --> Bottom Neumann")
-	@In 
-	public String bottomInternalEnergyBCType;*/
 	
 	@Description("The HashMap with the time series of the boundary condition at the top of soil column")
 	@In
@@ -442,10 +376,10 @@ public class RichardsConservativeSoluteADESolver1DMain {
 	private ComputeQuantitiesSoluteAdvectionDispersion computeQuantitiesSoluteAdvectionDispersion;
 	private BoundaryCondition topRichardsBoundaryCondition;
 	private BoundaryCondition bottomRichardsBoundaryCondition;
-	private BoundaryCondition topSoluteBoundaryCondition; //cambiato
-	private BoundaryCondition bottomSoluteBoundaryCondition;  //cambiato
+	private BoundaryCondition topSoluteBoundaryCondition; 
+	private BoundaryCondition bottomSoluteBoundaryCondition;  
 	private RichardsSimpleBoundaryConditionFactory boundaryRichardsConditionFactory;
-	private DiffusionSimpleBoundaryConditionFactory boundarySoluteConditionFactory;  //cambiato
+	private DiffusionSimpleBoundaryConditionFactory boundarySoluteConditionFactory;  
 
 	@Execute
 	public void solve() {
@@ -458,11 +392,11 @@ public class RichardsConservativeSoluteADESolver1DMain {
 			variables = ProblemQuantities.getInstance(psiIC, temperatureIC, concentrationIC, inEquationStateID, inParameterID);
 			geometry = Geometry.getInstance(z, spaceDeltaZ, controlVolume);
 			parameters = Parameters.getInstance(molecularDiffusion,longitudinalDispersivity,referenceTemperatureSWRC, beta0,
-					thetaS, thetaR, par1SWRC, par2SWRC, par3SWRC, par4SWRC, par5SWRC, ks, alphaSpecificStorage, betaSpecificStorage); // HO FATTO UN NUOVO getInstance su closure equation 
+					thetaS, thetaR, par1SWRC, par2SWRC, par3SWRC, par4SWRC, par5SWRC, ks, alphaSpecificStorage, betaSpecificStorage); 
 
 			computeQuantitiesRichards = new ComputeQuantitiesRichards(typeClosureEquation, typeRichardsEquationState, typeUHCModel, typeUHCTemperatureModel, interfaceHydraulicConductivityModel, topRichardsBCType, bottomRichardsBCType);
 
-			computeQuantitiesSoluteAdvectionDispersion = new ComputeQuantitiesSoluteAdvectionDispersion(typeClosureEquation, interfaceDispersionModel, topSoluteBCType, bottomSoluteBCType); //	CAPIRE SE SI DEVE LASCIARE typeInternalEnergyEquationState
+			computeQuantitiesSoluteAdvectionDispersion = new ComputeQuantitiesSoluteAdvectionDispersion(typeClosureEquation, interfaceDispersionModel, topSoluteBCType, bottomSoluteBCType); 
 			
 			outputToBuffer = new ArrayList<double[]>();
 
@@ -559,7 +493,7 @@ public class RichardsConservativeSoluteADESolver1DMain {
 			/*
 			 * Compute heat capacity
 			 */
-			//computeQuantitiesSoluteAdvectionDispersion.computeHeatCapacity(KMAX); //Non mi serve 
+			//computeQuantitiesSoluteAdvectionDispersion.computeHeatCapacity(KMAX); 
 			
 			computeQuantitiesSoluteAdvectionDispersion.computeWaterVolumeConcentrations(KMAX);
 			/*
@@ -573,11 +507,6 @@ public class RichardsConservativeSoluteADESolver1DMain {
 			computeQuantitiesSoluteAdvectionDispersion.computeDispersionFactors(KMAX);
 			
 			
-			
-			//variables.lambdasInterface[KMAX] = 0.6;
-			//variables.dispersionFactorsInterface[KMAX] = variables.dispersionFactorsInterface[KMAX-1]; già lo faccio dentro il metodo
-
-			//computeQuantitiesSoluteAdvectionDispersion.computeTransportedQuantity(KMAX); //Non mi serve
 			
 			/*
 			 * Compute xStar
@@ -715,12 +644,10 @@ public class RichardsConservativeSoluteADESolver1DMain {
 			outputToBuffer.add(variables.thetasNew);
 			outputToBuffer.add(variables.volumesNew);
 			outputToBuffer.add(variables.darcyVelocities);
-			outputToBuffer.add(variables.ETs);
 			
 			outputToBuffer.add(variables.concentrations);
 			outputToBuffer.add(variables.waterVolumeConcentrationsNew);
 			
-			outputToBuffer.add(variables.soluteFluxes);
 			outputToBuffer.add(variables.dispersionSoluteFluxes);
 			outputToBuffer.add(variables.advectionSoluteFluxes);
 		

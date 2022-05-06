@@ -337,7 +337,7 @@ public class RichardsRootSolver1DMain {
 	private Geometry geometry;
 	private Parameters parameters;
 	private ComputeQuantitiesRichards computeQuantitiesRichards;
-	private ComputeQuantitiesRichardsRoot computeQuantitiesLysimeter;
+	private ComputeQuantitiesRichardsRoot computeQuantitiesRichardsRoot;
 	private BoundaryCondition topBoundaryCondition;
 	private BoundaryCondition bottomBoundaryCondition;
 	private RichardsSimpleBoundaryConditionFactory boundaryConditionFactory;
@@ -355,7 +355,7 @@ public class RichardsRootSolver1DMain {
 			parameters = Parameters.getInstance(referenceTemperatureSWRC, beta0, thetaS, thetaR, par1SWRC, par2SWRC, par3SWRC, par4SWRC, par5SWRC, ks, alphaSpecificStorage, betaSpecificStorage);
 
 			computeQuantitiesRichards = new ComputeQuantitiesRichards(typeClosureEquation, typeEquationState, typeUHCModel, typeUHCTemperatureModel, interfaceHydraulicConductivityModel, topBCType, bottomBCType);
-			computeQuantitiesLysimeter = new ComputeQuantitiesRichardsRoot(thetaWP, thetaFC);
+			computeQuantitiesRichardsRoot = new ComputeQuantitiesRichardsRoot(thetaWP, thetaFC);
 			
 			outputToBuffer = new ArrayList<double[]>();
 
@@ -397,7 +397,7 @@ public class RichardsRootSolver1DMain {
 
 		
 
-		computeQuantitiesLysimeter.computeEvapoTranspirations(KMAX, tTimeStep, timeDelta, stressedETs);
+		computeQuantitiesRichardsRoot.computeEvapoTranspirations(KMAX, tTimeStep, timeDelta, stressedETs);
 
 		computeQuantitiesRichards.resetRunOff();
 		
@@ -432,7 +432,7 @@ public class RichardsRootSolver1DMain {
 			/*
 			 * Check the sink term for ET
 			 */
-			computeQuantitiesLysimeter.checkEvapoTranspirations(KMAX);
+			computeQuantitiesRichardsRoot.checkEvapoTranspirations(KMAX);
 
 			
 			/*

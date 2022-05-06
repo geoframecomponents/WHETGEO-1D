@@ -156,13 +156,14 @@ public class ComputeQuantitiesSoluteAdvectionDispersion {
 		}
 	}*/
 	
-	public void computeWaterVolumeConcentrationsNew(int KMAX) {
+	public void computeSoluteSourcesSinksTerm(int KMAX) {
+
+	variables.sumSoluteSourceSinkTerm = 0;
 		
-		variables.waterVolumeConcentrationNew = 0.0;
 		for(int element = 0; element < KMAX; element++) {
 
-			variables.waterVolumeConcentrationsNew[element] = variables.volumesNew[element] * variables.concentrations[element];;
-			variables.waterVolumeConcentrationNew += variables.waterVolumeConcentrationsNew[element];
+			variables.soluteSourcesSinksTerm[element] = variables.ETs[element] * variables.concentrations[element];;
+			variables.sumSoluteSourceSinkTerm = variables.sumSoluteSourceSinkTerm + variables.soluteSourcesSinksTerm[element];
 		}
 	}
 	
@@ -172,6 +173,17 @@ public class ComputeQuantitiesSoluteAdvectionDispersion {
 			variables.waterCapacityTransported[element] =  parameters.waterDensity*parameters.specificThermalCapacityWater;
 		}
 	}*/
+	
+	
+public void computeWaterVolumeConcentrationsNew(int KMAX) {
+		
+		variables.waterVolumeConcentrationNew = 0.0;
+		for(int element = 0; element < KMAX; element++) {
+
+			variables.waterVolumeConcentrationsNew[element] = variables.volumesNew[element] * variables.concentrations[element];;
+			variables.waterVolumeConcentrationNew += variables.waterVolumeConcentrationsNew[element];
+		}
+	}
 	
 	
 	public void computeThetasInterface(int KMAX) {
@@ -397,10 +409,18 @@ public void computeAdvectionSoluteFluxes(int KMAX) {
 	}*/
 	
 	public void computeError(int KMAX, double timeDelta) {
-		variables.errorWaterVolumeConcentration = variables.waterVolumeConcentrationNew - variables.waterVolumeConcentration - timeDelta*(-variables.dispersionSoluteFluxes[KMAX]-variables.advectionSoluteFluxes[KMAX] + variables.dispersionSoluteFluxes[0] + variables.advectionSoluteFluxes[0]);
+		variables.errorWaterVolumeConcentration = variables.waterVolumeConcentrationNew - variables.waterVolumeConcentration - timeDelta*(-variables.dispersionSoluteFluxes[KMAX]-variables.advectionSoluteFluxes[KMAX] + variables.dispersionSoluteFluxes[0] + variables.advectionSoluteFluxes[0]) + variables.sumSoluteSourceSinkTerm;
 		//variables.errorWaterVolumeConcentration = variables.waterVolumeConcentrationNew - variables.waterVolumeConcentration - timeDelta*(-variables.dispersionSoluteFluxes[KMAX] + variables.dispersionSoluteFluxes[0]);
 	}
 	
+	public void computeTimeVariationWaterVolumesConcentration(int KMAX, double timeDelta) {
+		
+		for(int k = 0; k <= KMAX-1; k++) {
+			variables.timeVariationWaterVolumesConcentration[k] = -timeDelta*(variables.dispersionSoluteFluxes[k+1]+variables.advectionSoluteFluxes[k+1] - variables.dispersionSoluteFluxes[k] - variables.advectionSoluteFluxes[k]) + variables.soluteSourcesSinksTerm[k];
+			//variables.waterVolumesConcentrationNew - variables.waterVolumesConcentration = -timeDelta*(variables.dispersionSoluteFluxes[k+1]+variables.advectionSoluteFluxes[k+1] + variables.dispersionSoluteFluxes[k] + variables.advectionSoluteFluxes[k])+variables.soluteSourcesSinksTerm[k];	
+		}
+	
+	}
 }
 
 

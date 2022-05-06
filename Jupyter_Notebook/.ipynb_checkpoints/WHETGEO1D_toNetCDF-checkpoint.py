@@ -274,7 +274,7 @@ def write_grid_netCDF_richards(eta, eta_dual, z, z_dual, space_delta, control_vo
     
     return
 
-def write_grid_netCDF_richards_solute_advection_dispersion(eta, eta_dual, z, z_dual, space_delta, control_volume, control_volume_index, psi_0, T_0, C_0, equation_state_ID, parameter_ID, KMAX, theta_s, theta_r, par_1, par_2, par_3, par_4, par_5, alpha_ss, beta_ss, ks,molecularDiffusion,longitudinalDispersivity, output_file_name, output_title, output_institution, output_summary, output_date, grid_input_file_name, parameter_input_file_name):
+def write_grid_netCDF_richards_solute_ade(eta, eta_dual, z, z_dual, space_delta, control_volume, control_volume_index, psi_0, T_0, C_0, equation_state_ID, parameter_ID, KMAX, theta_s, theta_r, par_1, par_2, par_3, par_4, par_5, alpha_ss, beta_ss, ks,molecularDiffusion,longitudinalDispersivity, output_file_name, output_title, output_institution, output_summary, output_date, grid_input_file_name, parameter_input_file_name):
     '''
     Save all grid data in a NetCDF file for Richards simulation
     
@@ -555,7 +555,7 @@ def write_grid_netCDF_richards_solute_advection_dispersion(eta, eta_dual, z, z_d
     
     return
 
-def write_grid_netCDF_richards_root(eta, eta_dual, z, z_dual, space_delta, control_volume, control_volume_index, psi_0, T_0, root_0, equation_state_ID, parameter_ID, KMAX, theta_s, theta_r, theta_wp, theta_fc, par_1, par_2, par_3, par_4, par_5, alpha_ss, beta_ss, ks, output_file_name, output_title, output_institution, output_summary, output_date, grid_input_file_name, parameter_input_file_name):
+def write_grid_netCDF_geospace(eta, eta_dual, z, z_dual, space_delta, control_volume, control_volume_index, psi_0, T_0, root_0, equation_state_ID, parameter_ID, KMAX, theta_s, theta_r, theta_wp, theta_fc, par_1, par_2, par_3, par_4, par_5, alpha_ss, beta_ss, ks, output_file_name, output_title, output_institution, output_summary, output_date, grid_input_file_name, parameter_input_file_name):
     '''
     Save all grid data in a NetCDF file for Richards with lysimeter simulation
     
@@ -836,7 +836,7 @@ def write_grid_netCDF_richards_root(eta, eta_dual, z, z_dual, space_delta, contr
     return
 
 
-def write_grid_netCDF_richards_root_solute_advection_dispersion(eta, eta_dual, z, z_dual, space_delta, control_volume, control_volume_index, psi_0, T_0, C_0, root_0, equation_state_ID, parameter_ID, KMAX, theta_s, theta_r, theta_wp, theta_fc, par_1, par_2, par_3, par_4, par_5, alpha_ss, beta_ss, ks, molecularDiffusion,longitudinalDispersivity, output_file_name, output_title, output_institution, output_summary, output_date, grid_input_file_name, parameter_input_file_name):
+def write_grid_netCDF_geospace_solute_ade(eta, eta_dual, z, z_dual, space_delta, control_volume, control_volume_index, psi_0, T_0, C_0, root_0, equation_state_ID, parameter_ID, KMAX, theta_s, theta_r, theta_wp, theta_fc, par_1, par_2, par_3, par_4, par_5, alpha_ss, beta_ss, ks, molecularDiffusion,longitudinalDispersivity, output_file_name, output_title, output_institution, output_summary, output_date, grid_input_file_name, parameter_input_file_name):
     '''
     Save all grid data in a NetCDF file for Richards with lysimeter simulation
     

@@ -146,6 +146,8 @@ public class ProblemQuantities {
 	public double errorWaterVolumeConcentration;
 	public double[] soluteQuantitiesTransported;
 	public double[] soluteSourcesSinksTerm;
+	public double sumSoluteSourceSinkTerm;
+	public double[] timeVariationWaterVolumesConcentration;
 	public double[] tortuosityFactors;
 	public double[] tortuosityFactorsInterface;
 	
@@ -247,6 +249,7 @@ public class ProblemQuantities {
 		soluteSourcesSinksTerm = new double[icWaterSuction.length];
 		tortuosityFactors = new double[icWaterSuction.length];
 		tortuosityFactorsInterface = new double[icWaterSuction.length+1];
+		timeVariationWaterVolumesConcentration = new double[icWaterSuction.length];
 		
 
 			
