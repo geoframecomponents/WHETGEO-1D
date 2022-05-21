@@ -105,17 +105,6 @@ public class ComputeQuantitiesSoluteAdvectionDispersion {
 		}
 
 		equationStateFactory = new EquationStateFactory();
-
-		/*equationState = new ArrayList<EquationState>();
-		for(int i=0; i<typeEquationState.length; i++) {
-			equationState.add(equationStateFactory.create(typeEquationState[i], soilWaterRetentionCurve.get(i)));
-		}*/
-
-		/*conductivityEquationFactory = new ConductivityEquationFactory();
-		thermalConductivity = new ArrayList<ConductivityEquation>();
-		for(int i=0; i<typeThermalConductivity.length; i++) {
-			thermalConductivity.add(conductivityEquationFactory.create(typeThermalConductivity[i], soilWaterRetentionCurve.get(i)));
-		}*/
 		
 		interfaceDispersionFactory = new SimpleInterfaceConductivityFactory();
 		interfaceDispersion = interfaceDispersionFactory.createInterfaceConductivity(interfaceDispersionModel);
@@ -131,14 +120,6 @@ public class ComputeQuantitiesSoluteAdvectionDispersion {
 	}
 	
 	
-	
-	/*public void computeHeatCapacity(int KMAX) {
-		
-		for(int element = 0; element < KMAX; element++) {
-			variables.heatCapacitys[element] = equationState.get(variables.equationStateID[element]).equationState(variables.temperatures[element], variables.waterSuctions[element], variables.parameterID[element], element);
-		}
-	}*/
-	
 	public void computeWaterVolumeConcentrations(int KMAX) {
 		
 		variables.waterVolumeConcentration = 0.0;
@@ -148,14 +129,7 @@ public class ComputeQuantitiesSoluteAdvectionDispersion {
 			variables.waterVolumeConcentration += variables.waterVolumeConcentrations[element];
 		}
 	}
-	
-	/*public void computeHeatCapacityNew(int KMAX) {
-		
-		for(int element = 0; element < KMAX; element++) {
-			variables.heatCapacitysNew[element] = equationState.get(variables.equationStateID[element]).equationState(variables.temperatures[element], variables.waterSuctions[element], variables.parameterID[element], element);
-		}
-	}*/
-	
+
 	public void computeSoluteSourcesSinksTerm(int KMAX) {
 
 	variables.sumSoluteSourceSinkTerm = 0;
@@ -166,13 +140,6 @@ public class ComputeQuantitiesSoluteAdvectionDispersion {
 			variables.sumSoluteSourceSinkTerm = variables.sumSoluteSourceSinkTerm + variables.soluteSourcesSinksTerm[element];
 		}
 	}
-	
-	/*public void computeTransportedQuantity(int KMAX) {
-		
-		for(int element = 0; element < KMAX; element++) {
-			variables.waterCapacityTransported[element] =  parameters.waterDensity*parameters.specificThermalCapacityWater;
-		}
-	}*/
 	
 	
 public void computeWaterVolumeConcentrationsNew(int KMAX) {
@@ -195,19 +162,6 @@ public void computeWaterVolumeConcentrationsNew(int KMAX) {
 		variables.thetasInterface[0] = variables.thetas[0];
 		variables.thetasInterface[KMAX] = variables.thetas[KMAX-1];
 		
-		/*// bottom interface 
-		if(this.bottomBCType.equalsIgnoreCase("Bottom Dirichlet") || this.bottomBCType.equalsIgnoreCase("BottomDirichlet")){
-			variables.lambdasInterface[0] = thermalConductivity.get(variables.equationStateID[0]).k(variables.soluteBottomBCValue, variables.waterSuctions[0], variables.parameterID[0], 0);
-		} else {
-			variables.lambdasInterface[0] = - 9999.0;
-		}
-		
-		if(this.topBCType.equalsIgnoreCase("Top Dirichlet") || this.bottomBCType.equalsIgnoreCase("TopDirichlet")){
-			variables.lambdasInterface[KMAX] = thermalConductivity.get(variables.equationStateID[0]).k(variables.soluteBottomBCValue, variables.waterSuctions[0], variables.parameterID[0], 0);
-		} else {
-			variables.lambdasInterface[KMAX] = - 9999.0;
-		}*/
-
 		
 	}
 	public void computeTortuosityFactorsInterface(int KMAX) {
@@ -261,51 +215,6 @@ public void computeDispersionFactors(int KMAX) {
 
 	}
 	
-	/*public void computeInterfaceThermalConductivity(int KMAX) {
-		
-		for(int k = 1; k <= KMAX-1; k++) {
-			variables.lambdasInterface[k] = interfaceConductivity.compute(variables.lambdas[k-1],variables.lambdas[k], geometry.controlVolume[k-1], geometry.controlVolume[k]);
-		}			
-		
-		// bottom interface 
-		if(this.bottomBCType.equalsIgnoreCase("Bottom Dirichlet") || this.bottomBCType.equalsIgnoreCase("BottomDirichlet")){
-			variables.lambdasInterface[0] = thermalConductivity.get(variables.equationStateID[0]).k(variables.internalEnergyBottomBCValue, variables.waterSuctions[0], variables.parameterID[0], 0);
-		} else {
-			variables.lambdasInterface[0] = - 9999.0;
-		}
-		
-		if(this.topBCType.equalsIgnoreCase("Top Dirichlet") || this.bottomBCType.equalsIgnoreCase("TopDirichlet")){
-			variables.lambdasInterface[KMAX] = thermalConductivity.get(variables.equationStateID[0]).k(variables.internalEnergyBottomBCValue, variables.waterSuctions[0], variables.parameterID[0], 0);
-		} else {
-			variables.lambdasInterface[KMAX] = - 9999.0;
-		}
-
-		
-	}*/
-	
-
-	
-	/*public void computeConductionHeatFlux(int KMAX) {
-		
-		for(int k = 1; k <= KMAX-1; k++) {
-			variables.conductionHeatFluxs[k] = -variables.lambdasInterface[k] * (variables.temperatures[k]-variables.temperatures[k-1])/geometry.spaceDeltaZ[k];
-		}
-		
-		// bottom interface
-		if (this.bottomBCType.equalsIgnoreCase("Bottom Dirichlet") || this.bottomBCType.equalsIgnoreCase("BottomDirichlet")) {
-			variables.conductionHeatFluxs[0] = -variables.lambdasInterface[0] * (variables.temperatures[0]-variables.internalEnergyBottomBCValue)/geometry.spaceDeltaZ[0];
-		} else {
-			variables.conductionHeatFluxs[0] = -variables.internalEnergyBottomBCValue;
-		}
-		
-		// top interface
-		if (this.topBCType.equalsIgnoreCase("Top Dirichlet") || this.topBCType.equalsIgnoreCase("TopDirichlet")) {
-			variables.conductionHeatFluxs[KMAX] = -variables.lambdasInterface[KMAX] * (variables.internalEnergyTopBCValue-variables.temperatures[KMAX-1])/geometry.spaceDeltaZ[KMAX];
-		} else {
-			variables.conductionHeatFluxs[KMAX] = -variables.internalEnergyTopBCValue;
-		}
-		
-	}*/
 	
 public void computeDispersionSoluteFluxes(int KMAX) {
 		
@@ -329,30 +238,7 @@ public void computeDispersionSoluteFluxes(int KMAX) {
 		
 	}
 	
-	/*public void computeAdvectionHeatFlux(int KMAX) {
-		
-		for(int k = 1; k <= KMAX-1; k++) {
-			variables.advectionHeatFluxs[k] = variables.waterCapacityTransported[k]*( 0.5*variables.darcyVelocities[k]*(variables.temperatures[k]-parameters.referenceTemperatureInternalEnergy+variables.temperatures[k-1]-parameters.referenceTemperatureInternalEnergy)
-					- 0.5*Math.abs(variables.darcyVelocities[k])*(variables.temperatures[k]-parameters.referenceTemperatureInternalEnergy-variables.temperatures[k-1]+parameters.referenceTemperatureInternalEnergy));
-		}
-		
-		// bottom interface
-		variables.advectionHeatFluxs[0] = variables.waterCapacityTransported[0]*( 0.5*variables.darcyVelocities[0]*(variables.temperatures[0]-parameters.referenceTemperatureInternalEnergy + variables.internalEnergyBottomBCValue-parameters.referenceTemperatureInternalEnergy)
-				- 0.5*Math.abs(variables.darcyVelocities[0])*(variables.temperatures[0]-parameters.referenceTemperatureInternalEnergy - variables.internalEnergyBottomBCValue+parameters.referenceTemperatureInternalEnergy));
 
-//		variables.advectionHeatFluxs[0] = variables.waterCapacityTransported[0]*( 0.5*variables.darcyVelocities[0]*(variables.temperatures[0] + variables.internalEnergyBottomBCValue)
-//				- 0.5*Math.abs(variables.darcyVelocities[0])*(variables.temperatures[0] - variables.internalEnergyBottomBCValue));
-		/*
-		 * FIXME: check the case for Neumann boundary condition: T_BC = Flux*DeltaZ/lambda_0 - T_0
-		 */
-		// top interface
-/*		variables.advectionHeatFluxs[KMAX] = variables.waterCapacityTransported[KMAX-1]*( 0.5*variables.darcyVelocities[KMAX]*(variables.internalEnergyTopBCValue-parameters.referenceTemperatureInternalEnergy + variables.temperatures[KMAX-1]-parameters.referenceTemperatureInternalEnergy)
-				- 0.5*Math.abs(variables.darcyVelocities[KMAX])*(variables.internalEnergyTopBCValue-parameters.referenceTemperatureInternalEnergy - variables.temperatures[KMAX-1]+parameters.referenceTemperatureInternalEnergy));
-
-//		variables.advectionHeatFluxs[KMAX] = variables.waterCapacityTransported[KMAX-1]*( 0.5*variables.darcyVelocities[KMAX]*(variables.internalEnergyTopBCValue + variables.temperatures[KMAX-1])
-//				- 0.5*Math.abs(variables.darcyVelocities[KMAX])*(variables.internalEnergyTopBCValue - variables.temperatures[KMAX-1]));
-		
-	}*/
 	
 public void computeAdvectionSoluteFluxes(int KMAX) {
 		

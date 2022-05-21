@@ -45,9 +45,9 @@ repositories {
 
 dependencies {
 	compile name: 'closureequation-1.0.3-beta'
-	compile name: 'netcdf-1.0.3-beta'
+	compile name: 'netcdf-1.0.31-beta'
 	compile name: 'numerical-1.0.2'
-	compile name: 'buffer-1.0.3-beta'
+	compile name: 'buffer-1.0.31-beta'
     
     // This dependency is exported to consumers, that is to say found on their compile classpath.
     //api 'org.apache.commons:commons-math3:3.6.1'

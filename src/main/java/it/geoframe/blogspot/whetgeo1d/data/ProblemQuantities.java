@@ -150,6 +150,7 @@ public class ProblemQuantities {
 	public double[] timeVariationWaterVolumesConcentration;
 	public double[] tortuosityFactors;
 	public double[] tortuosityFactorsInterface;
+	public double seepageCoefficient;
 	
 	
 	

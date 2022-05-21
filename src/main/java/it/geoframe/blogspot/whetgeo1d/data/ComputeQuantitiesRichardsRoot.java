@@ -64,7 +64,7 @@ public class ComputeQuantitiesRichardsRoot {
 	 */
 	public void computeEvapoTranspirations(int KMAX, double tTimeStep, double timeDelta, double[] stressedETs) {
 			
-		for(int element = 0; element < KMAX-2; element++) {
+		for(int element = 0; element < KMAX-1; element++) {
 			variables.ETs[element] = stressedETs[element]/1000/tTimeStep*timeDelta;
 		}
 		

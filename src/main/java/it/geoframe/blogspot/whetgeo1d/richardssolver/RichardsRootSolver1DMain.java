@@ -206,6 +206,10 @@ public class RichardsRootSolver1DMain {
 	@In 
 	@Unit("m")
 	public double maxPonding;
+	
+	@Description("Coefficient for seepage model")
+	@In
+	public double seepageCoefficient;
 
 	/*
 	 * TIME STEP
@@ -358,6 +362,8 @@ public class RichardsRootSolver1DMain {
 			computeQuantitiesRichardsRoot = new ComputeQuantitiesRichardsRoot(thetaWP, thetaFC);
 			
 			outputToBuffer = new ArrayList<double[]>();
+			
+			variables.seepageCoefficient = seepageCoefficient;
 
 			List<EquationState> equationState = computeQuantitiesRichards.getRichardsStateEquation();
 			

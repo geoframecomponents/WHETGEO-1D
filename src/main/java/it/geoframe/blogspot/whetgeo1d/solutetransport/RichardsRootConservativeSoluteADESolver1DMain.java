@@ -414,6 +414,10 @@ public class RichardsRootConservativeSoluteADESolver1DMain {
 	@In
 	@Out
 	public String inCurrentDate;
+	
+	@Description("Coefficient for seepage model")
+	@In
+	public double seepageCoefficient;
 
 
 	/*
@@ -476,6 +480,8 @@ public class RichardsRootConservativeSoluteADESolver1DMain {
 			parameters = Parameters.getInstance(molecularDiffusion,longitudinalDispersivity,referenceTemperatureSWRC, beta0,
 					thetaS, thetaR, par1SWRC, par2SWRC, par3SWRC, par4SWRC, par5SWRC, ks, alphaSpecificStorage, betaSpecificStorage); // HO FATTO UN NUOVO getInstance su closure equation 
 
+			variables.seepageCoefficient = seepageCoefficient;
+			
 			computeQuantitiesRichards = new ComputeQuantitiesRichards(typeClosureEquation, typeRichardsEquationState, typeUHCModel, typeUHCTemperatureModel, interfaceHydraulicConductivityModel, topRichardsBCType, bottomRichardsBCType);
 			computeQuantitiesRichardsRoot = new ComputeQuantitiesRichardsRoot(thetaWP, thetaFC);
 			computeQuantitiesSoluteAdvectionDispersion = new ComputeQuantitiesSoluteAdvectionDispersion(typeClosureEquation, interfaceDispersionModel, topSoluteBCType, bottomSoluteBCType); //	CAPIRE SE SI DEVE LASCIARE typeInternalEnergyEquationState
@@ -700,7 +706,10 @@ public class RichardsRootConservativeSoluteADESolver1DMain {
 			outputToBuffer.add(variables.concentrations);
 			outputToBuffer.add(variables.waterVolumeConcentrationsNew);
 			
-			outputToBuffer.add(variables.soluteFluxes); //al posto di questo metterei il timevariation.....
+			outputToBuffer.add(variables.soluteSourcesSinksTerm);
+			outputToBuffer.add(new double[] {variables.sumSoluteSourceSinkTerm});
+			
+			outputToBuffer.add(variables.timeVariationWaterVolumesConcentration);
 			outputToBuffer.add(variables.dispersionSoluteFluxes);
 			outputToBuffer.add(variables.advectionSoluteFluxes);
 		

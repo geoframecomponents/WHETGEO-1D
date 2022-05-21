@@ -334,6 +334,9 @@ public class RichardsConservativeSoluteADESolver1DMain {
 	@Out
 	public String inCurrentDate;
 
+	@Description("Coefficient for seepage model")
+	@In
+	public double seepageCoefficient;
 
 	/*
 	 * OUTPUT
@@ -393,6 +396,8 @@ public class RichardsConservativeSoluteADESolver1DMain {
 			geometry = Geometry.getInstance(z, spaceDeltaZ, controlVolume);
 			parameters = Parameters.getInstance(molecularDiffusion,longitudinalDispersivity,referenceTemperatureSWRC, beta0,
 					thetaS, thetaR, par1SWRC, par2SWRC, par3SWRC, par4SWRC, par5SWRC, ks, alphaSpecificStorage, betaSpecificStorage); 
+			
+			variables.seepageCoefficient = seepageCoefficient;
 
 			computeQuantitiesRichards = new ComputeQuantitiesRichards(typeClosureEquation, typeRichardsEquationState, typeUHCModel, typeUHCTemperatureModel, interfaceHydraulicConductivityModel, topRichardsBCType, bottomRichardsBCType);
 

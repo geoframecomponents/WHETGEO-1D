@@ -56,11 +56,11 @@ public class TestRichardsRootSoluteADEDouble {
 		String pathRichardsBottomBC = "resources/input/TimeSeries/noFluxSpike_T0135.csv";
 		String pathSaveDates = "resources/input/TimeSeries/saveSpikeAll_T0135.csv"; 
 		String pathGrid =  "data/Grid_NetCDF/Grid_GEOSPACE_Solute_0505.nc";
-		String pathOutput = "resources/output/Sim_SpikeRichardsRootADE_test0505_"+lab+".nc";
+		String pathOutput = "resources/output/Sim_SpikeRichardsRootADE_test1305_"+lab+".nc";
 		
 		//Solute boundary conditions
 		String topSoluteBC = "Top dirichlet";
-		String bottomSoluteBC = "Bottom dirichlet";
+		String bottomSoluteBC = "Bottom No Gradient";
 		
 		//Richards boundary conditions
 		String topRichardsBC = "Top Coupled";
@@ -134,11 +134,12 @@ public class TestRichardsRootSoluteADEDouble {
 		
 		solver.typeRichardsEquationState = new String[] {"Water depth", "Van Genuchten"};
 		solver.typeUHCModel = new String[] {"", "Mualem Van Genuchten"};
-		solver.interfaceHydraulicConductivityModel = "max";
+		solver.interfaceHydraulicConductivityModel = "Max";
 		solver.typeUHCTemperatureModel = "notemperature";
 		
 		solver.interfaceDispersionModel = "max";
 		solver.maxPonding = 0;
+		solver.seepageCoefficient = 0.8;
 		
 		//solver.typeInternalEnergyEquationState = new String[] {"Water heat capacity", "SoilHeatCapacity"};
 		//solver.typeThermalConductivity = new String[] {"Water", "Cosenza"};

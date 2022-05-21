@@ -136,6 +136,8 @@ public class TestRichardsSoluteADEDouble {
 		
 		solver.interfaceDispersionModel = "max";
 		solver.maxPonding = 0;
+		solver.seepageCoefficient = 0.8;
+		
 		
 		//solver.typeInternalEnergyEquationState = new String[] {"Water heat capacity", "SoilHeatCapacity"};
 		//solver.typeThermalConductivity = new String[] {"Water", "Cosenza"};

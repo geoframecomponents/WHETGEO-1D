@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<class-diagram version="1.2.4" icons="true" always-add-relationships="false" generalizations="true" realizations="true" 
+  associations="true" dependencies="false" nesting-relationships="true" router="FAN">  
+  <package id="1" language="java" name="it.geoframe.blogspot.whetgeo1d.solutetransport" project="WHETGEO-1D" 
+    file="/WHETGEO-1D/src/main/java/it/geoframe/blogspot/whetgeo1d/solutetransport" binary="false" corner="BOTTOM_RIGHT">    
+    <position height="-1" width="-1" x="718" y="122"/>    
+    <display autosize="true" stereotype="true" sort-features="false" accessors="true"/>  
+  </package>  
+  <class id="2" language="java" 
+    name="it.geoframe.blogspot.whetgeo1d.solutetransport.RichardsConservativeSoluteADESolver1DMain" project="WHETGEO-1D" 
+    
+    file="/WHETGEO-1D/src/main/java/it/geoframe/blogspot/whetgeo1d/solutetransport/RichardsConservativeSoluteADESolver1DMain.java" 
+    binary="false" corner="BOTTOM_RIGHT">    
+    <position height="417" width="447" x="196" y="172"/>    
+    <display autosize="false" stereotype="true" package="true" initial-value="false" signature="true" 
+      sort-features="false" accessors="true" visibility="true">      
+      <attributes public="true" package="true" protected="true" private="true" static="true"/>      
+      <operations public="true" package="true" protected="true" private="true" static="true"/>    
+    </display>  
+  </class>  
+  <class id="3" language="java" 
+    name="it.geoframe.blogspot.whetgeo1d.solutetransport.RichardsRootConservativeSoluteADESolver1DMain" 
+    project="WHETGEO-1D" 
+    file="/WHETGEO-1D/src/main/java/it/geoframe/blogspot/whetgeo1d/solutetransport/RichardsRootConservativeSoluteADESolver1DMain.java" 
+    binary="false" corner="BOTTOM_RIGHT">    
+    <position height="419" width="447" x="789" y="170"/>    
+    <display autosize="false" stereotype="true" package="true" initial-value="false" signature="true" 
+      sort-features="false" accessors="true" visibility="true">      
+      <attributes public="true" package="true" protected="true" private="true" static="true"/>      
+      <operations public="true" package="true" protected="true" private="true" static="true"/>    
+    </display>  
+  </class>  
+  <class id="4" language="java" name="it.geoframe.blogspot.whetgeo1d.data.ComputeQuantitiesSoluteAdvectionDispersion" 
+    project="WHETGEO-1D" 
+    file="/WHETGEO-1D/src/main/java/it/geoframe/blogspot/whetgeo1d/data/ComputeQuantitiesSoluteAdvectionDispersion.java" 
+    binary="false" corner="BOTTOM_RIGHT">    
+    <position height="398" width="423" x="509" y="625"/>    
+    <display autosize="false" stereotype="true" package="true" initial-value="false" signature="true" 
+      sort-features="false" accessors="true" visibility="true">      
+      <attributes public="true" package="true" protected="true" private="true" static="true"/>      
+      <operations public="true" package="true" protected="true" private="true" static="true"/>    
+    </display>  
+  </class>  
+  <association id="5">    
+    <end type="SOURCE" refId="2" navigable="false">      
+      <attribute id="6" name="computeQuantitiesSoluteAdvectionDispersion">        
+        <position height="19" width="252" x="302" y="290"/>      
+      </attribute>      
+      <multiplicity id="7" minimum="0" maximum="1"/>    
+    </end>    
+    <end type="TARGET" refId="4" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <association id="8">    
+    <end type="SOURCE" refId="3" navigable="false">      
+      <attribute id="9" name="computeQuantitiesSoluteAdvectionDispersion">        
+        <position height="19" width="252" x="890" y="290"/>      
+      </attribute>      
+      <multiplicity id="10" minimum="0" maximum="1"/>    
+    </end>    
+    <end type="TARGET" refId="4" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <classifier-display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 
+    sort-features="false" accessors="true" visibility="true">    
+    <attributes public="true" package="true" protected="true" private="true" static="true"/>    
+    <operations public="true" package="true" protected="true" private="true" static="true"/>  
+  </classifier-display>  
+  <association-display labels="true" multiplicity="true"/>
+</class-diagram>
