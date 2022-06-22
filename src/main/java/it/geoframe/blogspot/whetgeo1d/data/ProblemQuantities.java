@@ -93,6 +93,7 @@ public class ProblemQuantities {
 	
 	public double internalEnergy;
 	public double internalEnergyNew;
+	public double sumHeatSourceSinkTerm;
 	public double errorInternalEnergy;
 	public double internalEnergyTopBCValue;
 	public double shortWaveIn;
@@ -100,6 +101,7 @@ public class ProblemQuantities {
 	public double shortWaveOut;
 	public double longWaveOut;
 	public double airT;
+	public double rainT;
 	public double windVelocity;
 	public double potentialLatentHeatFlux;
 	public double actualLatentHeatFlux;
