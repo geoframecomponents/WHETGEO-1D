@@ -1,0 +1,9 @@
+thetaS,thetaR,thetaWP,thetaFC,n,alpha,alphaSpecificStorage,betaSpecificStorage,Ks,molecularDiffusion,longitudinalDispersivity
+#1 sand
+0.36689,0.05385,0.08385,0.33689,2.54723,2.991,0.0,0.0,5.40583E-05,5.91667E-08,0.05
+#2 clay
+0.48664,0.13335,0.16335,0.45664,1.34174,0.846,0.0,0.0,9.73284E-07,5.91667E-08,0.05
+#3 silt
+0.46,0.07,0.097,0.432,1.65,0.44,0.0,0.0,0.00000517363541666667,5.91667E-08,0.05
+#4 Sandy loam, Bonan 2018 Tab 8.3
+0.41,0.065,0.066,0.38,1.89,7.5,0.0,0.0,1.2278e-05,5.91667E-08,0.05

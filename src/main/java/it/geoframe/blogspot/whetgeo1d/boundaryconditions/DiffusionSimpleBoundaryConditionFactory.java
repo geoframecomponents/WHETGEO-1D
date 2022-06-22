@@ -42,6 +42,8 @@ public class DiffusionSimpleBoundaryConditionFactory {
 			boundaryCondition = new DiffusionBottomBoundaryConditionDirichlet();
 		} else if(type.equalsIgnoreCase("Bottom Neumann") || type.equalsIgnoreCase("BottomNeumann")){
 			boundaryCondition = new DiffusionBottomBoundaryConditionNeumann();
+		} else if(type.equalsIgnoreCase("Bottom No Gradient") || type.equalsIgnoreCase("Bottom No Gradient")){
+			boundaryCondition = new DiffusionBottomBoundaryConditionNoGradient();
 		} else {
 			System.out.println("\n\n\tERROR: please check the boundary condition name.");
 		}

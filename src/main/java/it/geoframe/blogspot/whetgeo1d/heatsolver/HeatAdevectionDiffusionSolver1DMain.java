@@ -648,6 +648,9 @@ public class HeatAdevectionDiffusionSolver1DMain {
 		
 		}
 
+		/*
+		 * aggiugere output da salvare e modificare il buffer e il writer
+		 */
 		if(saveDate == 1) {
 			outputToBuffer.add(variables.waterSuctions);
 			outputToBuffer.add(variables.temperatures);

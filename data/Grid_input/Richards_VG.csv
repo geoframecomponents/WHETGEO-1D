@@ -1,0 +1,23 @@
+thetaS,thetaR,n,alpha,alphaSpecificStorage,betaSpecificStorage,Ks
+#1 Sand, Bonan 2018 Tab 8.3
+0.43,0.045,2.68,14.5,0.0,0.0,8.25e-05
+#2 Loamy sand, Bonan 2018 Tab 8.3
+0.41,0.057,2.28,12.4,0.0,0.0,4.0528e-05
+#3 Sandy loam, Bonan 2018 Tab 8.3
+0.41,0.065,1.89,7.5,0.0,0.0,1.2278e-05
+#4 Silt loam, Bonan 2018 Tab 8.3
+0.45,0.067,1.41,2.0,0.0,0.0,1.25e-06
+#5 Loam, Bonan 2018 Tab 8.3
+0.43,0.078,1.56,3.6,0.0,0.0,2.8889e-06
+#6 Sandy clay loam, Bonan 2018 Tab 8.3
+0.39,0.1,1.48,5.9,0.0,0.0,3.6388e-06
+#7 Silty clay loam, Bonan 2018 Tab 8.3
+0.43,0.089,1.23,1,0.0,0.0,1.9447e-07
+#8 Clay loam, Bonan 2018 Tab 8.3
+0.41,0.095,1.31,1.9,0.0,0.0,7.2224e-07
+#9 Sandy clay, Bonan 2018 Tab 8.3
+0.38,0.1,1.23,2.7,0.0,0.0,3.3333e-07
+#10 Silty clay, Bonan 2018 Tab 8.3
+0.36,0.07,1.09,0.5,0.0,0.0,5.5556e-08
+#11 Clay, Bonan 2018 Tab 8.3
+0.38,0.068,1.09,0.8,0.0,0.0,5.5556e-07

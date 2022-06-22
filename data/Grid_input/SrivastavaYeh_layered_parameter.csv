@@ -1,0 +1,5 @@
+thetaS,thetaR,par1,par2,par3,par4,par5,alphaSpecificStorage,betaSpecificStorage,Ks
+#layered case AB
+0.4,0.06,10,nan,nan,nan,nan,0.0,0.0,2.77778e-05
+#layered case AB
+0.4,0.06,10,nan,nan,nan,nan,0.0,0.0,2.77778e-06

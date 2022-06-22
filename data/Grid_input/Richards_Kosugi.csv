@@ -1,0 +1,7 @@
+thetaS,thetaR,psiMedian,sigma,alphaSpecificStorage,betaSpecificStorage,Ks
+#loam
+0.42,0.09,-4.9,0.98,0.0,0.0,1.19444E-06
+#sandy-loam
+0.41,0.27,-2.63,1.79,0.0,0.0,8.3611E-06
+#silt
+0.38,0.01,-2.63,2.74,0.0,0.0,4.4444e-05

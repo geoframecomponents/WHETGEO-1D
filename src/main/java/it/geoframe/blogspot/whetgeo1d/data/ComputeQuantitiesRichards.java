@@ -230,8 +230,9 @@ public class ComputeQuantitiesRichards {
 		// element == 0
 		if(this.bottomBCType.equalsIgnoreCase("Bottom Free Drainage") || this.bottomBCType.equalsIgnoreCase("BottomFreeDrainage")){
 			variables.kappasInterface[0] =  variables.kappas[0];
+		
 		} else if (this.bottomBCType.equalsIgnoreCase("Bottom Seepage") || this.bottomBCType.equalsIgnoreCase("BottomSeepage")) {
-			if(variables.kappas[0]<parameters.kappaSaturation[variables.parameterID[0]]) {
+			if(variables.kappas[0]<parameters.kappaSaturation[variables.parameterID[0]]*variables.seepageCoefficient) {
 				variables.kappasInterface[0] = + 0.0;
 			} else {
 				variables.kappasInterface[0] = variables.kappas[0];
