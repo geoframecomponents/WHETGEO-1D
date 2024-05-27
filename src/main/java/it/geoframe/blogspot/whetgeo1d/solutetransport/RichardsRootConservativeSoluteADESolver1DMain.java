@@ -432,6 +432,9 @@ public class RichardsRootConservativeSoluteADESolver1DMain {
 	@Description("Control variable")
 	@Out
 	public boolean doProcessBuffer;
+	
+	@Out
+	public boolean  doProcess0;
 
 	//////////////////////////////////////////
 	//////////////////////////////////////////

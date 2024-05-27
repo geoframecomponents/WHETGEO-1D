@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<class-diagram version="1.2.4" icons="false" automaticImage="PNG" always-add-relationships="false" 
+  generalizations="true" realizations="true" associations="true" dependencies="true" nesting-relationships="true" 
+  router="FAN">  
+  <class id="1" language="java" name="it.geoframe.blogspot.whetgeo1d.richardssolver.RichardsRootSolver1DMain" 
+    project="WHETGEO-1D" 
+    file="/WHETGEO-1D/src/main/java/it/geoframe/blogspot/whetgeo1d/richardssolver/RichardsRootSolver1DMain.java" 
+    binary="false" corner="BOTTOM_RIGHT">    
+    <position height="246" width="470" x="518" y="208"/>    
+    <display autosize="false" stereotype="true" package="true" initial-value="true" signature="true" 
+      sort-features="false" accessors="true" visibility="true">      
+      <attributes public="true" package="true" protected="true" private="true" static="true"/>      
+      <operations public="true" package="true" protected="true" private="true" static="true"/>    
+    </display>  
+  </class>  
+  <class id="2" language="java" name="it.geoframe.blogspot.whetgeo1d.richardssolver.RichardsSolver1DMain" 
+    project="WHETGEO-1D" 
+    file="/WHETGEO-1D/src/main/java/it/geoframe/blogspot/whetgeo1d/richardssolver/RichardsSolver1DMain.java" 
+    binary="false" corner="BOTTOM_LEFT">    
+    <position height="243" width="351" x="141" y="206"/>    
+    <display autosize="false" stereotype="true" package="true" initial-value="false" signature="false" 
+      sort-features="false" accessors="true" visibility="false">      
+      <attributes public="true" package="true" protected="true" private="true" static="true"/>      
+      <operations public="true" package="true" protected="true" private="true" static="true"/>    
+    </display>  
+  </class>  
+  <class id="3" language="java" name="it.geoframe.blogspot.whetgeo1d.data.ComputeQuantitiesRichards" 
+    project="WHETGEO-1D" 
+    file="/WHETGEO-1D/src/main/java/it/geoframe/blogspot/whetgeo1d/data/ComputeQuantitiesRichards.java" binary="false" 
+    corner="BOTTOM_RIGHT">    
+    <position height="339" width="607" x="52" y="472"/>    
+    <display autosize="false" stereotype="true" package="true" initial-value="true" signature="true" 
+      sort-features="false" accessors="true" visibility="true">      
+      <attributes public="true" package="true" protected="true" private="true" static="true"/>      
+      <operations public="true" package="true" protected="true" private="true" static="true"/>    
+    </display>  
+  </class>  
+  <class id="4" language="java" name="it.geoframe.blogspot.whetgeo1d.data.ComputeQuantitiesRichardsRoot" 
+    project="WHETGEO-1D" 
+    file="/WHETGEO-1D/src/main/java/it/geoframe/blogspot/whetgeo1d/data/ComputeQuantitiesRichardsRoot.java" 
+    binary="false" corner="BOTTOM_RIGHT">    
+    <position height="-1" width="-1" x="885" y="575"/>    
+    <display autosize="true" stereotype="true" package="true" initial-value="true" signature="true" 
+      sort-features="false" accessors="true" visibility="true">      
+      <attributes public="true" package="true" protected="true" private="true" static="true"/>      
+      <operations public="true" package="true" protected="true" private="true" static="true"/>    
+    </display>  
+  </class>  
+  <class id="5" language="java" name="it.geoframe.blogspot.whetgeo1d.pdefinitevolume.Richards1DFiniteVolumeSolver" 
+    project="WHETGEO-1D" 
+    file="/WHETGEO-1D/src/main/java/it/geoframe/blogspot/whetgeo1d/pdefinitevolume/Richards1DFiniteVolumeSolver.java" 
+    binary="false" corner="BOTTOM_RIGHT">    
+    <position height="129" width="637" x="192" y="48"/>    
+    <display autosize="false" stereotype="true" package="true" initial-value="true" signature="true" 
+      sort-features="false" accessors="true" visibility="true">      
+      <attributes public="true" package="true" protected="true" private="true" static="true"/>      
+      <operations public="true" package="true" protected="true" private="true" static="true"/>    
+    </display>  
+  </class>  
+  <association id="6">    
+    <end type="SOURCE" refId="2" navigable="false">      
+      <attribute id="7" name="richardsSolver">        
+        <position height="0" width="0" x="-237" y="-275"/>      
+      </attribute>      
+      <multiplicity id="8" minimum="0" maximum="1">        
+        <position height="0" width="0" x="-237" y="-275"/>      
+      </multiplicity>    
+    </end>    
+    <end type="TARGET" refId="5" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <association id="9">    
+    <end type="SOURCE" refId="2" navigable="false">      
+      <attribute id="10" name="computeQuantitiesRichards">        
+        <position height="0" width="0" x="-1054" y="149"/>      
+      </attribute>      
+      <multiplicity id="11" minimum="0" maximum="1">        
+        <position height="0" width="0" x="-1054" y="149"/>      
+      </multiplicity>    
+    </end>    
+    <end type="TARGET" refId="3" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <association id="12">    
+    <end type="SOURCE" refId="1" navigable="false">      
+      <attribute id="13" name="computeQuantitiesRichardsRoot">        
+        <position height="0" width="0" x="668" y="160"/>      
+      </attribute>      
+      <multiplicity id="14" minimum="0" maximum="1">        
+        <position height="0" width="0" x="668" y="160"/>      
+      </multiplicity>    
+    </end>    
+    <end type="TARGET" refId="4" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <association id="15">    
+    <end type="SOURCE" refId="1" navigable="false">      
+      <attribute id="16" name="computeQuantitiesRichards">        
+        <position height="19" width="156" x="-18" y="1011"/>      
+      </attribute>      
+      <multiplicity id="17" minimum="0" maximum="1">        
+        <position height="0" width="0" x="-1054" y="149"/>      
+      </multiplicity>    
+    </end>    
+    <end type="TARGET" refId="3" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <association id="18">    
+    <end type="SOURCE" refId="1" navigable="false">      
+      <attribute id="19" name="richardsSolver">        
+        <position height="0" width="0" x="-237" y="-275"/>      
+      </attribute>      
+      <multiplicity id="20" minimum="0" maximum="1">        
+        <position height="0" width="0" x="-237" y="-275"/>      
+      </multiplicity>    
+    </end>    
+    <end type="TARGET" refId="5" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <classifier-display autosize="true" stereotype="false" package="true" initial-value="false" signature="false" 
+    sort-features="false" accessors="true" visibility="false">    
+    <attributes public="false" package="false" protected="false" private="false" static="false"/>    
+    <operations public="false" package="false" protected="false" private="false" static="true"/>  
+  </classifier-display>  
+  <association-display labels="true" multiplicity="false"/>
+</class-diagram>
