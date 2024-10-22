@@ -221,7 +221,7 @@ public class ComputeQuantitiesRichards {
 //		}
 	}
 	
-	public void computeInterfaceHydraulicConductivityOLD(int KMAX) {
+	public void computeInterfaceHydraulicConductivity(int KMAX) {
 		
 		for(int k = 1; k < KMAX-1; k++) {
 			variables.kappasInterface[k] = interfaceConductivity.compute(variables.kappas[k-1],variables.kappas[k], geometry.controlVolume[k-1], geometry.controlVolume[k]);
@@ -256,7 +256,7 @@ public class ComputeQuantitiesRichards {
 		}
 	}
 	
-	public void computeInterfaceHydraulicConductivity(int KMAX) {
+	public void computeInterfaceHydraulicConductivitySpike(int KMAX) {
 		
 		for(int k = 1; k < KMAX-1; k++) {
 			variables.kappasInterface[k] = interfaceConductivity.compute(variables.kappas[k-1],variables.kappas[k], geometry.controlVolume[k-1], geometry.controlVolume[k]);
@@ -267,7 +267,7 @@ public class ComputeQuantitiesRichards {
 			variables.kappasInterface[0] =  variables.kappas[0];
 		
 		} else if (this.bottomBCType.equalsIgnoreCase("Bottom Seepage") || this.bottomBCType.equalsIgnoreCase("BottomSeepage")) {
-			if(variables.kappas[20]<parameters.kappaSaturation[variables.parameterID[20]] * variables.seepageCoefficient) {  //note: abbiamo scelto arbitrariamente il volume di controllo 20, dovremmo mettere quello in cui si ha il cambio di suolo, che nel nostro caso è il 20. 
+			if(variables.kappas[20]<parameters.kappaSaturation[variables.parameterID[20]] * variables.seepageCoefficient) {  //note: Set the control volume at the location of the soil discontinuity. 
 				for(int j = 0; j < 20; j++) {
 					variables.kappasInterface[j] = + 0.0;
 				}
