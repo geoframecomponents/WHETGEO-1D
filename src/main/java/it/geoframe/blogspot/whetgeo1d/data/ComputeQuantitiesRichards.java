@@ -256,6 +256,43 @@ public class ComputeQuantitiesRichards {
 		}
 	}
 	
+	public void computeInterfaceHydraulicConductivitySpike(int KMAX) {
+		
+		for(int k = 1; k < KMAX-1; k++) {
+			variables.kappasInterface[k] = interfaceConductivity.compute(variables.kappas[k-1],variables.kappas[k], geometry.controlVolume[k-1], geometry.controlVolume[k]);
+		}			
+		
+		// element == 0
+		if(this.bottomBCType.equalsIgnoreCase("Bottom Free Drainage") || this.bottomBCType.equalsIgnoreCase("BottomFreeDrainage")){
+			variables.kappasInterface[0] =  variables.kappas[0];
+		
+		} else if (this.bottomBCType.equalsIgnoreCase("Bottom Seepage") || this.bottomBCType.equalsIgnoreCase("BottomSeepage")) {
+			if(variables.kappas[20]<parameters.kappaSaturation[variables.parameterID[20]] * variables.seepageCoefficient) {  //note: Set the control volume at the location of the soil discontinuity. 
+				for(int j = 0; j < 20; j++) {
+					variables.kappasInterface[j] = + 0.0;
+				}
+			} else {
+				variables.kappasInterface[0] = variables.kappas[0];
+			}
+		}  else if (this.bottomBCType.equalsIgnoreCase("Bottom Impervious") || this.bottomBCType.equalsIgnoreCase("BottomImpervious")) {
+			variables.kappasInterface[0] = + 0.0;
+		} else {
+			variables.kappasInterface[0] = hydraulicConductivity.get(variables.equationStateID[0]).k(variables.richardsBottomBCValue, variables.temperatures[0], variables.parameterID[0], 0);
+		} 
+		
+		// element == KMAX-1
+		if(this.topBCType.equalsIgnoreCase("Top Dirichlet") || this.topBCType.equalsIgnoreCase("TopDirichlet")){
+			variables.kappasInterface[KMAX-1] = interfaceConductivity.compute(variables.kappas[KMAX-2],variables.kappas[KMAX-1], geometry.controlVolume[KMAX-2], geometry.controlVolume[KMAX-1]); 
+			variables.kappasInterface[KMAX] = hydraulicConductivity.get(variables.equationStateID[KMAX-1]).k(variables.richardsTopBCValue, variables.temperatures[KMAX-1], variables.parameterID[KMAX-1], KMAX-1); 
+		} else if(this.topBCType.equalsIgnoreCase("Top Neumann") || this.topBCType.equalsIgnoreCase("TopNeumann")){
+			variables.kappasInterface[KMAX-1] = interfaceConductivity.compute(variables.kappas[KMAX-2],variables.kappas[KMAX-1], geometry.controlVolume[KMAX-2], geometry.controlVolume[KMAX-1]);
+			variables.kappasInterface[KMAX] = -9999.0;
+		} else if(this.topBCType.equalsIgnoreCase("Top coupled") || this.topBCType.equalsIgnoreCase("TopCoupled")){
+			variables.kappasInterface[KMAX-1] = variables.kappas[KMAX-1]; 
+			variables.kappasInterface[KMAX] = -9999.0; 
+		}
+	}
+	
 	public void computeDarcyVelocities(int KMAX) {
 		
 		for(int k = 1; k < KMAX; k++) {

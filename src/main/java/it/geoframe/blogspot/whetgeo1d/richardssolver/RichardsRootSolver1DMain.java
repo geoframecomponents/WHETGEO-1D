@@ -308,6 +308,9 @@ public class RichardsRootSolver1DMain {
 	@Out
 	public double[] thetasNew;
 	
+	@Out
+	public boolean  doProcess0;
+	
 
 
 	@Description("Control variable")

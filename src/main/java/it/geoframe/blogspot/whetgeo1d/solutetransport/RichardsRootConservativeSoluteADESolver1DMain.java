@@ -432,6 +432,9 @@ public class RichardsRootConservativeSoluteADESolver1DMain {
 	@Description("Control variable")
 	@Out
 	public boolean doProcessBuffer;
+	
+	@Out
+	public boolean  doProcess0;
 
 	//////////////////////////////////////////
 	//////////////////////////////////////////
@@ -698,28 +701,57 @@ public class RichardsRootConservativeSoluteADESolver1DMain {
 
 		if(saveDate == 1) {
 			outputToBuffer.add(variables.waterSuctions);
+			
 			outputToBuffer.add(variables.thetasNew);
+			
 			outputToBuffer.add(variables.volumesNew);
+			
 			outputToBuffer.add(variables.darcyVelocities);
+			
+			outputToBuffer.add(variables.darcyVelocitiesCapillary);
+			
+			outputToBuffer.add(variables.darcyVelocitiesGravity);
+			
+			outputToBuffer.add(variables.poreVelocities);
+			
+			outputToBuffer.add(variables.celerities);
+			
+			outputToBuffer.add(variables.kinematicRatio);
+			
 			outputToBuffer.add(variables.ETs);
 			
+			outputToBuffer.add(new double[] {variables.errorVolume});
+			
+			outputToBuffer.add(new double[] {variables.richardsTopBCValue*tTimeStep*1000}); // I want to have rainfall height instead of water flux
+			
+			outputToBuffer.add(new double[] {variables.richardsBottomBCValue});
+			
+			outputToBuffer.add(new double[] {variables.runOff/tTimeStep});
+		
 			outputToBuffer.add(variables.concentrations);
+			
 			outputToBuffer.add(variables.waterVolumeConcentrationsNew);
 			
 			outputToBuffer.add(variables.soluteSourcesSinksTerm);
+			
 			outputToBuffer.add(new double[] {variables.sumSoluteSourceSinkTerm});
 			
 			outputToBuffer.add(variables.timeVariationWaterVolumesConcentration);
+			
 			outputToBuffer.add(variables.dispersionSoluteFluxes);
+			
 			outputToBuffer.add(variables.advectionSoluteFluxes);
-		
+			
 			outputToBuffer.add(new double[] {variables.errorWaterVolumeConcentration});
-			outputToBuffer.add(new double[] {variables.errorVolume});
+			
 			outputToBuffer.add(new double[] {variables.averageSoluteConcentration});
+			
 			outputToBuffer.add(new double[] {variables.averageWaterVolumeSoluteConcentration});
 			
+			
 			doProcessBuffer = true;
-		} else {
+		} 
+		else {
 			//			System.out.println("SaveDate = " + saveDate);
 		}
 		step++;

@@ -170,14 +170,14 @@ public class TestRichardsRootSoluteADEDouble {
 		writeNetCDF.topRichardsBC = "";
 		writeNetCDF.swrcModel = "VG";
 		writeNetCDF.soilHydraulicConductivityModel = "Mualem VG no temperature";
-		writeNetCDF.interfaceHydraulicConductivityModel = "max";
+		writeNetCDF.interfaceConductivityModel = "max";
 		//writeNetCDF.soilThermalConductivityModel = "Cosenza";
 		writeNetCDF.interfaceDispersionCoefficientModel = "max";
 		writeNetCDF.writeFrequency = writeFrequency;
 		writeNetCDF.spatialCoordinate = readNetCDF.eta;
 		writeNetCDF.dualSpatialCoordinate = readNetCDF.etaDual;	
 		writeNetCDF.controlVolume = readNetCDF.controlVolume;
-		writeNetCDF.psi = readNetCDF.psiIC;
+		writeNetCDF.psiIC = readNetCDF.psiIC;
 		writeNetCDF.concentrationIC = readNetCDF.concentrationIC;
 		writeNetCDF.rootIC = readNetCDF.rootIC;
 		writeNetCDF.timeUnits = "Minutes since 01/01/1970 00:00:00 UTC";
@@ -216,7 +216,7 @@ public class TestRichardsRootSoluteADEDouble {
 			
 			buffer.inputDate = solver.inCurrentDate;
 			buffer.doProcessBuffer = solver.doProcessBuffer;
-			buffer.inputVariable = solver.outputToBuffer;
+			buffer.inputVariableRichards = solver.outputToBuffer;
 			
 			buffer.solve();
 			
