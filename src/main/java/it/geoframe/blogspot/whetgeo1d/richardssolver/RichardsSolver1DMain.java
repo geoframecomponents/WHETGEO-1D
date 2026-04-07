@@ -25,10 +25,11 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+import org.geoframe.whetgeo1d.boundaryconditions.IBoundaryCondition;
+import org.geoframe.whetgeo1d.boundaryconditions.richards.RichardsSimpleBoundaryConditionFactory;
+
 import it.geoframe.blogspot.closureequation.closureequation.Parameters;
 import it.geoframe.blogspot.closureequation.equationstate.EquationState;
-import it.geoframe.blogspot.whetgeo1d.boundaryconditions.BoundaryCondition;
-import it.geoframe.blogspot.whetgeo1d.boundaryconditions.RichardsSimpleBoundaryConditionFactory;
 import it.geoframe.blogspot.whetgeo1d.data.ComputeQuantitiesRichards;
 import it.geoframe.blogspot.whetgeo1d.data.Geometry;
 import it.geoframe.blogspot.whetgeo1d.data.ProblemQuantities;
@@ -314,8 +315,8 @@ public class RichardsSolver1DMain {
 	private Geometry geometry;
 	private Parameters parameters;
 	private ComputeQuantitiesRichards computeQuantitiesRichards;
-	private BoundaryCondition topBoundaryCondition;
-	private BoundaryCondition bottomBoundaryCondition;
+	private IBoundaryCondition topBoundaryCondition;
+	private IBoundaryCondition bottomBoundaryCondition;
 	private RichardsSimpleBoundaryConditionFactory boundaryConditionFactory;
 
 	@Execute

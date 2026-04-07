@@ -20,6 +20,8 @@
 package it.geoframe.blogspot.whetgeo1d.pdefinitevolume;
 import java.util.List;
 
+import org.geoframe.whetgeo1d.boundaryconditions.IBoundaryCondition;
+
 import it.geoframe.blogspot.whetgeo1d.boundaryconditions.*;
 import it.geoframe.blogspot.closureequation.equationstate.EquationState;
 import it.geoframe.blogspot.numerical.linearsystemsolver.Thomas;
@@ -83,14 +85,14 @@ public class AdvectionDiffusionWithSurfaceEnergyBalance1DFiniteVolumeSolver {
 //	private BoundaryCondition topBoundaryCondition;
 
 	@Description("This object compute the diagonal and right hand side entries for the lowermost cell accordingly with the prescribed bottom boundary condition.")
-	private BoundaryCondition bottomBoundaryCondition;
+	private IBoundaryCondition bottomBoundaryCondition;
 	
 	private Thomas thomasAlg = new Thomas();
     //////////////////////////////
 
 
 
-	public AdvectionDiffusionWithSurfaceEnergyBalance1DFiniteVolumeSolver( BoundaryCondition bottomBoundaryCondition, int KMAX) {
+	public AdvectionDiffusionWithSurfaceEnergyBalance1DFiniteVolumeSolver( IBoundaryCondition bottomBoundaryCondition, int KMAX) {
 
 //		this.topBoundaryCondition = topBoundaryCondition;		
 		this.bottomBoundaryCondition = bottomBoundaryCondition;	

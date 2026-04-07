@@ -29,11 +29,11 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+import org.geoframe.whetgeo1d.boundaryconditions.IBoundaryCondition;
+import org.geoframe.whetgeo1d.boundaryconditions.DiffusionSimpleBoundaryConditionFactory;
+
 import it.geoframe.blogspot.closureequation.closureequation.Parameters;
 import it.geoframe.blogspot.closureequation.equationstate.EquationState;
-
-import it.geoframe.blogspot.whetgeo1d.boundaryconditions.BoundaryCondition;
-import it.geoframe.blogspot.whetgeo1d.boundaryconditions.DiffusionSimpleBoundaryConditionFactory;
 import it.geoframe.blogspot.whetgeo1d.data.ComputeQuantitiesHeatDiffusionFreezingThawingWithSurfaceEnergyBalance;
 //import it.geoframe.blogspot.whetgeo1d.data.ComputeQuantitiesInternalEnergy;
 import it.geoframe.blogspot.whetgeo1d.data.Geometry;
@@ -435,7 +435,7 @@ public class HeatDiffusionFreezingThawingSolverWithSurfaceEnergyBalance1DMain {
 	private Geometry geometry;
 	private Parameters parameters;
 	private ComputeQuantitiesHeatDiffusionFreezingThawingWithSurfaceEnergyBalance computeQuantities;
-	private BoundaryCondition bottomBoundaryCondition;
+	private IBoundaryCondition bottomBoundaryCondition;
 	private DiffusionSimpleBoundaryConditionFactory boundaryConditionFactory;
 
 	@Execute

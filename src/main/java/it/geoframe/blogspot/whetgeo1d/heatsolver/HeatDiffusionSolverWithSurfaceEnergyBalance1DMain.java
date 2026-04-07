@@ -23,11 +23,11 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+import org.geoframe.whetgeo1d.boundaryconditions.IBoundaryCondition;
+import org.geoframe.whetgeo1d.boundaryconditions.DiffusionSimpleBoundaryConditionFactory;
+
 import it.geoframe.blogspot.closureequation.closureequation.Parameters;
 import it.geoframe.blogspot.closureequation.equationstate.EquationState;
-
-import it.geoframe.blogspot.whetgeo1d.boundaryconditions.BoundaryCondition;
-import it.geoframe.blogspot.whetgeo1d.boundaryconditions.DiffusionSimpleBoundaryConditionFactory;
 import it.geoframe.blogspot.whetgeo1d.data.ComputeQuantitiesHeatDiffusionWithSurfaceEnergyBalance;
 import it.geoframe.blogspot.whetgeo1d.data.ComputeQuantitiesInternalEnergy;
 import it.geoframe.blogspot.whetgeo1d.data.Geometry;
@@ -429,8 +429,8 @@ public class HeatDiffusionSolverWithSurfaceEnergyBalance1DMain {
 	private Geometry geometry;
 	private Parameters parameters;
 	private ComputeQuantitiesHeatDiffusionWithSurfaceEnergyBalance computeQuantities;
-	private BoundaryCondition topBoundaryCondition;
-	private BoundaryCondition bottomBoundaryCondition;
+	private IBoundaryCondition topBoundaryCondition;
+	private IBoundaryCondition bottomBoundaryCondition;
 	private DiffusionSimpleBoundaryConditionFactory boundaryConditionFactory;
 
 	@Execute

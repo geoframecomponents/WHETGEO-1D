@@ -22,6 +22,14 @@ package it.geoframe.blogspot.whetgeo1d.data;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.geoframe.whetgeo1d.surfaceproperties.ISurfaceWaterVaporResistance;
+import org.geoframe.whetgeo1d.surfaceproperties.aerodynamicresistance.SurfaceAereodynamicResistanceFactory;
+import org.geoframe.whetgeo1d.surfaceproperties.albedo.SurfaceAlbedoFactory;
+import org.geoframe.whetgeo1d.surfaceproperties.factories.SurfaceWaterVaporResistanceFactory;
+import org.geoframe.whetgeo1d.surfaceproperties.ISurfaceAereodynamicResistance;
+import org.geoframe.whetgeo1d.surfaceproperties.ISurfaceAlbedo;
+import org.geoframe.whetgeo1d.surfaceproperties.ISurfaceEmissivity;
+
 import it.geoframe.blogspot.closureequation.closureequation.ClosureEquation;
 import it.geoframe.blogspot.closureequation.closureequation.Parameters;
 import it.geoframe.blogspot.closureequation.closureequation.SoilWaterRetentionCurveFactory;
@@ -81,19 +89,19 @@ public class ComputeQuantitiesHeatDiffusionWithSurfaceEnergyBalance {
 	private SimpleInterfaceConductivityFactory interfaceConductivityFactory;
 
 	@Description("This object evaluate the surface albedo.")
-	private SurfaceAlbedo surfaceAlbedoModel;
+	private ISurfaceAlbedo surfaceAlbedoModel;
 	private SurfaceAlbedoFactory surfaceAlbedoFactory;
 	
 	@Description("This object evaluate the surface emissivity.")
-	private SurfaceEmissivity surfaceEmissivityModel;
+	private ISurfaceEmissivity surfaceEmissivityModel;
 	private SurfaceEmissivityFactory surfaceEmissivityFactory;
 	
 	@Description("This object evaluate the surface aereodynamic resistance.")
-	private SurfaceAereodynamicResistance surfaceAereodynamicResistanceModel;
+	private ISurfaceAereodynamicResistance surfaceAereodynamicResistanceModel;
 	private SurfaceAereodynamicResistanceFactory surfaceAereodynamicResistanceFactory;
 	
 	@Description("This object evaluate the surface water vapor resistance.")
-	private SurfaceWaterVaporResistance surfaceWaterVaporResistanceModel;
+	private ISurfaceWaterVaporResistance surfaceWaterVaporResistanceModel;
 	private SurfaceWaterVaporResistanceFactory surfaceWaterVaporResistanceFactory;
 	
 	private String bottomBCType;

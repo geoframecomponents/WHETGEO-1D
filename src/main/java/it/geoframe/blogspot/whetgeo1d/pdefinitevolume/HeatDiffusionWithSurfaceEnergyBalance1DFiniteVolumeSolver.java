@@ -20,6 +20,8 @@
 package it.geoframe.blogspot.whetgeo1d.pdefinitevolume;
 import java.util.List;
 
+import org.geoframe.whetgeo1d.boundaryconditions.IBoundaryCondition;
+
 import it.geoframe.blogspot.whetgeo1d.boundaryconditions.*;
 import it.geoframe.blogspot.whetgeo1d.data.*;
 import it.geoframe.blogspot.closureequation.equationstate.EquationState;
@@ -83,13 +85,13 @@ public class HeatDiffusionWithSurfaceEnergyBalance1DFiniteVolumeSolver {
 	private List<EquationState> equationState;
 
 	@Description("This object compute the diagonal and right hand side entries for the lowermost cell accordingly with the prescribed bottom boundary condition.")
-	private BoundaryCondition bottomBoundaryCondition;
+	private IBoundaryCondition bottomBoundaryCondition;
 	
     //////////////////////////////
 
 
 
-	public HeatDiffusionWithSurfaceEnergyBalance1DFiniteVolumeSolver( BoundaryCondition bottomBoundaryCondition, int KMAX, int nestedNewton, double newtonTolerance, double delta,
+	public HeatDiffusionWithSurfaceEnergyBalance1DFiniteVolumeSolver( IBoundaryCondition bottomBoundaryCondition, int KMAX, int nestedNewton, double newtonTolerance, double delta,
 			int MAXITER_NEWT, List<EquationState> equationState) {
 
 		this.bottomBoundaryCondition = bottomBoundaryCondition;	

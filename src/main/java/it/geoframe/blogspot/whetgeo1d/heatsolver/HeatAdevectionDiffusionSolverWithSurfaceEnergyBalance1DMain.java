@@ -25,12 +25,12 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+import org.geoframe.whetgeo1d.boundaryconditions.IBoundaryCondition;
+import org.geoframe.whetgeo1d.boundaryconditions.richards.RichardsSimpleBoundaryConditionFactory;
+import org.geoframe.whetgeo1d.boundaryconditions.DiffusionSimpleBoundaryConditionFactory;
+
 import it.geoframe.blogspot.closureequation.closureequation.Parameters;
 import it.geoframe.blogspot.closureequation.equationstate.EquationState;
-
-import it.geoframe.blogspot.whetgeo1d.boundaryconditions.BoundaryCondition;
-import it.geoframe.blogspot.whetgeo1d.boundaryconditions.DiffusionSimpleBoundaryConditionFactory;
-import it.geoframe.blogspot.whetgeo1d.boundaryconditions.RichardsSimpleBoundaryConditionFactory;
 //import it.geoframe.blogspot.whetgeo1d.data.ComputeQuantitiesHeatAdvectionDiffusion;
 import it.geoframe.blogspot.whetgeo1d.data.ComputeQuantitiesHeatAdvectionDiffusionWithSurfaceEnergyBalance;
 import it.geoframe.blogspot.whetgeo1d.data.ComputeQuantitiesInternalEnergy;
@@ -526,10 +526,10 @@ public class HeatAdevectionDiffusionSolverWithSurfaceEnergyBalance1DMain {
 	private ComputeQuantitiesRichards computeQuantitiesRichards;
 	private ComputeQuantitiesRichardsRoot computeQuantitiesRichardsRoot;
 	private ComputeQuantitiesHeatAdvectionDiffusionWithSurfaceEnergyBalance computeQuantitiesHeatAdvectionDiffusion; // creare un nuovo compute quantites con il surface energy balance
-	private BoundaryCondition topRichardsBoundaryCondition;
-	private BoundaryCondition bottomRichardsBoundaryCondition;
-	private BoundaryCondition topInternalEnergyBoundaryCondition;
-	private BoundaryCondition bottomInternalEnergyBoundaryCondition;
+	private IBoundaryCondition topRichardsBoundaryCondition;
+	private IBoundaryCondition bottomRichardsBoundaryCondition;
+	private IBoundaryCondition topInternalEnergyBoundaryCondition;
+	private IBoundaryCondition bottomInternalEnergyBoundaryCondition;
 	private RichardsSimpleBoundaryConditionFactory boundaryRichardsConditionFactory;
 	private DiffusionSimpleBoundaryConditionFactory boundaryDiffusionConditionFactory;
 
