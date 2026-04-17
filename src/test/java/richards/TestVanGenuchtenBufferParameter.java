@@ -21,11 +21,12 @@ package richards;
 
 import java.net.URISyntaxException;
 import java.util.*;
+
+import org.geoframe.whetgeo1d.richardssolver.RichardsSolver1DMain;
 import org.hortonmachine.gears.io.timedependent.OmsTimeSeriesIteratorReader;
 import org.hortonmachine.gears.io.timedependent.OmsTimeSeriesIteratorWriter;
 
 import it.geoframe.blogspot.buffer.buffertowriter.RichardsBuffer1D;
-import it.geoframe.blogspot.whetgeo1d.richardssolver.RichardsSolver1DMain;
 import it.geoframe.blogspot.buffer.buffercalibrationpoints.BufferCalibrationRichards1D;
 import it.geoframe.blogspot.buffer.bufferparameter.BufferParameterRichards1D;
 import it.geoframe.blogspot.netcdf.monodimensionalproblemtimedependent.ReadNetCDFRichardsGrid1D;

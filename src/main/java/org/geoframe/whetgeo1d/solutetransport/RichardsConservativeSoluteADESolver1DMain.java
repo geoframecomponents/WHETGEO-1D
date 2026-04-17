@@ -22,23 +22,28 @@ package org.geoframe.whetgeo1d.solutetransport;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 
+import org.geoframe.closureequation.closureequation.Parameters;
 import org.geoframe.whetgeo1d.boundaryconditions.IBoundaryCondition;
 import org.geoframe.whetgeo1d.boundaryconditions.IBoundaryCondition.DiffusionBoundaryConditionType;
 import org.geoframe.whetgeo1d.boundaryconditions.IBoundaryCondition.RichardsBoundaryConditionType;
+import org.geoframe.whetgeo1d.data.ComputeQuantitiesRichards;
+import org.geoframe.whetgeo1d.data.ComputeQuantitiesSoluteAdvectionDispersion;
+import org.geoframe.whetgeo1d.pdefinitevolume.AdvectionDiffusion1DFiniteVolumeSolver;
+import org.geoframe.whetgeo1d.pdefinitevolume.Richards1DFiniteVolumeSolver;
+import org.geoframe.whetgeo1d.utils.GFGeometry;
+import org.geoframe.whetgeo1d.utils.ProblemQuantities;
 
-import it.geoframe.blogspot.closureequation.closureequation.Parameters;
-import it.geoframe.blogspot.closureequation.equationstate.EquationState;
-import it.geoframe.blogspot.whetgeo1d.data.*;
-
-import it.geoframe.blogspot.whetgeo1d.data.ComputeQuantitiesRichards;
-import it.geoframe.blogspot.whetgeo1d.data.Geometry;
-import it.geoframe.blogspot.whetgeo1d.data.ProblemQuantities;
-import it.geoframe.blogspot.whetgeo1d.pdefinitevolume.AdvectionDiffusion1DFiniteVolumeSolver;
-
-import it.geoframe.blogspot.whetgeo1d.pdefinitevolume.Richards1DFiniteVolumeSolver;
-import oms3.annotations.*;
+import oms3.annotations.Author;
+import oms3.annotations.Bibliography;
+import oms3.annotations.Description;
+import oms3.annotations.Documentation;
+import oms3.annotations.Execute;
+import oms3.annotations.In;
+import oms3.annotations.Keywords;
+import oms3.annotations.License;
+import oms3.annotations.Out;
+import oms3.annotations.Unit;
 
 
 @Description("Solve the solute advection dispersion equation in the conservative form for the 1D domain")
@@ -343,6 +348,7 @@ public class RichardsConservativeSoluteADESolver1DMain {
 	@Out
 	public boolean  doProcess0;
 
+
 	//////////////////////////////////////////
 	//////////////////////////////////////////
 	
@@ -365,8 +371,7 @@ public class RichardsConservativeSoluteADESolver1DMain {
 	private Richards1DFiniteVolumeSolver richardsSolver;
 	private AdvectionDiffusion1DFiniteVolumeSolver advectionDispersionSolver;
 	private ProblemQuantities variables;
-	private Geometry geometry;
-	private Parameters parameters;
+	private GFGeometry geometry;
 	private ComputeQuantitiesRichards computeQuantitiesRichards;
 	private ComputeQuantitiesSoluteAdvectionDispersion computeQuantitiesSoluteAdvectionDispersion;
 	private IBoundaryCondition topRichardsBoundaryCondition;
@@ -382,16 +387,18 @@ public class RichardsConservativeSoluteADESolver1DMain {
 		if(step==0){
 			KMAX = psiIC.length;
 
-			variables = ProblemQuantities.getInstance(psiIC, temperatureIC, concentrationIC, inEquationStateID, inParameterID);
-			geometry = Geometry.getInstance(z, spaceDeltaZ, controlVolume);
-			parameters = Parameters.getInstance(molecularDiffusion,longitudinalDispersivity,referenceTemperatureSWRC, beta0,
+			variables = new ProblemQuantities(psiIC, temperatureIC, concentrationIC, inEquationStateID, inParameterID);
+			geometry = new GFGeometry(z, spaceDeltaZ, controlVolume);
+			var parameters = new Parameters(molecularDiffusion,longitudinalDispersivity,referenceTemperatureSWRC, beta0,
 					thetaS, thetaR, par1SWRC, par2SWRC, par3SWRC, par4SWRC, par5SWRC, ks, alphaSpecificStorage, betaSpecificStorage); 
 			
 			variables.seepageCoefficient = seepageCoefficient;
 
-			computeQuantitiesRichards = new ComputeQuantitiesRichards(typeClosureEquation, typeRichardsEquationState, typeUHCModel, typeUHCTemperatureModel, interfaceHydraulicConductivityModel, topRichardsBCType, bottomRichardsBCType);
+			computeQuantitiesRichards = new ComputeQuantitiesRichards(typeClosureEquation, typeRichardsEquationState, typeUHCModel, typeUHCTemperatureModel, interfaceHydraulicConductivityModel,
+				 topRichardsBCType, bottomRichardsBCType, variables, geometry, parameters);
 
-			computeQuantitiesSoluteAdvectionDispersion = new ComputeQuantitiesSoluteAdvectionDispersion(typeClosureEquation, interfaceDispersionModel, topSoluteBCType, bottomSoluteBCType); 
+			computeQuantitiesSoluteAdvectionDispersion = new ComputeQuantitiesSoluteAdvectionDispersion(typeClosureEquation, interfaceDispersionModel, topSoluteBCType, bottomSoluteBCType,
+					variables, geometry, parameters); 
 			
 			outputToBuffer = new ArrayList<double[]>();
 

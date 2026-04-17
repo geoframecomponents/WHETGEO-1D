@@ -18,7 +18,6 @@
  */
 package org.geoframe.whetgeo1d.surfaceproperties;
 
-import org.geoframe.whetgeo1d.surfaceproperties.ISurfaceWaterVaporResistance.SurfaceWaterVaporResistanceModel;
 import org.geoframe.whetgeo1d.surfaceproperties.aerodynamicresistance.SurfaceAereodynamicResistanceNeutralCondition;
 import org.geoframe.whetgeo1d.utils.EnumUtils;
 

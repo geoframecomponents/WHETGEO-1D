@@ -21,10 +21,11 @@ package heat;
 
 import java.net.URISyntaxException;
 import java.util.*;
+
+import org.geoframe.whetgeo1d.heatsolver.HeatDiffusionFreezingThawingSolverWithSurfaceEnergyBalance1DMain;
 import org.hortonmachine.gears.io.timedependent.OmsTimeSeriesIteratorReader;
 
 import it.geoframe.blogspot.buffer.buffertowriter.HeatDiffusionFreezingThawingBufferWithSurfaceEnergyBudget1D;
-import it.geoframe.blogspot.whetgeo1d.heatsolver.HeatDiffusionFreezingThawingSolverWithSurfaceEnergyBalance1DMain;
 import it.geoframe.blogspot.netcdf.monodimensionalproblemtimedependent.ReadNetCDFHeatDiffusionGrid1D;
 import it.geoframe.blogspot.netcdf.monodimensionalproblemtimedependent.ReadNetCDFHeatDiffusionOutput1D;
 import it.geoframe.blogspot.netcdf.monodimensionalproblemtimedependent.WriteNetCDFHeatDiffusionFreezingThawingWithSurfaceEnergyBudget1DDouble;

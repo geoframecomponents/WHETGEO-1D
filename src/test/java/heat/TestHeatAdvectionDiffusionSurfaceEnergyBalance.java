@@ -23,6 +23,8 @@ import static java.lang.Math.pow;
 
 import java.net.URISyntaxException;
 import java.util.*;
+
+import org.geoframe.whetgeo1d.heatsolver.HeatAdevectionDiffusionSolverWithSurfaceEnergyBalance1DMain;
 import org.hortonmachine.gears.io.timedependent.OmsTimeSeriesIteratorReader;
 
 import it.geoframe.blogspot.buffer.buffertowriter.*;

@@ -1,62 +1,73 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
-    <modelVersion>4.0.0</modelVersion>
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
 
-    <groupId>it.geoframe.blogspot</groupId>
-    <artifactId>whetgeo1d</artifactId>
-    <version>1.0.2</version>
-    <packaging>jar</packaging>
+	<groupId>it.geoframe.blogspot</groupId>
+	<artifactId>whetgeo1d</artifactId>
+	<version>1.0.2</version>
+	<packaging>jar</packaging>
 
-    <name>WHETGEO-1D</name>
-    <description>WHETGEO-1D Maven build</description>
+	<name>WHETGEO-1D</name>
+	<description>WHETGEO-1D Maven build</description>
 
-    <properties>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <maven.compiler.release>17</maven.compiler.release>
-    </properties>
+	<properties>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<maven.compiler.release>17</maven.compiler.release>
+	</properties>
 
-    <repositories>
-        <repository>
-            <id>osgeo-release</id>
-            <url>https://repo.osgeo.org/repository/release/</url>
-        </repository>
-        <repository>
-            <id>unidata-all</id>
-            <url>https://artifacts.unidata.ucar.edu/repository/unidata-all/</url>
-        </repository>
-        <repository>
-            <id>sonatype-snapshots</id>
-            <url>https://central.sonatype.com/repository/maven-snapshots/</url>
-            <releases>
-                <enabled>false</enabled>
-            </releases>
-            <snapshots>
-                <enabled>true</enabled>
-            </snapshots>
-        </repository>
-    </repositories>
+	<repositories>
+		<repository>
+			<id>osgeo-release</id>
+			<url>https://repo.osgeo.org/repository/release/</url>
+		</repository>
+		<repository>
+			<id>unidata-all</id>
+			<url>https://artifacts.unidata.ucar.edu/repository/unidata-all/</url>
+		</repository>
+		<repository>
+			<id>sonatype-snapshots</id>
+			<url>https://central.sonatype.com/repository/maven-snapshots/</url>
+			<releases>
+				<enabled>false</enabled>
+			</releases>
+			<snapshots>
+				<enabled>true</enabled>
+			</snapshots>
+		</repository>
+	</repositories>
 
-    <dependencies>
-        <dependency>
-            <groupId>org.hortonmachine</groupId>
-            <artifactId>hm-gears</artifactId>
-            <version>0.11.1-SNAPSHOT</version>
-        </dependency>
-    </dependencies>
+	<dependencies>
+		<dependency>
+			<groupId>org.hortonmachine</groupId>
+			<artifactId>hm-gears</artifactId>
+			<version>0.11.1-SNAPSHOT</version>
+		</dependency>
+		<dependency>
+			<groupId>org.geoframe</groupId>
+			<artifactId>closure-equation</artifactId>
+			<version>1.9.2</version>
+		</dependency>
+		<dependency>
+			<groupId>org.geoframe</groupId>
+			<artifactId>numerical</artifactId>
+			<version>1.0.4</version>
+		</dependency>
+	</dependencies>
 
-    <build>
-        <finalName>whetgeo1d-${project.version}</finalName>
-        <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.14.0</version>
-                <configuration>
-                    <release>${maven.compiler.release}</release>
-                </configuration>
-            </plugin>
-        </plugins>
-    </build>
+
+	<build>
+		<finalName>whetgeo1d-${project.version}</finalName>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<version>3.14.0</version>
+				<configuration>
+					<release>${maven.compiler.release}</release>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
 </project>
