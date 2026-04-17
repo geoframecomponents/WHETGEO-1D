@@ -23,12 +23,14 @@ import java.net.URISyntaxException;
 import java.util.HashMap;
 
 import org.geoframe.whetgeo1d.heatsolver.HeatAdevectionDiffusionSolver1DMain;
+import org.hortonmachine.gears.io.geoframe.HeatAdvectionDiffusionBuffer1D;
+import org.hortonmachine.gears.io.geoframe.ReadNetCDFHeatAdvectionDiffusionGrid1D;
+import org.hortonmachine.gears.io.geoframe.ReadNetCDFHeatAdvectionDiffusionOutput1D;
+import org.hortonmachine.gears.io.geoframe.WriteNetCDFHeatAdvectionDiffusion1D;
 import org.hortonmachine.gears.io.timedependent.OmsTimeSeriesIteratorReader;
 
-import it.geoframe.blogspot.buffer.buffertowriter.HeatAdvectionDiffusionBuffer1D;
-import it.geoframe.blogspot.netcdf.monodimensionalproblemtimedependent.ReadNetCDFHeatAdvectionDiffusionGrid1D;
-import it.geoframe.blogspot.netcdf.monodimensionalproblemtimedependent.ReadNetCDFHeatAdvectionDiffusionOutput1D;
-import it.geoframe.blogspot.netcdf.monodimensionalproblemtimedependent.WriteNetCDFHeatAdvectionDiffusion1D;
+import junit.framework.TestCase;
+
 
 /**
  * Test the {@link TestHeatAdvectionDiffusion} module.
@@ -36,10 +38,10 @@ import it.geoframe.blogspot.netcdf.monodimensionalproblemtimedependent.WriteNetC
  * 
  * @author Niccolo' Tubini
  */
-public class TestHeatAdvectionDiffusion {
+public class TestHeatAdvectionDiffusion extends TestCase{
 
-	@Test
-	public void Test() throws Exception {
+	
+	public void testHeatAdvectionDiffusion() throws Exception {
 
 
 		String startDate = "2003-01-01 00:00";

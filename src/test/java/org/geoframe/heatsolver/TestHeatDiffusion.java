@@ -17,18 +17,16 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package heat;
+package org.geoframe.heatsolver;
 
 import java.net.URISyntaxException;
-import java.util.*;
+import java.util.HashMap;
 
 import org.geoframe.whetgeo1d.heatsolver.HeatDiffusionSolver1DMain;
+import org.hortonmachine.gears.io.geoframe.HeatDiffusionBuffer1D;
+import org.hortonmachine.gears.io.geoframe.ReadNetCDFHeatDiffusionGrid1D;
+import org.hortonmachine.gears.io.geoframe.WriteNetCDFHeatDiffusion1DDouble;
 import org.hortonmachine.gears.io.timedependent.OmsTimeSeriesIteratorReader;
-
-import it.geoframe.blogspot.buffer.buffertowriter.HeatDiffusionBuffer1D;
-import it.geoframe.blogspot.netcdf.monodimensionalproblemtimedependent.ReadNetCDFHeatDiffusionGrid1D;
-import it.geoframe.blogspot.netcdf.monodimensionalproblemtimedependent.WriteNetCDFHeatDiffusion1DDouble;
-
 import org.junit.Test;
 
 /**

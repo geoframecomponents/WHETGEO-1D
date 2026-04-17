@@ -1,7 +1,7 @@
 /*
   * GNU GPL v3 License
  *
- * Copyright 2022 Niccol� Tubini
+ * Copyright 2020 Niccolo` Tubini
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,97 +17,67 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package heat;
-
-import static java.lang.Math.pow;
+package org.geoframe.heatsolver;
 
 import java.net.URISyntaxException;
-import java.util.*;
+import java.util.HashMap;
 
-import org.geoframe.whetgeo1d.heatsolver.HeatAdevectionDiffusionSolverWithSurfaceEnergyBalance1DMain;
+import org.geoframe.whetgeo1d.heatsolver.HeatDiffusionFreezingThawingSolverWithSurfaceEnergyBalance1DMain;
+import org.hortonmachine.gears.io.geoframe.HeatDiffusionFreezingThawingBufferWithSurfaceEnergyBudget1D;
+import org.hortonmachine.gears.io.geoframe.ReadNetCDFHeatDiffusionGrid1D;
+import org.hortonmachine.gears.io.geoframe.ReadNetCDFHeatDiffusionOutput1D;
+import org.hortonmachine.gears.io.geoframe.WriteNetCDFHeatDiffusionFreezingThawingWithSurfaceEnergyBudget1DDouble;
 import org.hortonmachine.gears.io.timedependent.OmsTimeSeriesIteratorReader;
-
-import it.geoframe.blogspot.buffer.buffertowriter.*;
-import it.geoframe.blogspot.whetgeo1d.heatsolver.*;
-import it.geoframe.blogspot.netcdf.monodimensionalproblemtimedependent.*;
-
-
 import org.junit.Test;
 
 /**
- * Test the {@link TestHeatAdvectionDiffusionSurfaceEnergyBalance} module.
+ * Test the {@link TestHeatDiffusionFreezingThawingSurfaceEnergyBalance} module.
  * 
  * 
- * @author Niccolo' Tubini and Concetta D'Amato  
+ * @author Niccolo' Tubini
  */
-public class TestHeatAdvectionDiffusionSurfaceEnergyBalance {
+public class TestHeatDiffusionFreezingThawingSurfaceEnergyBalance {
 
 	@Test
 	public void Test() throws Exception {
 
 
-		String startDate = "2003-01-01 01:00";
-		String endDate = "2004-01-01 00:00";
+		String startDate = "2003-01-01 00:00";
+		String endDate = "2007-01-01 00:00";
 		int timeStepMinutes = 60;
 		String fId = "ID";
-		String lab = "01";
-				
+		
 		String pathAirT = "resources/input/TimeSeries/airT_T0135.csv";
 		String pathWindVelocity = "resources/input/TimeSeries/windVelocity_T0135.csv";
 		String pathSW = "resources/input/TimeSeries/TotalSolarRadiation_T0135.csv";
 		String pathLW = "resources/input/TimeSeries/LWDownwelling_T0135.csv";
 		String pathLE = "resources/input/TimeSeries/LatentHeat_PT_T0135.csv";
 		String pathBottomBC = "resources/input/TimeSeries/noFlux_T0135.csv";
+		String pathSaveDates = "resources/input/TimeSeries/saveDates_T0135.csv"; 
+		String pathGrid =  "resources/input/Grid_NetCDF/heat_diffusion.nc";
+
+		String pathOutput = "resources/output/Sim_heat_diffusion_freezing_thawing.nc";
 		
-		String pathRichardsTopBC = "resources/input/TimeSeries/Precip_T0135.csv"; //Precip_T0135.csv";
-		String pathRichardsBottomBC = "resources/input/TimeSeries/noFlux_T0135.csv";
-		
-		String pathSaveDates = "resources/input/TimeSeries/saveAll_T0135.csv"; 
-		
-		String pathGrid =  "resources/input/Grid_NetCDF/Heat_advection_diffusion - Copy.nc";
-		String pathOutput = "resources/output/_cancella.nc";
-		
-		//Solute boundary conditions
-//		String topSoluteBC = "Top dirichlet";
-		String bottomSoluteBC = "Bottom No Gradient";
-		
-		//Richards boundary conditions
-		String topRichardsBC = "Top Coupled";
-		String bottomRichardsBC = "Bottom Dirichlet"; //"Bottom Free drainage"
+		String bottomBC = "Bottom Neumann";
 
 		String outputDescription = "\n"
-				+ "Richards' equation coupled with the solute advection-dispersion equation";
+				+ "Pure heat diffusion driven by the surface energy budget. Soil is saturated.";
 		
 		int writeFrequency = 1000000;
-		
+
 		OmsTimeSeriesIteratorReader airTReader = getTimeseriesReader(pathAirT, fId, startDate, endDate, timeStepMinutes);
 		OmsTimeSeriesIteratorReader windVelocityReader = getTimeseriesReader(pathWindVelocity, fId, startDate, endDate, timeStepMinutes);
 		OmsTimeSeriesIteratorReader swReader = getTimeseriesReader(pathSW, fId, startDate, endDate, timeStepMinutes);
 		OmsTimeSeriesIteratorReader lwReader = getTimeseriesReader(pathLW, fId, startDate, endDate, timeStepMinutes);
 		OmsTimeSeriesIteratorReader leReader = getTimeseriesReader(pathLE, fId, startDate, endDate, timeStepMinutes);
 		OmsTimeSeriesIteratorReader bottomBCReader = getTimeseriesReader(pathBottomBC, fId, startDate, endDate, timeStepMinutes);
-		
-		OmsTimeSeriesIteratorReader topRichardsBCReader = getTimeseriesReader(pathRichardsTopBC, fId, startDate, endDate, timeStepMinutes);
-		OmsTimeSeriesIteratorReader bottomRichardsBCReader = getTimeseriesReader(pathRichardsBottomBC, fId, startDate, endDate, timeStepMinutes);
 		OmsTimeSeriesIteratorReader saveDatesReader = getTimeseriesReader(pathSaveDates, fId, startDate, endDate, timeStepMinutes);
 
-		HeatAdvectionDiffusionBuffer1D buffer = new HeatAdvectionDiffusionBuffer1D();
-		WriteNetCDFHeatAdvectionDiffusion1D writeNetCDF = new WriteNetCDFHeatAdvectionDiffusion1D();
-		ReadNetCDFHeatAdvectionDiffusionGrid1D readNetCDF = new ReadNetCDFHeatAdvectionDiffusionGrid1D();
+		HeatDiffusionFreezingThawingBufferWithSurfaceEnergyBudget1D buffer = new HeatDiffusionFreezingThawingBufferWithSurfaceEnergyBudget1D();
+		WriteNetCDFHeatDiffusionFreezingThawingWithSurfaceEnergyBudget1DDouble writeNetCDF = new WriteNetCDFHeatDiffusionFreezingThawingWithSurfaceEnergyBudget1DDouble();
+		ReadNetCDFHeatDiffusionGrid1D readNetCDF = new ReadNetCDFHeatDiffusionGrid1D();
 		
-		HeatAdevectionDiffusionSolverWithSurfaceEnergyBalance1DMain solver = new HeatAdevectionDiffusionSolverWithSurfaceEnergyBalance1DMain();
-		
-//		double[] stressedETs = {0.3,0.1,0.05,0.05,0.05,0};
-		double[] stressedETs = new double[60];
-	
-		stressedETs[59] = 0.4;
-		stressedETs[58] = 0.4;
-		stressedETs[57] = 0.4;
-		stressedETs[56] = 0.4;
-		stressedETs[55] = 0.4;
-		stressedETs[54] = 0.4;
-		stressedETs[53] = 0.4;
-
+		HeatDiffusionFreezingThawingSolverWithSurfaceEnergyBalance1DMain solver = new HeatDiffusionFreezingThawingSolverWithSurfaceEnergyBalance1DMain();
 		
 		
 		readNetCDF.gridFilename = pathGrid;
@@ -123,72 +93,56 @@ public class TestHeatAdvectionDiffusionSurfaceEnergyBalance {
 		solver.soilParticlesDensity = readNetCDF.soilParticlesDensity;
 		solver.thermalConductivitySoilParticles = readNetCDF.soilParticlesThermalConductivity;
 		solver.specificThermalCapacitySoilParticles = readNetCDF.soilParticlesSpecificHeatCapacity;
-		solver.stressedETs = stressedETs;
-
+		solver.meltingTemperature = readNetCDF.meltingTemperature;
 		solver.ks = readNetCDF.Ks;
 		solver.thetaS = readNetCDF.thetaS;
 		solver.thetaR = readNetCDF.thetaR;
-		solver.thetaWP = new double[] {0.0, 0.09};// readNetCDF.thetaWP;
-		solver.thetaFC = new double[] {0.0, 0.38};//readNetCDF.thetaFC;
 		solver.par1SWRC = readNetCDF.par1SWRC;
 		solver.par2SWRC = readNetCDF.par2SWRC;
 		solver.par3SWRC = readNetCDF.par3SWRC;
 		solver.par4SWRC = readNetCDF.par4SWRC;
 		solver.par5SWRC = readNetCDF.par5SWRC;
-		solver.meltingTemperature = readNetCDF.meltingTemperature;
 		solver.alphaSpecificStorage = readNetCDF.alphaSS;
 		solver.betaSpecificStorage = readNetCDF.betaSS;
-		solver.surfaceAlbedo = 0.5;
+		solver.surfaceAlbedo = 0.1;
 		solver.surfaceEmissivity = 0.95;
 		solver.referenceHeight = 10;
 		solver.surfaceRoughness = 0.01;
 		solver.surfaceZeroHeightDisplacement = 0.0;
 		solver.inEquationStateID = readNetCDF.equationStateID;
 		solver.inParameterID = readNetCDF.parameterID;
-		solver.typeClosureEquation = new String[] {"Water depth", "Van Genuchten"};
-		
-		solver.typeRichardsEquationState = new String[] {"Water depth", "Van Genuchten"};
-		solver.typeUHCModel = new String[] {"", "Mualem Van Genuchten"};
-		solver.interfaceHydraulicConductivityModel = "Max";
-		solver.typeUHCTemperatureModel = "notemperature";
-		
-		solver.maxPonding = 0;
-		
-		solver.typeInternalEnergyEquationState = new String[] {"Water heat capacity", "SoilHeatCapacity"};
-		solver.typeThermalConductivity = new String[] {"Water", "Cosenza"};
+		solver.typeClosureEquation = new String[] {"VanGenuchtenDallAmico"};
+		solver.typeEquationState = new String[] {"FreezingSoilInternalEnergy"};
+		solver.typeThermalConductivity = new String[] {"Cosenza"};
 		solver.interfaceThermalConductivityModel = "max";
-		solver.topRichardsBCType = topRichardsBC;
-		solver.bottomRichardsBCType = bottomRichardsBC;
-		solver.bottomInternalEnergyBCType = bottomSoluteBC;
+		solver.bottomBCType = bottomBC;
 		solver.surfaceAlbedoType = "Constant";
 		solver.surfaceEmissivityType = "Constant";
 		solver.surfaceAereodynamicResistanceType = "Neutral";
+		solver.surfaceWaterVaporResistanceType = "Feddes";
+		solver.h1 = 0.1;
+		solver.h2 = -5;
+		solver.h3 = -15.0;
+		solver.h4 = -50.0;
+		
+		solver.stationID = 135;
+		solver.delta = 0;
 		solver.tTimeStep = 3600;
 		solver.timeDelta = 3600;
-		solver.newtonTolerance = Math.pow(10,-12);
+		solver.newtonTolerance = 0.003337000000000;
 		solver.nestedNewton = 1;
 		solver.picardIteration = 1;
-		solver.stationID = 135;
 
 		buffer.writeFrequency = writeFrequency;
-		
 		
 		writeNetCDF.fileName = pathOutput;
 		writeNetCDF.briefDescritpion = outputDescription;
 		writeNetCDF.pathGrid = pathGrid;
-		writeNetCDF.pathHeatBottomBC = ""; 
-		writeNetCDF.pathHeatTopBC = ""; 
-		writeNetCDF.pathRichardsBottomBC = ""; 
-		writeNetCDF.pathRichardsTopBC = ""; 
-		writeNetCDF.bottomHeatBC = "";
-		writeNetCDF.topHeatBC = "";
-		writeNetCDF.bottomRichardsBC = "";
-		writeNetCDF.topRichardsBC = "";
+		writeNetCDF.pathBottomBC = pathBottomBC; 
+		writeNetCDF.bottomBC = bottomBC;
 		writeNetCDF.swrcModel = "VG";
-		writeNetCDF.soilHydraulicConductivityModel = "Mualem VG no temperature";
-		writeNetCDF.interfaceHydraulicConductivityModel = "max";
 		writeNetCDF.soilThermalConductivityModel = "Cosenza";
-		writeNetCDF.interfaceThermalConductivityModel = "max";
+		writeNetCDF.interfaceConductivityModel = "max";
 		writeNetCDF.writeFrequency = writeFrequency;
 		writeNetCDF.spatialCoordinate = readNetCDF.eta;
 		writeNetCDF.dualSpatialCoordinate = readNetCDF.etaDual;	
@@ -199,7 +153,7 @@ public class TestHeatAdvectionDiffusionSurfaceEnergyBalance {
 		writeNetCDF.timeZone = "UTC"; 
 		writeNetCDF.fileSizeMax = 10000;
 		
-		while( topRichardsBCReader.doProcess  ) {
+		while( swReader.doProcess  ) {
 		
 			
 			swReader.nextRecord();	
@@ -210,9 +164,9 @@ public class TestHeatAdvectionDiffusionSurfaceEnergyBalance {
 			bCValueMap = lwReader.outData;
 			solver.inLongWave= bCValueMap;
 			
-//			leReader.nextRecord();	
-//			bCValueMap = leReader.outData;
-//			solver.inPotentialLatentHeatFlux= bCValueMap;
+			leReader.nextRecord();	
+			bCValueMap = leReader.outData;
+			solver.inPotentialLatentHeatFlux= bCValueMap;
 			
 			airTReader.nextRecord();	
 			bCValueMap = airTReader.outData;
@@ -224,24 +178,13 @@ public class TestHeatAdvectionDiffusionSurfaceEnergyBalance {
 
 			bottomBCReader.nextRecord();
 			bCValueMap = bottomBCReader.outData;
-			solver.inInternalEnergyBottomBC = bCValueMap;
-
-			
-			topRichardsBCReader.nextRecord();	
-			bCValueMap = topRichardsBCReader.outData;
-			solver.inRichardsTopBC= bCValueMap;
-
-
-			bottomRichardsBCReader.nextRecord();
-			bCValueMap = bottomRichardsBCReader.outData;
-			solver.inRichardsBottomBC = bCValueMap;
+			solver.inBottomBC = bCValueMap;
 
 			saveDatesReader.nextRecord();
 			bCValueMap = saveDatesReader.outData;
 			solver.inSaveDate = bCValueMap;
 			
-			solver.inCurrentDate = topRichardsBCReader.tCurrent;
-			
+			solver.inCurrentDate = swReader.tCurrent;
 			solver.solve();
 
 			
@@ -253,26 +196,25 @@ public class TestHeatAdvectionDiffusionSurfaceEnergyBalance {
 			
 
 			writeNetCDF.variables = buffer.myVariable;
-			writeNetCDF.doProcess = topRichardsBCReader.doProcess;
+			writeNetCDF.doProcess = swReader.doProcess;
 			writeNetCDF.writeNetCDF();
 
 
 		}
 
-		topRichardsBCReader.close();
-		bottomRichardsBCReader.close();
-//		topSoluteBCReader.close();
-//		bottomSoluteBCReader.close();
-						
+		swReader.close();
+		lwReader.close();
+		bottomBCReader.close();
+				
 		/*
 		 * ASSERT 
 		 */
-		/*System.out.println("Assert");
-		ReadNetCDFHeatAdvectionDiffusionOutput1D readTestData = new ReadNetCDFHeatAdvectionDiffusionOutput1D();
-		readTestData.gridFilename = "resources/Output/Check_heat_advection_diffusion_0000.nc";
+		System.out.println("Assert");
+		ReadNetCDFHeatDiffusionOutput1D readTestData = new ReadNetCDFHeatDiffusionOutput1D();
+		readTestData.gridFilename = "resources/Output/Check_heat_diffusion_freezing_thawing_0000.nc";
 		readTestData.read();
 		
-		ReadNetCDFHeatAdvectionDiffusionOutput1D readSimData = new ReadNetCDFHeatAdvectionDiffusionOutput1D();
+		ReadNetCDFHeatDiffusionOutput1D readSimData = new ReadNetCDFHeatDiffusionOutput1D();
 		readSimData.gridFilename = pathOutput.replace(".nc","_0000.nc");
 		readSimData.read();
 
@@ -281,12 +223,6 @@ public class TestHeatAdvectionDiffusionSurfaceEnergyBalance {
 				System.out.println("\n\n\t\tERROR: temperature mismatch");
 			}
 		}
-		
-		for(int k=0; k<readSimData.psi[(readSimData.psi.length)-1].length; k++) {
-			if(Math.abs(readSimData.psi[(readSimData.psi.length)-1][k]-readTestData.psi[(readTestData.psi.length)-1][k])>Math.pow(10,-11)) {
-				System.out.println("\n\n\t\tERROR: psi mismatch");
-			}
-		}*/
 
 	}
 
