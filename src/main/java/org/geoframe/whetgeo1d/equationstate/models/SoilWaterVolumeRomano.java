@@ -23,6 +23,7 @@
 package org.geoframe.whetgeo1d.equationstate.models;
 
 import org.geoframe.closureequation.closureequation.ClosureEquation;
+import org.geoframe.closureequation.closureequation.Parameters;
 import org.geoframe.closureequation.equationstate.EquationState;
 import org.geoframe.numerical.rootfinding.Bisection;
 import org.geoframe.whetgeo1d.utils.GFGeometry;
@@ -155,11 +156,10 @@ public class SoilWaterVolumeRomano extends EquationState {
 	@Override
 	public void computeXStar(double y, int id, int element) {
 
-		double x1 = super.closureEquation.parameters.par4[id]
-				* Math.exp(-Math.pow(super.closureEquation.parameters.par2[id], 2));
+		Parameters parameters = closureEquation.getParameters();
+		double x1 = parameters.par4[id] * Math.exp(-Math.pow(parameters.par2[id], 2));
 		variables.waterSuctionStar1[element] = bisection.findZero(x1 * 1.1, x1 * 0.9, y, id, element);
-		double x2 = super.closureEquation.parameters.par5[id]
-				* Math.exp(-Math.pow(super.closureEquation.parameters.par3[id], 2));
+		double x2 = parameters.par5[id] * Math.exp(-Math.pow(parameters.par3[id], 2));
 		variables.waterSuctionStar2[element] = bisection.findZero(x2 * 1.2, x2 * 0.8, y, id, element);
 		variables.waterSuctionStar3[element] = bisection.findZero(variables.waterSuctionStar1[element] * 0.9,
 				variables.waterSuctionStar2[element] * 1.1, y, id, element);

@@ -23,6 +23,7 @@
 package org.geoframe.whetgeo1d.equationstate.models;
 
 import org.geoframe.closureequation.closureequation.ClosureEquation;
+import org.geoframe.closureequation.closureequation.Parameters;
 import org.geoframe.closureequation.equationstate.EquationState;
 import org.geoframe.whetgeo1d.utils.GFGeometry;
 import org.geoframe.whetgeo1d.utils.ProblemQuantities;
@@ -43,8 +44,9 @@ public class PureWaterHeatCapacity extends EquationState {
 	@Override
 	public double equationState(double x, double y, int id, int element) {
 
-		return super.closureEquation.parameters.waterDensity
-				* super.closureEquation.parameters.specificThermalCapacityWater * closureEquation.f(y, id);
+		Parameters parameters = super.closureEquation.getParameters();
+		return parameters.waterDensity
+				* parameters.specificThermalCapacityWater * closureEquation.f(y, id);
 
 	}
 

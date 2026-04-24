@@ -99,7 +99,7 @@ public class ComputeQuantitiesRichards {
 //		soilWaterRetentionCurve.add(soilWaterRetentionCurveFactory.create("Water Depth"));
 //		soilWaterRetentionCurve.add(soilWaterRetentionCurveFactory.create(soilHydraulicModel));
 		for (int i = 0; i < typeClosureEquation.length; i++) {
-			closureEquation.add(soilWaterRetentionCurveFactory.create(typeClosureEquation[i]));
+			closureEquation.add(soilWaterRetentionCurveFactory.create(typeClosureEquation[i], parameters));
 		}
 
 		equationStateFactory = new EquationStateFactory();
@@ -212,11 +212,11 @@ public class ComputeQuantitiesRichards {
 			variables.saturationDegree[element] = (closureEquation.get(variables.equationStateID[element]).f(
 					variables.waterSuctions[element], variables.temperatures[element], variables.parameterID[element])
 					- closureEquation
-							.get(variables.equationStateID[element]).parameters.thetaR[variables.parameterID[element]])
+							.get(variables.equationStateID[element]).getParameters().thetaR[variables.parameterID[element]])
 					/ (closureEquation
-							.get(variables.equationStateID[element]).parameters.thetaS[variables.parameterID[element]]
+							.get(variables.equationStateID[element]).getParameters().thetaS[variables.parameterID[element]]
 							- closureEquation.get(
-									variables.equationStateID[element]).parameters.thetaR[variables.parameterID[element]]);
+									variables.equationStateID[element]).getParameters().thetaR[variables.parameterID[element]]);
 		}
 	}
 

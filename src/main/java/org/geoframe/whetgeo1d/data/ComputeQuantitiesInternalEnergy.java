@@ -98,7 +98,7 @@ public class ComputeQuantitiesInternalEnergy {
 //		soilWaterRetentionCurve.add(soilWaterRetentionCurveFactory.create("Water Depth"));
 //		soilWaterRetentionCurve.add(soilWaterRetentionCurveFactory.create(soilHydraulicModel));
 		for (int i = 0; i < typeClosureEquation.length; i++) {
-			soilWaterRetentionCurve.add(soilWaterRetentionCurveFactory.create(typeClosureEquation[i]));
+			soilWaterRetentionCurve.add(soilWaterRetentionCurveFactory.create(typeClosureEquation[i], parameters));
 		}
 
 		equationStateFactory = new EquationStateFactory();

@@ -23,6 +23,7 @@
 package org.geoframe.whetgeo1d.equationstate.models;
 
 import org.geoframe.closureequation.closureequation.ClosureEquation;
+import org.geoframe.closureequation.closureequation.Parameters;
 import org.geoframe.closureequation.equationstate.EquationState;
 import org.geoframe.whetgeo1d.utils.GFGeometry;
 import org.geoframe.whetgeo1d.utils.ProblemQuantities;
@@ -46,34 +47,35 @@ public class PureWaterInternalEnergy extends EquationState {
 	@Override
 	public double equationState(double x, double y, int id, int element) {
 
-		epsilon = super.closureEquation.parameters.referenceTemperatureInternalEnergy
-				- super.closureEquation.parameters.meltingTemperature[id];
+		Parameters parameters = closureEquation.getParameters();
+		epsilon = parameters.referenceTemperatureInternalEnergy
+				- parameters.meltingTemperature[id];
 
-		if (x <= super.closureEquation.parameters.meltingTemperature[id]) {
-			return (super.closureEquation.parameters.iceDensity
-					* super.closureEquation.parameters.specificThermalCapacityIce
-					* (x - super.closureEquation.parameters.referenceTemperatureInternalEnergy))
+		if (x <= parameters.meltingTemperature[id]) {
+			return (parameters.iceDensity
+					* parameters.specificThermalCapacityIce
+					* (x - parameters.referenceTemperatureInternalEnergy))
 					* geometry.controlVolume[element];
 		} else if (x > 273.15) {
-			return (super.closureEquation.parameters.waterDensity
-					* super.closureEquation.parameters.specificThermalCapacityWater
-					* (x - super.closureEquation.parameters.referenceTemperatureInternalEnergy)
-					+ super.closureEquation.parameters.waterDensity * super.closureEquation.parameters.latentHeatFusion)
+			return (parameters.waterDensity
+					* parameters.specificThermalCapacityWater
+					* (x - parameters.referenceTemperatureInternalEnergy)
+					+ parameters.waterDensity * parameters.latentHeatFusion)
 					* geometry.controlVolume[element];
 		} else {
-			return super.closureEquation.parameters.iceDensity
-					* super.closureEquation.parameters.specificThermalCapacityIce
-					* (super.closureEquation.parameters.meltingTemperature[id]
-							- super.closureEquation.parameters.referenceTemperatureInternalEnergy)
+			return parameters.iceDensity
+					* parameters.specificThermalCapacityIce
+					* (parameters.meltingTemperature[id]
+							- parameters.referenceTemperatureInternalEnergy)
 					* geometry.controlVolume[element]
-					+ (super.closureEquation.parameters.waterDensity * super.closureEquation.parameters.latentHeatFusion
+					+ (parameters.waterDensity * parameters.latentHeatFusion
 							* geometry.controlVolume[element]
-							- super.closureEquation.parameters.iceDensity
-									* super.closureEquation.parameters.specificThermalCapacityIce
-									* (super.closureEquation.parameters.meltingTemperature[id]
-											- super.closureEquation.parameters.referenceTemperatureInternalEnergy)
+							- parameters.iceDensity
+									* parameters.specificThermalCapacityIce
+									* (parameters.meltingTemperature[id]
+											- parameters.referenceTemperatureInternalEnergy)
 									* geometry.controlVolume[element])
-							/ epsilon * (x - (super.closureEquation.parameters.meltingTemperature[id]));
+							/ epsilon * (x - (parameters.meltingTemperature[id]));
 
 		}
 
@@ -82,22 +84,23 @@ public class PureWaterInternalEnergy extends EquationState {
 	@Override
 	public double dEquationState(double x, double y, int id, int element) {
 
-		epsilon = super.closureEquation.parameters.referenceTemperatureInternalEnergy
-				- super.closureEquation.parameters.meltingTemperature[id];
+		Parameters parameters = closureEquation.getParameters();
+		epsilon = parameters.referenceTemperatureInternalEnergy
+				- parameters.meltingTemperature[id];
 
-		if (x <= super.closureEquation.parameters.meltingTemperature[id]) {
-			return super.closureEquation.parameters.iceDensity
-					* super.closureEquation.parameters.specificThermalCapacityIce * geometry.controlVolume[element];
+		if (x <= parameters.meltingTemperature[id]) {
+			return parameters.iceDensity
+					* parameters.specificThermalCapacityIce * geometry.controlVolume[element];
 		} else if (x > 273.15) {
-			return super.closureEquation.parameters.waterDensity
-					* super.closureEquation.parameters.specificThermalCapacityWater * geometry.controlVolume[element];
+			return parameters.waterDensity
+					* parameters.specificThermalCapacityWater * geometry.controlVolume[element];
 		} else {
-			return (super.closureEquation.parameters.waterDensity * super.closureEquation.parameters.latentHeatFusion
+			return (parameters.waterDensity * parameters.latentHeatFusion
 					* geometry.controlVolume[element]
-					- super.closureEquation.parameters.iceDensity
-							* super.closureEquation.parameters.specificThermalCapacityIce
-							* (super.closureEquation.parameters.meltingTemperature[id]
-									- super.closureEquation.parameters.referenceTemperatureInternalEnergy)
+					- parameters.iceDensity
+							* parameters.specificThermalCapacityIce
+							* (parameters.meltingTemperature[id]
+									- parameters.referenceTemperatureInternalEnergy)
 							* geometry.controlVolume[element])
 					/ epsilon;
 
@@ -115,18 +118,19 @@ public class PureWaterInternalEnergy extends EquationState {
 	@Override
 	public double p(double x, double y, int id, int element) {
 
-		epsilon = super.closureEquation.parameters.referenceTemperatureInternalEnergy
-				- super.closureEquation.parameters.meltingTemperature[id];
+		Parameters parameters = closureEquation.getParameters();
+		epsilon = parameters.referenceTemperatureInternalEnergy
+				- parameters.meltingTemperature[id];
 
 		if (x <= variables.temperatureStar1[element]) {
 			return dEquationState(x, y, id, element);
 		} else {
-			return (super.closureEquation.parameters.waterDensity * super.closureEquation.parameters.latentHeatFusion
+			return (parameters.waterDensity * parameters.latentHeatFusion
 					* geometry.controlVolume[element]
-					- super.closureEquation.parameters.iceDensity
-							* super.closureEquation.parameters.specificThermalCapacityIce
-							* (super.closureEquation.parameters.meltingTemperature[id]
-									- super.closureEquation.parameters.referenceTemperatureInternalEnergy)
+					- parameters.iceDensity
+							* parameters.specificThermalCapacityIce
+							* (parameters.meltingTemperature[id]
+									- parameters.referenceTemperatureInternalEnergy)
 							* geometry.controlVolume[element])
 					/ epsilon;
 		}
@@ -136,25 +140,26 @@ public class PureWaterInternalEnergy extends EquationState {
 	@Override
 	public double pIntegral(double x, double y, int id, int element) {
 
-		epsilon = super.closureEquation.parameters.referenceTemperatureInternalEnergy
-				- super.closureEquation.parameters.meltingTemperature[id];
+		Parameters parameters = closureEquation.getParameters();
+		epsilon = parameters.referenceTemperatureInternalEnergy
+				- parameters.meltingTemperature[id];
 
 		if (x <= variables.temperatureStar1[element]) {
 			return equationState(x, y, id, element);
 		} else {
-			return super.closureEquation.parameters.iceDensity
-					* super.closureEquation.parameters.specificThermalCapacityIce
-					* (super.closureEquation.parameters.meltingTemperature[id]
-							- super.closureEquation.parameters.referenceTemperatureInternalEnergy)
+			return parameters.iceDensity
+					* parameters.specificThermalCapacityIce
+					* (parameters.meltingTemperature[id]
+							- parameters.referenceTemperatureInternalEnergy)
 					* geometry.controlVolume[element]
-					+ (super.closureEquation.parameters.waterDensity * super.closureEquation.parameters.latentHeatFusion
+					+ (parameters.waterDensity * parameters.latentHeatFusion
 							* geometry.controlVolume[element]
-							- super.closureEquation.parameters.iceDensity
-									* super.closureEquation.parameters.specificThermalCapacityIce
-									* (super.closureEquation.parameters.meltingTemperature[id]
-											- super.closureEquation.parameters.referenceTemperatureInternalEnergy)
+							- parameters.iceDensity
+									* parameters.specificThermalCapacityIce
+									* (parameters.meltingTemperature[id]
+											- parameters.referenceTemperatureInternalEnergy)
 									* geometry.controlVolume[element])
-							/ epsilon * (x - super.closureEquation.parameters.meltingTemperature[id]);
+							/ epsilon * (x - parameters.meltingTemperature[id]);
 		}
 
 	}
@@ -162,7 +167,7 @@ public class PureWaterInternalEnergy extends EquationState {
 	@Override
 	public void computeXStar(double y, int id, int element) {
 
-		variables.temperatureStar1[element] = super.closureEquation.parameters.meltingTemperature[id];
+		variables.temperatureStar1[element] = closureEquation.getParameters().meltingTemperature[id];
 		variables.temperatureStar2[element] = -9999.0;
 		variables.temperatureStar3[element] = -9999.0;
 

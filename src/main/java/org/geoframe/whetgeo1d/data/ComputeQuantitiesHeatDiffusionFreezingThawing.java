@@ -97,7 +97,7 @@ public class ComputeQuantitiesHeatDiffusionFreezingThawing {
 		
 		soilFreezingCharacteristicCurve = new ArrayList<ClosureEquation>();
 		for(int i=0; i<typeClosureEquation.length; i++) {
-			soilFreezingCharacteristicCurve.add(soilFreezingCharacteristicCurveFactory.create(typeClosureEquation[i]));
+			soilFreezingCharacteristicCurve.add(soilFreezingCharacteristicCurveFactory.create(typeClosureEquation[i], parameters));
 		}
 
 		equationStateFactory = new EquationStateFactory();

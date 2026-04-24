@@ -23,6 +23,7 @@
 package org.geoframe.whetgeo1d.equationstate.models;
 
 import org.geoframe.closureequation.closureequation.ClosureEquation;
+import org.geoframe.closureequation.closureequation.Parameters;
 import org.geoframe.closureequation.equationstate.EquationState;
 import org.geoframe.whetgeo1d.utils.GFGeometry;
 import org.geoframe.whetgeo1d.utils.ProblemQuantities;
@@ -38,38 +39,39 @@ public class SoilInternalEnergy extends EquationState {
 
 	private double f;
 
-
-	public SoilInternalEnergy(ClosureEquation closureEquation, GFGeometry geometry,
-			ProblemQuantities variables) {
+	public SoilInternalEnergy(ClosureEquation closureEquation, GFGeometry geometry, ProblemQuantities variables) {
 		super(closureEquation);
 		this.geometry = geometry;
 		this.variables = variables;
 	}
 
-
-
 	@Override
 	public double equationState(double x, double y, int id, int element) {
-		
+
 		f = closureEquation.f(y, x, id);
-		
-		return (  ( super.closureEquation.parameters.specificThermalCapacitySoilParticles[id]*super.closureEquation.parameters.soilParticlesDensity[id]*(1.0-super.closureEquation.parameters.thetaS[id]) + 
-				super.closureEquation.parameters.waterDensity*super.closureEquation.parameters.specificThermalCapacityWater*f )*(x-super.closureEquation.parameters.referenceTemperatureInternalEnergy)
-				+ super.closureEquation.parameters.waterDensity*super.closureEquation.parameters.latentHeatFusion*f  ) * geometry.controlVolume[element];
+
+		Parameters parameters = closureEquation.getParameters();
+		return ((parameters.specificThermalCapacitySoilParticles[id] * parameters.soilParticlesDensity[id]
+				* (1.0 - parameters.thetaS[id]) + parameters.waterDensity * parameters.specificThermalCapacityWater * f)
+				* (x - parameters.referenceTemperatureInternalEnergy)
+				+ parameters.waterDensity * parameters.latentHeatFusion * f) * geometry.controlVolume[element];
 
 	}
-
 
 	@Override
 	public double dEquationState(double x, double y, int id, int element) {
 
 		f = closureEquation.f(y, x, id);
-		
-		return ( super.closureEquation.parameters.specificThermalCapacitySoilParticles[id]*super.closureEquation.parameters.soilParticlesDensity[id]*(1.0-super.closureEquation.parameters.thetaS[id]) + 
-				super.closureEquation.parameters.waterDensity*super.closureEquation.parameters.specificThermalCapacityWater*f )*geometry.controlVolume[element];
+
+		Parameters parameters = closureEquation.getParameters();
+		return (parameters.specificThermalCapacitySoilParticles[id]
+				* parameters.soilParticlesDensity[id]
+				* (1.0 - parameters.thetaS[id])
+				+ parameters.waterDensity
+						* parameters.specificThermalCapacityWater * f)
+				* geometry.controlVolume[element];
 
 	}
-
 
 	@Override
 	public double ddEquationState(double x, double y, int id, int element) {
@@ -78,39 +80,34 @@ public class SoilInternalEnergy extends EquationState {
 
 	}
 
-
 	@Override
 	public double p(double x, double y, int id, int element) {
 
-		return dEquationState(x, y, id, element);  
+		return dEquationState(x, y, id, element);
 
 	}
-
 
 	@Override
 	public double pIntegral(double x, double y, int id, int element) {
 
-		return equationState(x, y, id, element);  
+		return equationState(x, y, id, element);
 
 	}
 
-
-
 	@Override
 	public void computeXStar(double y, int id, int element) {
-		
+
 		variables.temperatureStar1[element] = -9999.0;
 		variables.temperatureStar2[element] = -9999.0;
 		variables.temperatureStar3[element] = -9999.0;
-		
+
 	}
 
 	@Override
 	public double initialGuess(double x, int id, int element) {
-		
-		return variables.temperatures[element];
-		
-	}
 
+		return variables.temperatures[element];
+
+	}
 
 }

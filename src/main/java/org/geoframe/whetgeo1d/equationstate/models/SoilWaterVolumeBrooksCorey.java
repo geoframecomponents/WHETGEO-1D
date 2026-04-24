@@ -99,7 +99,7 @@ public class SoilWaterVolumeBrooksCorey extends EquationState {
 	@Override
 	public void computeXStar(double y, int id, int element) {
 
-		variables.waterSuctionStar1[element] = super.closureEquation.parameters.par2[id];
+		variables.waterSuctionStar1[element] = closureEquation.getParameters().par2[id];
 		variables.waterSuctionStar2[element] = -9999.0;
 		variables.waterSuctionStar3[element] = -9999.0;
 

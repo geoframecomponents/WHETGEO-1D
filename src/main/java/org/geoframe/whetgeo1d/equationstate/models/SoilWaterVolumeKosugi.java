@@ -23,6 +23,7 @@
 package org.geoframe.whetgeo1d.equationstate.models;
 
 import org.geoframe.closureequation.closureequation.ClosureEquation;
+import org.geoframe.closureequation.closureequation.Parameters;
 import org.geoframe.closureequation.equationstate.EquationState;
 import org.geoframe.whetgeo1d.utils.GFGeometry;
 import org.geoframe.whetgeo1d.utils.ProblemQuantities;
@@ -98,8 +99,9 @@ public class SoilWaterVolumeKosugi extends EquationState {
 	@Override
 	public void computeXStar(double y, int id, int element) {
 
-		variables.waterSuctionStar1[element] = super.closureEquation.parameters.par1[id]
-				/ Math.exp(Math.pow(super.closureEquation.parameters.par2[id], 2));
+		Parameters parameters = closureEquation.getParameters();
+		variables.waterSuctionStar1[element] = parameters.par1[id]
+				/ Math.exp(Math.pow(parameters.par2[id], 2));
 		variables.waterSuctionStar2[element] = -9999.0;
 		variables.waterSuctionStar3[element] = -9999.0;
 

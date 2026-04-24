@@ -23,8 +23,8 @@
 package org.geoframe.whetgeo1d.equationstate.models;
 
 import org.geoframe.closureequation.closureequation.ClosureEquation;
+import org.geoframe.closureequation.closureequation.Parameters;
 import org.geoframe.closureequation.equationstate.EquationState;
-import org.geoframe.numerical.rootfinding.Bisection;
 import org.geoframe.whetgeo1d.utils.GFGeometry;
 import org.geoframe.whetgeo1d.utils.ProblemQuantities;
 
@@ -53,17 +53,12 @@ public class FreezingSoilInternalEnergy extends EquationState {
 	public double equationState(double x, double y, int id, int element) {
 
 		f = closureEquation.f(y, x, id);
-		return ((super.closureEquation.parameters.specificThermalCapacitySoilParticles[id]
-				* super.closureEquation.parameters.soilParticlesDensity[id]
-				* (1.0 - super.closureEquation.parameters.thetaS[id])
-				+ super.closureEquation.parameters.waterDensity
-						* super.closureEquation.parameters.specificThermalCapacityWater * f
-				+ super.closureEquation.parameters.iceDensity
-						* super.closureEquation.parameters.specificThermalCapacityIce
-						* (closureEquation.f(y, 273.2, id) - f))
-				* (x - super.closureEquation.parameters.referenceTemperatureInternalEnergy)
-				+ super.closureEquation.parameters.waterDensity * super.closureEquation.parameters.latentHeatFusion * f)
-				* geometry.controlVolume[element];
+		Parameters parameters = closureEquation.getParameters();
+		return ((parameters.specificThermalCapacitySoilParticles[id] * parameters.soilParticlesDensity[id]
+				* (1.0 - parameters.thetaS[id]) + parameters.waterDensity * parameters.specificThermalCapacityWater * f
+				+ parameters.iceDensity * parameters.specificThermalCapacityIce * (closureEquation.f(y, 273.2, id) - f))
+				* (x - parameters.referenceTemperatureInternalEnergy)
+				+ parameters.waterDensity * parameters.latentHeatFusion * f) * geometry.controlVolume[element];
 
 	}
 
@@ -72,21 +67,22 @@ public class FreezingSoilInternalEnergy extends EquationState {
 
 		f = closureEquation.f(y, x, id);
 		df = closureEquation.df(y, x, id);
-		return (super.closureEquation.parameters.specificThermalCapacitySoilParticles[id]
-				* super.closureEquation.parameters.soilParticlesDensity[id]
-				* (1.0 - super.closureEquation.parameters.thetaS[id])
-				+ super.closureEquation.parameters.waterDensity
-						* super.closureEquation.parameters.specificThermalCapacityWater * f
-				+ super.closureEquation.parameters.iceDensity
-						* super.closureEquation.parameters.specificThermalCapacityIce
+		Parameters parameters = closureEquation.getParameters();
+		return (parameters.specificThermalCapacitySoilParticles[id]
+				* parameters.soilParticlesDensity[id]
+				* (1.0 - parameters.thetaS[id])
+				+ parameters.waterDensity
+						* parameters.specificThermalCapacityWater * f
+				+ parameters.iceDensity
+						* parameters.specificThermalCapacityIce
 						* (closureEquation.f(y, 273.2, id) - f)
-				+ +(super.closureEquation.parameters.waterDensity
-						* super.closureEquation.parameters.specificThermalCapacityWater
-						- super.closureEquation.parameters.iceDensity
-								* super.closureEquation.parameters.specificThermalCapacityIce)
-						* df * (x - super.closureEquation.parameters.referenceTemperatureInternalEnergy)
-				+ super.closureEquation.parameters.waterDensity * super.closureEquation.parameters.latentHeatFusion
-						* df)
+				+ +(parameters.waterDensity
+						* parameters.specificThermalCapacityWater
+						- parameters.iceDensity
+								* parameters.specificThermalCapacityIce)
+						* df * (x - parameters.referenceTemperatureInternalEnergy)
+				+ parameters.waterDensity
+						* parameters.latentHeatFusion * df)
 				* geometry.controlVolume[element];
 
 	}
@@ -98,19 +94,20 @@ public class FreezingSoilInternalEnergy extends EquationState {
 		df = closureEquation.df(y, x, id);
 		ddf = closureEquation.ddf(y, x, id);
 
+		Parameters parameters = super.closureEquation.getParameters();
 		return (2
-				* (super.closureEquation.parameters.waterDensity
-						* super.closureEquation.parameters.specificThermalCapacityWater
-						- super.closureEquation.parameters.iceDensity
-								* super.closureEquation.parameters.specificThermalCapacityIce)
+				* (parameters.waterDensity
+						* parameters.specificThermalCapacityWater
+						- parameters.iceDensity
+								* parameters.specificThermalCapacityIce)
 				* df
-				+ (super.closureEquation.parameters.waterDensity
-						* super.closureEquation.parameters.specificThermalCapacityWater
-						- super.closureEquation.parameters.iceDensity
-								* super.closureEquation.parameters.specificThermalCapacityIce)
-						* ddf * (x - super.closureEquation.parameters.referenceTemperatureInternalEnergy)
-				+ super.closureEquation.parameters.waterDensity * super.closureEquation.parameters.latentHeatFusion
-						* ddf)
+				+ (parameters.waterDensity
+						* parameters.specificThermalCapacityWater
+						- parameters.iceDensity
+								* parameters.specificThermalCapacityIce)
+						* ddf * (x - parameters.referenceTemperatureInternalEnergy)
+				+ parameters.waterDensity
+						* parameters.latentHeatFusion * ddf)
 				* geometry.controlVolume[element];
 
 	}
@@ -142,9 +139,9 @@ public class FreezingSoilInternalEnergy extends EquationState {
 
 	@Override
 	public void computeXStar(double y, int id, int element) {
-		meltingTemperature = super.closureEquation.parameters.referenceTemperatureInternalEnergy
-				+ 9.81 * super.closureEquation.parameters.referenceTemperatureInternalEnergy
-						/ super.closureEquation.parameters.latentHeatFusion * y;
+		meltingTemperature = super.closureEquation.getParameters().referenceTemperatureInternalEnergy
+				+ 9.81 * super.closureEquation.getParameters().referenceTemperatureInternalEnergy
+						/ super.closureEquation.getParameters().latentHeatFusion * y;
 //		variables.temperatureStar1[element] =  bisection.findZero(273.15-10, meltingTemperature-1e-4, y, id, element);
 		variables.temperatureStar1[element] = findZero(273.15 - 10, meltingTemperature - 1e-9, y, id, element);
 //		System.out.println(y + "\t" + variables.temperatures[element] +"\t"+ closureEquation.f(y, 273, id));

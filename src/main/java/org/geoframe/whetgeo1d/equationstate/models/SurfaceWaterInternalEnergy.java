@@ -23,6 +23,7 @@
 package org.geoframe.whetgeo1d.equationstate.models;
 
 import org.geoframe.closureequation.closureequation.ClosureEquation;
+import org.geoframe.closureequation.closureequation.Parameters;
 import org.geoframe.closureequation.equationstate.EquationState;
 import org.geoframe.whetgeo1d.utils.ProblemQuantities;
 
@@ -45,10 +46,10 @@ public class SurfaceWaterInternalEnergy extends EquationState {
 	public double equationState(double x, double y, int id, int element) {
 
 		f = closureEquation.f(x, y, id);
-		return super.closureEquation.parameters.waterDensity
-				* super.closureEquation.parameters.specificThermalCapacityWater * f
-				* (y - super.closureEquation.parameters.referenceTemperatureInternalEnergy)
-				+ super.closureEquation.parameters.waterDensity * super.closureEquation.parameters.latentHeatFusion * f;
+		Parameters parameters = closureEquation.getParameters();
+		return parameters.waterDensity * parameters.specificThermalCapacityWater * f
+				* (y - parameters.referenceTemperatureInternalEnergy)
+				+ parameters.waterDensity * parameters.latentHeatFusion * f;
 
 	}
 
@@ -57,8 +58,8 @@ public class SurfaceWaterInternalEnergy extends EquationState {
 
 		f = closureEquation.f(x, y, id);
 
-		return super.closureEquation.parameters.waterDensity
-				* super.closureEquation.parameters.specificThermalCapacityWater * f;
+		Parameters parameters = closureEquation.getParameters();
+		return parameters.waterDensity * parameters.specificThermalCapacityWater * f;
 
 	}
 

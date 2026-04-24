@@ -118,7 +118,7 @@ public class ComputeQuantitiesHeatDiffusionWithSurfaceEnergyBalance {
 		
 		soilWaterRetentionCurve = new ArrayList<ClosureEquation>();
 		for(int i=0; i<typeClosureEquation.length; i++) {
-			soilWaterRetentionCurve.add(soilWaterRetentionCurveFactory.create(typeClosureEquation[i]));
+			soilWaterRetentionCurve.add(soilWaterRetentionCurveFactory.create(typeClosureEquation[i], parameters));
 		}
 
 		equationStateFactory = new EquationStateFactory();
