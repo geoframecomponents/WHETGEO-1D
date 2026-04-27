@@ -19,9 +19,7 @@
 
 package org.geoframe.heatsolver;
 
-import java.net.URL;
 import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.HashMap;
 
 import org.geoframe.whetgeo.WGTestCase;
@@ -31,8 +29,6 @@ import org.hortonmachine.gears.io.geoframe.ReadNetCDFHeatAdvectionDiffusionGrid1
 import org.hortonmachine.gears.io.geoframe.ReadNetCDFHeatAdvectionDiffusionOutput1D;
 import org.hortonmachine.gears.io.geoframe.WriteNetCDFHeatAdvectionDiffusion1D;
 import org.hortonmachine.gears.io.timedependent.OmsTimeSeriesIteratorReader;
-
-import junit.framework.TestCase;
 
 /**
  * Test the {@link TestHeatAdvectionDiffusion} module.
@@ -227,16 +223,4 @@ public class TestHeatAdvectionDiffusion extends WGTestCase {
 
 	}
 
-	private OmsTimeSeriesIteratorReader getTimeseriesReader(String inPath, String id, String startDate, String endDate,
-			int timeStepMinutes) throws Exception {
-		OmsTimeSeriesIteratorReader reader = new OmsTimeSeriesIteratorReader();
-		reader.file = inPath;
-		reader.idfield = "ID";
-		reader.tStart = startDate;
-		reader.tTimestep = timeStepMinutes;
-		reader.tEnd = endDate;
-		reader.fileNovalue = "-9999";
-		reader.initProcess();
-		return reader;
-	}
 }

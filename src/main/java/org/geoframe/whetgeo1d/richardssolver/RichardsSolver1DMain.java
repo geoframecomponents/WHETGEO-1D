@@ -33,6 +33,7 @@ import org.geoframe.whetgeo1d.data.ComputeQuantitiesRichards;
 import org.geoframe.whetgeo1d.pdefinitevolume.Richards1DFiniteVolumeSolver;
 import org.geoframe.whetgeo1d.utils.GFGeometry;
 import org.geoframe.whetgeo1d.utils.ProblemQuantities;
+import org.hortonmachine.gears.libs.modules.HMModel;
 
 import oms3.annotations.Author;
 import oms3.annotations.Bibliography;
@@ -54,7 +55,7 @@ import oms3.annotations.Unit;
 //@Name()
 //@Status()
 @License("General Public License Version 3 (GPLv3)")
-public class RichardsSolver1DMain {
+public class RichardsSolver1DMain extends HMModel{
 
 	/*
 	 * SOIL PARAMETERS
@@ -279,7 +280,6 @@ public class RichardsSolver1DMain {
 	@Out
 	public boolean doProcessBuffer;
 
-	public Parameters parameters;
 
 	//////////////////////////////////////////
 	//////////////////////////////////////////
@@ -306,6 +306,7 @@ public class RichardsSolver1DMain {
 	private ComputeQuantitiesRichards computeQuantitiesRichards;
 	private IBoundaryCondition topBoundaryCondition;
 	private IBoundaryCondition bottomBoundaryCondition;
+	private Parameters parameters;
 
 	@Execute
 	public void solve() {
@@ -315,6 +316,7 @@ public class RichardsSolver1DMain {
 
 			variables = new ProblemQuantities(psiIC, temperature, inEquationStateID, inParameterID);
 			geometry = new GFGeometry(z, spaceDeltaZ, controlVolume);
+			parameters = new Parameters(referenceTemperatureSWRC, beta0, thetaS, thetaR, par1SWRC, par2SWRC, par3SWRC, par4SWRC, par5SWRC, ks, alphaSpecificStorage, betaSpecificStorage);
 
 			computeQuantitiesRichards = new ComputeQuantitiesRichards(typeClosureEquation, typeEquationState,
 					typeUHCModel, typeUHCTemperatureModel, interfaceHydraulicConductivityModel, topBCType,

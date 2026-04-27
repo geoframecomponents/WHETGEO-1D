@@ -20,15 +20,16 @@
 package org.geoframe.richards;
 
 import java.net.URISyntaxException;
+import java.nio.file.Files;
 import java.util.HashMap;
 
+import org.geoframe.whetgeo.WGTestCase;
 import org.geoframe.whetgeo1d.richardssolver.RichardsSolver1DMain;
 import org.hortonmachine.gears.io.geoframe.ReadNetCDFRichardsGrid1D;
 import org.hortonmachine.gears.io.geoframe.ReadNetCDFRichardsOutput1D;
 import org.hortonmachine.gears.io.geoframe.RichardsBuffer1D;
 import org.hortonmachine.gears.io.geoframe.WriteNetCDFRichards1DDouble;
 import org.hortonmachine.gears.io.timedependent.OmsTimeSeriesIteratorReader;
-import org.junit.Test;
 
 /**
  * Test the {@link TestKosugi} module.
@@ -38,10 +39,9 @@ import org.junit.Test;
  * 
  * @author Niccolo' Tubini
  */
-public class TestKosugi {
+public class TestKosugi extends WGTestCase{
 
-	@Test
-	public void Test() throws Exception {
+	public void testKosugi() throws Exception {
 
 
 		String startDate = "2015-01-15 00:00";
@@ -49,11 +49,11 @@ public class TestKosugi {
 		int timeStepMinutes = 60;
 		String fId = "ID";
 				
-		String pathTopBC = "resources/input/TimeSeries/precip.csv";
-		String pathBottomBC = "resources/input/TimeSeries/bottom.csv";
-		String pathSaveDates = "resources/input/TimeSeries/save.csv"; 
-		String pathGrid =  "resources/input/Grid_NetCDF/RichardsCoupled_Kosugi.nc";
-		String pathOutput = "resources/output/Sim_RichardsCoupled_Kosugi.nc";
+		String pathTopBC = getRes("/input/TimeSeries/precip.csv");
+		String pathBottomBC = getRes("/input/TimeSeries/bottom.csv");
+		String pathSaveDates = getRes("/input/TimeSeries/save.csv)"); 
+		String pathGrid =  getRes("/input/Grid_NetCDF/RichardsCoupled_Kosugi.nc");
+		String pathOutput = Files.createTempFile("Sim_RichardsCoupled_Kosugi", ".nc").toString();
 		
 		String topBC = "Top Coupled";
 		String bottomBC = "Bottom free drainage";
@@ -181,7 +181,7 @@ public class TestKosugi {
 		 */
 		System.out.println("Assert");
 		ReadNetCDFRichardsOutput1D readTestData = new ReadNetCDFRichardsOutput1D();
-		readTestData.richardsOutputFilename = "resources/Output/Check_RichardsCoupled_Kosugi.nc";
+		readTestData.richardsOutputFilename = getRes("/Output/Check_RichardsCoupled_Kosugi.nc");
 		readTestData.read();
 		
 		ReadNetCDFRichardsOutput1D readSimData = new ReadNetCDFRichardsOutput1D();
@@ -196,16 +196,4 @@ public class TestKosugi {
 
 	}
 
-	private OmsTimeSeriesIteratorReader getTimeseriesReader( String inPath, String id, String startDate, String endDate,
-			int timeStepMinutes ) throws URISyntaxException {
-		OmsTimeSeriesIteratorReader reader = new OmsTimeSeriesIteratorReader();
-		reader.file = inPath;
-		reader.idfield = "ID";
-		reader.tStart = startDate;
-		reader.tTimestep = timeStepMinutes;
-		reader.tEnd = endDate;
-		reader.fileNovalue = "-9999";
-		reader.initProcess();
-		return reader;
-	}
 }
