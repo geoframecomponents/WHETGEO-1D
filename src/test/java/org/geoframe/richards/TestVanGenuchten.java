@@ -19,16 +19,18 @@
 
 package org.geoframe.richards;
 
-import java.net.URISyntaxException;
+import java.io.File;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.HashMap;
 
+import org.geoframe.whetgeo.WGTestCase;
 import org.geoframe.whetgeo1d.richardssolver.RichardsSolver1DMain;
 import org.hortonmachine.gears.io.geoframe.ReadNetCDFRichardsGrid1D;
 import org.hortonmachine.gears.io.geoframe.ReadNetCDFRichardsOutput1D;
 import org.hortonmachine.gears.io.geoframe.RichardsBuffer1D;
 import org.hortonmachine.gears.io.geoframe.WriteNetCDFRichards1DDouble;
 import org.hortonmachine.gears.io.timedependent.OmsTimeSeriesIteratorReader;
-import org.junit.Test;
 
 /**
  * Test the {@link TestVanGenuchten} module.
@@ -38,10 +40,9 @@ import org.junit.Test;
  * 
  * @author Niccolo' Tubini
  */
-public class TestVanGenuchten {
+public class TestVanGenuchten extends WGTestCase {
 
-	@Test
-	public void Test() throws Exception {
+	public void testVanGenuchten() throws Exception {
 
 
 		String startDate = "2015-01-15 00:00";
@@ -49,11 +50,12 @@ public class TestVanGenuchten {
 		int timeStepMinutes = 60;
 		String fId = "ID";
 				
-		String pathTopBC = "resources/input/TimeSeries/precip.csv";
-		String pathBottomBC = "resources/input/TimeSeries/bottom.csv";
-		String pathSaveDates = "resources/input/TimeSeries/save.csv"; 
-		String pathGrid =  "resources/input/Grid_NetCDF/RichardsCoupled_VG.nc";
-		String pathOutput = "resources/output/Sim_RichardsCoupled_VG.nc";
+		String pathTopBC = getRes("/input/TimeSeries/precip.csv");
+		String pathBottomBC = getRes("/input/TimeSeries/bottom.csv");
+		String pathSaveDates = getRes("/input/TimeSeries/save.csv"); 
+		String pathGrid =  getRes("/input/Grid_NetCDF/RichardsCoupled_VG.nc");
+		File tempFile = Files.createTempFile("Sim_RichardsCoupled_VG_", ".nc").toFile();
+		String pathOutput = tempFile.getAbsolutePath();
 		
 		String topBC = "Top Coupled";
 		String bottomBC = "Bottom free drainage";
@@ -152,8 +154,6 @@ public class TestVanGenuchten {
 		writeNetCDF.fileSizeMax = 10000;
 		
 		while( topBCReader.doProcess  ) {
-		
-			
 			topBCReader.nextRecord();	
 			HashMap<Integer, double[]> bCValueMap = topBCReader.outData;
 			R1DSolver.inTopBC= bCValueMap;
@@ -182,7 +182,6 @@ public class TestVanGenuchten {
 			writeNetCDF.doProcess = topBCReader.doProcess;
 			writeNetCDF.writeNetCDF();
 
-
 		}
 
 		topBCReader.close();
@@ -191,33 +190,32 @@ public class TestVanGenuchten {
 		/*
 		 * ASSERT 
 		 */
-		System.out.println("Assert");
 		ReadNetCDFRichardsOutput1D readTestData = new ReadNetCDFRichardsOutput1D();
-		readTestData.richardsOutputFilename = "resources/Output/Check_RichardsCoupled_VG.nc";
+		readTestData.richardsOutputFilename = getRes("/output/Check_RichardsCoupled_VG.nc");
 		readTestData.read();
 		
 		ReadNetCDFRichardsOutput1D readSimData = new ReadNetCDFRichardsOutput1D();
-		readSimData.richardsOutputFilename = pathOutput.replace(".nc","_0000.nc");
+		readSimData.richardsOutputFilename = pathOutput.replace(".nc","_0000.nc"); // check the proper file of the output series
 		readSimData.read();
 
 		for(int k=0; k<readSimData.psi[(readSimData.psi.length)-1].length; k++) {
-			if(Math.abs(readSimData.psi[(readSimData.psi.length)-1][k]-readTestData.psi[(readTestData.psi.length)-1][k])>Math.pow(10,-7)) {
-				System.out.println("\n\n\t\tERROR: psi mismatch");
-			}
+			double psiSim = readSimData.psi[(readSimData.psi.length)-1][k];
+			double psiTest = readTestData.psi[(readTestData.psi.length)-1][k];
+			assertEquals("Error in output data check at k = " + k, psiTest, psiSim, 1e-7);
 		}
-
+		
 	}
 
-	private OmsTimeSeriesIteratorReader getTimeseriesReader( String inPath, String id, String startDate, String endDate,
-			int timeStepMinutes ) throws URISyntaxException {
-		OmsTimeSeriesIteratorReader reader = new OmsTimeSeriesIteratorReader();
-		reader.file = inPath;
-		reader.idfield = "ID";
-		reader.tStart = startDate;
-		reader.tTimestep = timeStepMinutes;
-		reader.tEnd = endDate;
-		reader.fileNovalue = "-9999";
-		reader.initProcess();
-		return reader;
-	}
+//	private OmsTimeSeriesIteratorReader getTimeseriesReader( String inPath, String id, String startDate, String endDate,
+//			int timeStepMinutes ) throws URISyntaxException {
+//		OmsTimeSeriesIteratorReader reader = new OmsTimeSeriesIteratorReader();
+//		reader.file = inPath;
+//		reader.idfield = "ID";
+//		reader.tStart = startDate;
+//		reader.tTimestep = timeStepMinutes;
+//		reader.tEnd = endDate;
+//		reader.fileNovalue = "-9999";
+//		reader.initProcess();
+//		return reader;
+//	}
 }
