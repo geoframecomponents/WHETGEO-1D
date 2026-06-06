@@ -21,7 +21,6 @@ package org.geoframe.richards;
 
 import java.io.File;
 import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.HashMap;
 
 import org.geoframe.whetgeo.WGTestCase;
@@ -73,33 +72,33 @@ public class TestVanGenuchten extends WGTestCase {
 
 		RichardsBuffer1D buffer = new RichardsBuffer1D();
 		WriteNetCDFRichards1DDouble writeNetCDF = new WriteNetCDFRichards1DDouble();
-		ReadNetCDFRichardsGrid1D readNetCDF = new ReadNetCDFRichardsGrid1D();
+		ReadNetCDFRichardsGrid1D netcdfReader = new ReadNetCDFRichardsGrid1D();
 		
 		RichardsSolver1DMain R1DSolver = new RichardsSolver1DMain();
 		
 		
-		readNetCDF.richardsGridFilename = pathGrid;
+		netcdfReader.richardsGridFilename = pathGrid;
 		
-		readNetCDF.read();
+		netcdfReader.read();
 		
 		
-		R1DSolver.z = readNetCDF.z;
-		R1DSolver.spaceDeltaZ = readNetCDF.spaceDelta;
-		R1DSolver.psiIC = readNetCDF.psiIC;
-		R1DSolver.temperature = readNetCDF.temperature;
-		R1DSolver.controlVolume = readNetCDF.controlVolume;
-		R1DSolver.ks = readNetCDF.Ks;
-		R1DSolver.thetaS = readNetCDF.thetaS;
-		R1DSolver.thetaR = readNetCDF.thetaR;
-		R1DSolver.par1SWRC = readNetCDF.par1SWRC;
-		R1DSolver.par2SWRC = readNetCDF.par2SWRC;
-		R1DSolver.par3SWRC = readNetCDF.par3SWRC;
-		R1DSolver.par4SWRC = readNetCDF.par4SWRC;
-		R1DSolver.par5SWRC = readNetCDF.par5SWRC;
-		R1DSolver.alphaSpecificStorage = readNetCDF.alphaSS;
-		R1DSolver.betaSpecificStorage = readNetCDF.betaSS;
-		R1DSolver.inEquationStateID = readNetCDF.equationStateID;
-		R1DSolver.inParameterID = readNetCDF.parameterID;
+		R1DSolver.z = netcdfReader.z;
+		R1DSolver.spaceDeltaZ = netcdfReader.spaceDelta;
+		R1DSolver.psiIC = netcdfReader.psiIC;
+		R1DSolver.temperature = netcdfReader.temperature;
+		R1DSolver.controlVolume = netcdfReader.controlVolume;
+		R1DSolver.ks = netcdfReader.Ks;
+		R1DSolver.thetaS = netcdfReader.thetaS;
+		R1DSolver.thetaR = netcdfReader.thetaR;
+		R1DSolver.par1SWRC = netcdfReader.par1SWRC;
+		R1DSolver.par2SWRC = netcdfReader.par2SWRC;
+		R1DSolver.par3SWRC = netcdfReader.par3SWRC;
+		R1DSolver.par4SWRC = netcdfReader.par4SWRC;
+		R1DSolver.par5SWRC = netcdfReader.par5SWRC;
+		R1DSolver.alphaSpecificStorage = netcdfReader.alphaSS;
+		R1DSolver.betaSpecificStorage = netcdfReader.betaSS;
+		R1DSolver.inEquationStateID = netcdfReader.equationStateID;
+		R1DSolver.inParameterID = netcdfReader.parameterID;
 		
 
 		R1DSolver.typeClosureEquation = new String[] {"Water Depth", "Van Genuchten"};
@@ -143,11 +142,11 @@ public class TestVanGenuchten extends WGTestCase {
 		writeNetCDF.soilHydraulicConductivityModel = "Mualem VG no temperature";
 		writeNetCDF.interfaceConductivityModel = "max";
 		writeNetCDF.writeFrequency = writeFrequency;
-		writeNetCDF.spatialCoordinate = readNetCDF.eta;
-		writeNetCDF.dualSpatialCoordinate = readNetCDF.etaDual;	
-		writeNetCDF.controlVolume = readNetCDF.controlVolume;
-		writeNetCDF.psiIC = readNetCDF.psiIC;
-		writeNetCDF.temperature = readNetCDF.temperature;
+		writeNetCDF.spatialCoordinate = netcdfReader.eta;
+		writeNetCDF.dualSpatialCoordinate = netcdfReader.etaDual;	
+		writeNetCDF.controlVolume = netcdfReader.controlVolume;
+		writeNetCDF.psiIC = netcdfReader.psiIC;
+		writeNetCDF.temperature = netcdfReader.temperature;
 		writeNetCDF.outVariables = new String[] {"darcyVelocity"};
 		writeNetCDF.timeUnits = "Minutes since 01/01/1970 00:00:00 UTC";
 		writeNetCDF.timeZone = "UTC"; 

@@ -200,6 +200,8 @@ public class Diffusion1DFiniteVolumeSolver {
 		 */
 
 		nestedNewtonAlg.set(x, y, mainDiagonal, upperDiagonal, lowerDiagonal, rhss, KMAX, parameterID, rheologyID);
+		
+		// TODO check on this
 		return x = nestedNewtonAlg.solver();
 
 	} //// MAIN CYCLE END ////

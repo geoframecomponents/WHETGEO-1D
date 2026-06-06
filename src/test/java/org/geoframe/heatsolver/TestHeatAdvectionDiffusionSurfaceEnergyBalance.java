@@ -22,7 +22,7 @@ package org.geoframe.heatsolver;
 import java.net.URISyntaxException;
 import java.util.HashMap;
 
-import org.geoframe.whetgeo1d.heatsolver.HeatAdevectionDiffusionSolverWithSurfaceEnergyBalance1DMain;
+import org.geoframe.whetgeo1d.heatsolver.HeatAdvectionDiffusionSolverWithSurfaceEnergyBalance1DMain;
 import org.hortonmachine.gears.io.geoframe.HeatAdvectionDiffusionBuffer1D;
 import org.hortonmachine.gears.io.geoframe.ReadNetCDFHeatAdvectionDiffusionGrid1D;
 import org.hortonmachine.gears.io.geoframe.WriteNetCDFHeatAdvectionDiffusion1D;
@@ -90,7 +90,7 @@ public class TestHeatAdvectionDiffusionSurfaceEnergyBalance {
 		WriteNetCDFHeatAdvectionDiffusion1D writeNetCDF = new WriteNetCDFHeatAdvectionDiffusion1D();
 		ReadNetCDFHeatAdvectionDiffusionGrid1D readNetCDF = new ReadNetCDFHeatAdvectionDiffusionGrid1D();
 		
-		HeatAdevectionDiffusionSolverWithSurfaceEnergyBalance1DMain solver = new HeatAdevectionDiffusionSolverWithSurfaceEnergyBalance1DMain();
+		HeatAdvectionDiffusionSolverWithSurfaceEnergyBalance1DMain solver = new HeatAdvectionDiffusionSolverWithSurfaceEnergyBalance1DMain();
 		
 //		double[] stressedETs = {0.3,0.1,0.05,0.05,0.05,0};
 		double[] stressedETs = new double[60];

@@ -23,7 +23,7 @@ import java.nio.file.Files;
 import java.util.HashMap;
 
 import org.geoframe.whetgeo.WGTestCase;
-import org.geoframe.whetgeo1d.heatsolver.HeatAdevectionDiffusionSolver1DMain;
+import org.geoframe.whetgeo1d.heatsolver.HeatAdvectionDiffusionSolver1DMain;
 import org.hortonmachine.gears.io.geoframe.HeatAdvectionDiffusionBuffer1D;
 import org.hortonmachine.gears.io.geoframe.ReadNetCDFHeatAdvectionDiffusionGrid1D;
 import org.hortonmachine.gears.io.geoframe.ReadNetCDFHeatAdvectionDiffusionOutput1D;
@@ -77,7 +77,7 @@ public class TestHeatAdvectionDiffusion extends WGTestCase {
 		WriteNetCDFHeatAdvectionDiffusion1D writeNetCDF = new WriteNetCDFHeatAdvectionDiffusion1D();
 		ReadNetCDFHeatAdvectionDiffusionGrid1D readNetCDF = new ReadNetCDFHeatAdvectionDiffusionGrid1D();
 
-		HeatAdevectionDiffusionSolver1DMain solver = new HeatAdevectionDiffusionSolver1DMain();
+		HeatAdvectionDiffusionSolver1DMain solver = new HeatAdvectionDiffusionSolver1DMain();
 
 		readNetCDF.gridFilename = pathGrid;
 

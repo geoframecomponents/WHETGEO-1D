@@ -30,6 +30,8 @@ import org.geoframe.closureequation.conductivitymodel.ConductivityEquationFactor
 import org.geoframe.closureequation.equationstate.EquationState;
 import org.geoframe.closureequation.interfaceconductivity.InterfaceConductivity;
 import org.geoframe.closureequation.interfaceconductivity.SimpleInterfaceConductivityFactory;
+import org.geoframe.whetgeo1d.boundaryconditions.IBoundaryCondition;
+import org.geoframe.whetgeo1d.boundaryconditions.IBoundaryCondition.DiffusionBoundaryConditionType;
 import org.geoframe.whetgeo1d.equationstate.EquationStateFactory;
 import org.geoframe.whetgeo1d.equationstate.EquationStateFactory.StateEquationModel;
 import org.geoframe.whetgeo1d.utils.EnumUtils;
@@ -79,14 +81,14 @@ public class ComputeQuantitiesInternalEnergy {
 	private InterfaceConductivity interfaceConductivity;
 	private SimpleInterfaceConductivityFactory interfaceConductivityFactory;
 
-	private String topBCType;
-	private String bottomBCType;
+	private DiffusionBoundaryConditionType topBCType;
+	private DiffusionBoundaryConditionType bottomBCType;
 
 //	private double tmp;
 
 	public ComputeQuantitiesInternalEnergy(String[] typeClosureEquation, String[] typeEquationState,
-			String[] typeThermalConductivity, String interfaceHydraulicConductivityModel, String topBCType,
-			String bottomBCType, ProblemQuantities variables, GFGeometry geometry, Parameters parameters) {
+			String[] typeThermalConductivity, String interfaceHydraulicConductivityModel, DiffusionBoundaryConditionType topBCType,
+			DiffusionBoundaryConditionType bottomBCType, ProblemQuantities variables, GFGeometry geometry, Parameters parameters) {
 
 		this.variables = variables;
 		this.geometry = geometry;
@@ -181,8 +183,7 @@ public class ComputeQuantitiesInternalEnergy {
 		}
 
 		// bottom interface
-		if (this.bottomBCType.equalsIgnoreCase("Bottom Dirichlet")
-				|| this.bottomBCType.equalsIgnoreCase("BottomDirichlet")) {
+		if (this.bottomBCType == IBoundaryCondition.DiffusionBoundaryConditionType.BOTTOM_DIRICHLET ) {
 			variables.lambdasInterface[0] = thermalConductivity.get(variables.equationStateID[0])
 					.k(variables.internalEnergyBottomBCValue, variables.waterSuctions[0], variables.parameterID[0], 0);
 		} else {
@@ -190,7 +191,7 @@ public class ComputeQuantitiesInternalEnergy {
 		}
 
 		// top interface
-		if (this.topBCType.equalsIgnoreCase("Top Dirichlet") || this.topBCType.equalsIgnoreCase("TopDirichlet")) {
+		if (this.topBCType== IBoundaryCondition.DiffusionBoundaryConditionType.TOP_DIRICHLET) {
 			variables.lambdasInterface[KMAX] = thermalConductivity.get(variables.equationStateID[KMAX - 1]).k(
 					variables.internalEnergyTopBCValue, variables.waterSuctions[KMAX - 1],
 					variables.parameterID[KMAX - 1], KMAX - 1);
@@ -208,8 +209,7 @@ public class ComputeQuantitiesInternalEnergy {
 		}
 
 		// bottom interface
-		if (this.bottomBCType.equalsIgnoreCase("Bottom Dirichlet")
-				|| this.bottomBCType.equalsIgnoreCase("BottomDirichlet")) {
+		if (this.bottomBCType== IBoundaryCondition.DiffusionBoundaryConditionType.BOTTOM_DIRICHLET) {
 			variables.conductionHeatFluxs[0] = -variables.lambdasInterface[0]
 					* (variables.temperatures[0] - variables.internalEnergyBottomBCValue) / geometry.spaceDeltaZ[0];
 		} else {
@@ -217,7 +217,7 @@ public class ComputeQuantitiesInternalEnergy {
 		}
 
 		// top interface
-		if (this.topBCType.equalsIgnoreCase("Top Dirichlet") || this.topBCType.equalsIgnoreCase("TopDirichlet")) {
+		if (this.topBCType== IBoundaryCondition.DiffusionBoundaryConditionType.TOP_DIRICHLET) {
 			variables.conductionHeatFluxs[KMAX] = -variables.lambdasInterface[KMAX]
 					* (variables.internalEnergyTopBCValue - variables.temperatures[KMAX - 1])
 					/ geometry.spaceDeltaZ[KMAX];

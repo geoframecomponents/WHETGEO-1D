@@ -19,15 +19,18 @@
 
 package org.geoframe.heatsolver;
 
-import java.net.URISyntaxException;
+import java.io.File;
+import java.nio.file.Files;
 import java.util.HashMap;
 
+import org.geoframe.whetgeo.WGTestCase;
+import org.geoframe.whetgeo1d.boundaryconditions.IBoundaryCondition;
+import org.geoframe.whetgeo1d.boundaryconditions.IBoundaryCondition.DiffusionBoundaryConditionType;
 import org.geoframe.whetgeo1d.heatsolver.HeatDiffusionSolver1DMain;
 import org.hortonmachine.gears.io.geoframe.HeatDiffusionBuffer1D;
 import org.hortonmachine.gears.io.geoframe.ReadNetCDFHeatDiffusionGrid1D;
 import org.hortonmachine.gears.io.geoframe.WriteNetCDFHeatDiffusion1DDouble;
 import org.hortonmachine.gears.io.timedependent.OmsTimeSeriesIteratorReader;
-import org.junit.Test;
 
 /**
  * Test the {@link TestHeatDiffusion} module.
@@ -35,10 +38,9 @@ import org.junit.Test;
  * 
  * @author Niccolo' Tubini
  */
-public class TestHeatDiffusion {
+public class TestHeatDiffusion extends WGTestCase{
 
-	@Test
-	public void Test() throws Exception {
+	public void testHeatDiffusion() throws Exception {
 
 
 		String startDate = "2015-01-15 00:00";
@@ -46,14 +48,16 @@ public class TestHeatDiffusion {
 		int timeStepMinutes = 60;
 		String fId = "ID";
 				
-		String pathTopBC = "resources/input/TimeSeries/tempTop.csv";
-		String pathBottomBC = "resources/input/TimeSeries/tempBottom.csv";
-		String pathSaveDates = "resources/input/TimeSeries/save.csv"; 
-		String pathGrid =  "resources/input/Grid_NetCDF/Heat_diffusion.nc";
-		String pathOutput = "resources/output/Sim_heat_diffusion.nc";
+		String pathTopBC = getRes("/input/TimeSeries/tempTop.csv");
+		String pathBottomBC = getRes("/input/TimeSeries/tempBottom.csv");
+		String pathSaveDates = getRes("/input/TimeSeries/save.csv"); 
+		String pathGrid =  getRes("/input/Grid_NetCDF/Heat_diffusion.nc");
 		
-		String topBC = "Top dirichlet";
-		String bottomBC = "Bottom dirichlet";
+		File tempFile = Files.createTempFile("Sim_heat_diffusion", ".nc").toFile();
+		String pathOutput = tempFile.getAbsolutePath();
+		
+		var topBC = IBoundaryCondition.DiffusionBoundaryConditionType.TOP_DIRICHLET;
+		var bottomBC = IBoundaryCondition.DiffusionBoundaryConditionType.BOTTOM_DIRICHLET;
 
 		String outputDescription = "\n"
 				+ "Initial condition constant temperature\n		"
@@ -122,8 +126,8 @@ public class TestHeatDiffusion {
 		writeNetCDF.pathGrid = pathGrid;
 		writeNetCDF.pathBottomBC = pathBottomBC; 
 		writeNetCDF.pathTopBC = pathTopBC; 
-		writeNetCDF.bottomBC = bottomBC;
-		writeNetCDF.topBC = topBC;
+		writeNetCDF.bottomBC = bottomBC.toString();
+		writeNetCDF.topBC = topBC.toString();
 		writeNetCDF.swrcModel = "VG";
 		writeNetCDF.soilThermalConductivityModel = "Mualem VG no temperature";
 		writeNetCDF.interfaceConductivityModel = "max";
@@ -178,16 +182,5 @@ public class TestHeatDiffusion {
 
 	}
 
-	private OmsTimeSeriesIteratorReader getTimeseriesReader( String inPath, String id, String startDate, String endDate,
-			int timeStepMinutes ) throws URISyntaxException {
-		OmsTimeSeriesIteratorReader reader = new OmsTimeSeriesIteratorReader();
-		reader.file = inPath;
-		reader.idfield = "ID";
-		reader.tStart = startDate;
-		reader.tTimestep = timeStepMinutes;
-		reader.tEnd = endDate;
-		reader.fileNovalue = "-9999";
-		reader.initProcess();
-		return reader;
-	}
+	
 }

@@ -53,7 +53,7 @@ import oms3.annotations.Unit;
 //@Name()
 //@Status()
 @License("General Public License Version 3 (GPLv3)")
-public class HeatDiffusionSolver1DMain {
+public class HeatDiffusionSolver1DMain  {
 
 	/*
 	 * WATER THERMAL PROPERTIES
@@ -300,10 +300,10 @@ public class HeatDiffusionSolver1DMain {
 
 	@Description("It is possibile to chose between 2 different kind "
 			+ "of boundary condition at the top of the domain: "
-			+ "- Dirichlet boundary condition --> Top Dirichlet"
-			+ "- Neumann boundary condition --> Top Neumann")
+			+ "- Dirichlet boundary condition --> IBoundaryCondition.DiffusionBoundaryConditionType.TOP_DIRICHLET"
+			+ "- Neumann boundary condition --> IBoundaryCondition.DiffusionBoundaryConditionType.TOP_NEUMANN")
 	@In 
-	public String topBCType;
+	public DiffusionBoundaryConditionType topBCType;
 
 	@Description("The HashMap with the time series of the boundary condition at the bottom of soil column")
 	@In
@@ -315,7 +315,7 @@ public class HeatDiffusionSolver1DMain {
 			+ "- Dirichlet boundary condition --> Bottom Dirichlet"
 			+ "- Neumann boundary condition --> Bottom Neumann")
 	@In 
-	public String bottomBCType;
+	public DiffusionBoundaryConditionType bottomBCType;
 
 	@Description("")
 	@In
@@ -392,8 +392,8 @@ public class HeatDiffusionSolver1DMain {
 
 			List<EquationState> equationState = computeQuantitiesInternalEnergy.getInternalEnergyStateEquation();
 			
-			topBoundaryCondition = IBoundaryCondition.createDiffusionBoundaryCondition(DiffusionBoundaryConditionType.fromString(topBCType));
-			bottomBoundaryCondition = IBoundaryCondition.createDiffusionBoundaryCondition(DiffusionBoundaryConditionType.fromString(bottomBCType));
+			topBoundaryCondition = IBoundaryCondition.createDiffusionBoundaryCondition(topBCType);
+			bottomBoundaryCondition = IBoundaryCondition.createDiffusionBoundaryCondition(bottomBCType);
 			
 			diffusionSolver = new Diffusion1DFiniteVolumeSolver(topBoundaryCondition, bottomBoundaryCondition, KMAX, nestedNewton, newtonTolerance, delta, MAXITER_NEWT, equationState);
 
@@ -404,7 +404,7 @@ public class HeatDiffusionSolver1DMain {
 
 
 		variables.internalEnergyTopBCValue = 0.0;
-		if(topBCType.equalsIgnoreCase("Top Neumann") || topBCType.equalsIgnoreCase("TopNeumann")) {
+		if(topBCType == IBoundaryCondition.DiffusionBoundaryConditionType.TOP_NEUMANN) {
 			variables.internalEnergyTopBCValue = inTopBC.get(stationID)[0]/tTimeStep;
 		} else {
 			variables.internalEnergyTopBCValue = inTopBC.get(stationID)[0]+273.15;
@@ -412,7 +412,7 @@ public class HeatDiffusionSolver1DMain {
 		
 
 		variables.internalEnergyBottomBCValue = 0.0;
-		if(topBCType.equalsIgnoreCase("Bottom Neumann") || topBCType.equalsIgnoreCase("BottomNeumann")) {
+		if(topBCType == IBoundaryCondition.DiffusionBoundaryConditionType.BOTTOM_NEUMANN) {
 			variables.internalEnergyBottomBCValue = inBottomBC.get(stationID)[0]/tTimeStep;
 		} else {
 			variables.internalEnergyBottomBCValue = inBottomBC.get(stationID)[0]+273.15;
