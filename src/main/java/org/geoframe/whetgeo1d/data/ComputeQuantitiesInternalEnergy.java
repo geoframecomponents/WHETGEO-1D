@@ -138,7 +138,8 @@ public class ComputeQuantitiesInternalEnergy {
 
 		variables.internalEnergy = 0.0;
 		for (int element = 0; element < KMAX; element++) {
-			variables.internalEnergys[element] = equationState.get(variables.equationStateID[element]).equationState(
+			int index = variables.equationStateID[element];
+			variables.internalEnergys[element] = equationState.get(index).equationState(
 					variables.temperatures[element], variables.waterSuctions[element], variables.parameterID[element],
 					element);
 			variables.internalEnergy += variables.internalEnergys[element];
