@@ -55,7 +55,7 @@ public class TestHeatDiffusionGpkg extends WGTestCase {
 		inputsHandler.read();
 		
 		var topBC = IBoundaryCondition.DiffusionBoundaryConditionType.TOP_DIRICHLET;
-		var bottomBC = IBoundaryCondition.DiffusionBoundaryConditionType.BOTTOM_DIRICHLET;
+		var bottomBC = IBoundaryCondition.DiffusionBoundaryConditionType.BOTTOM_NEUMANN;
 
 		// String outputDescription = "\n"
 		// + "Initial condition constant temperature\n\t\t"
@@ -147,6 +147,8 @@ public class TestHeatDiffusionGpkg extends WGTestCase {
 				writer.topBC = solver.outHeatFluxTop;
 				writer.bottomBC = solver.outHeatFluxBottom;
 				writer.write();
+				
+				
 			}
 		} // iterators and writer all closed here; writer flushes remaining buffer
 	}

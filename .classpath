@@ -2,15 +2,15 @@
 <classpath>
 	<classpathentry kind="src" output="target/test-classes" path="src/test/java">
 		<attributes>
+			<attribute name="test" value="true"/>
 			<attribute name="optional" value="true"/>
 			<attribute name="maven.pomderived" value="true"/>
-			<attribute name="test" value="true"/>
 		</attributes>
 	</classpathentry>
 	<classpathentry excluding="**" kind="src" output="target/test-classes" path="src/test/resources">
 		<attributes>
-			<attribute name="maven.pomderived" value="true"/>
 			<attribute name="test" value="true"/>
+			<attribute name="maven.pomderived" value="true"/>
 			<attribute name="optional" value="true"/>
 		</attributes>
 	</classpathentry>
@@ -25,12 +25,11 @@
 	<classpathentry kind="var" path="M2_REPO/javax/activation/javax.activation-api/1.2.0/javax.activation-api-1.2.0.jar" sourcepath="M2_REPO/javax/activation/javax.activation-api/1.2.0/javax.activation-api-1.2.0-sources.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-17">
 		<attributes>
+			<attribute name="module" value="true"/>
 			<attribute name="maven.pomderived" value="true"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry kind="var" path="M2_REPO/org/hortonmachine/hm-gears/0.11.1-SNAPSHOT/hm-gears-0.11.1-SNAPSHOT.jar" sourcepath="M2_REPO/org/hortonmachine/hm-gears/0.11.1-SNAPSHOT/hm-gears-0.11.1-SNAPSHOT-sources.jar"/>
 	<classpathentry kind="var" path="M2_REPO/com/sun/activation/javax.activation/1.2.0/javax.activation-1.2.0.jar" sourcepath="M2_REPO/com/sun/activation/javax.activation/1.2.0/javax.activation-1.2.0-sources.jar"/>
-	<classpathentry kind="var" path="M2_REPO/org/hortonmachine/hm-dbs/0.11.1-SNAPSHOT/hm-dbs-0.11.1-SNAPSHOT.jar" sourcepath="M2_REPO/org/hortonmachine/hm-dbs/0.11.1-SNAPSHOT/hm-dbs-0.11.1-SNAPSHOT-sources.jar"/>
 	<classpathentry kind="var" path="M2_REPO/org/slf4j/slf4j-jdk14/1.7.5/slf4j-jdk14-1.7.5.jar" sourcepath="M2_REPO/org/slf4j/slf4j-jdk14/1.7.5/slf4j-jdk14-1.7.5-sources.jar"/>
 	<classpathentry kind="var" path="M2_REPO/org/slf4j/slf4j-api/1.7.28/slf4j-api-1.7.28.jar" sourcepath="M2_REPO/org/slf4j/slf4j-api/1.7.28/slf4j-api-1.7.28-sources.jar"/>
 	<classpathentry kind="var" path="M2_REPO/org/xerial/sqlite-jdbc/3.50.3.0/sqlite-jdbc-3.50.3.0.jar" sourcepath="M2_REPO/org/xerial/sqlite-jdbc/3.50.3.0/sqlite-jdbc-3.50.3.0-sources.jar"/>
@@ -274,19 +273,19 @@
 	</classpathentry>
 	<classpathentry kind="src" path="target/generated-sources/annotations">
 		<attributes>
+			<attribute name="ignore_optional_problems" value="true"/>
 			<attribute name="optional" value="true"/>
 			<attribute name="maven.pomderived" value="true"/>
-			<attribute name="ignore_optional_problems" value="true"/>
 			<attribute name="m2e-apt" value="true"/>
 		</attributes>
 	</classpathentry>
 	<classpathentry kind="src" output="target/test-classes" path="target/generated-test-sources/test-annotations">
 		<attributes>
+			<attribute name="ignore_optional_problems" value="true"/>
+			<attribute name="test" value="true"/>
 			<attribute name="optional" value="true"/>
 			<attribute name="maven.pomderived" value="true"/>
-			<attribute name="ignore_optional_problems" value="true"/>
 			<attribute name="m2e-apt" value="true"/>
-			<attribute name="test" value="true"/>
 		</attributes>
 	</classpathentry>
 	<classpathentry kind="output" path="target/classes"/>
