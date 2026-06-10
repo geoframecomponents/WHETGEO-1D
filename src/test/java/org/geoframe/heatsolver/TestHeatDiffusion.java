@@ -50,8 +50,8 @@ public class TestHeatDiffusion extends WGTestCase{
 				
 		String pathTopBC = getRes("/input/TimeSeries/tempTop.csv");
 		String pathBottomBC = getRes("/input/TimeSeries/tempBottom.csv");
-		String pathSaveDates = getRes("/input/TimeSeries/save.csv"); 
-		String pathGrid =  getRes("/input/Grid_NetCDF/Heat_diffusion.nc");
+//		String pathSaveDates = getRes("/input/TimeSeries/save.csv"); 
+		String pathGrid = "/home/hydrologis/TMP/UNITN/whetgeo1d/Heat_diffusion.nc";// getRes("/input/Grid_NetCDF/Heat_diffusion.nc");
 		
 		File tempFile = Files.createTempFile("Sim_heat_diffusion", ".nc").toFile();
 		String pathOutput = tempFile.getAbsolutePath();
@@ -68,7 +68,7 @@ public class TestHeatDiffusion extends WGTestCase{
 		
 		OmsTimeSeriesIteratorReader topBCReader = getTimeseriesReader(pathTopBC, fId, startDate, endDate, timeStepMinutes);
 		OmsTimeSeriesIteratorReader bottomBCReader = getTimeseriesReader(pathBottomBC, fId, startDate, endDate, timeStepMinutes);
-		OmsTimeSeriesIteratorReader saveDatesReader = getTimeseriesReader(pathSaveDates, fId, startDate, endDate, timeStepMinutes);
+//		OmsTimeSeriesIteratorReader saveDatesReader = getTimeseriesReader(pathSaveDates, fId, startDate, endDate, timeStepMinutes);
 
 		HeatDiffusionBuffer1D buffer = new HeatDiffusionBuffer1D();
 		WriteNetCDFHeatDiffusion1DDouble writeNetCDF = new WriteNetCDFHeatDiffusion1DDouble();
@@ -153,9 +153,9 @@ public class TestHeatDiffusion extends WGTestCase{
 			bCValueMap = bottomBCReader.outData;
 			solver.inBottomBC = bCValueMap;
 
-			saveDatesReader.nextRecord();
-			bCValueMap = saveDatesReader.outData;
-			solver.inSaveDate = bCValueMap;
+//			saveDatesReader.nextRecord();
+//			bCValueMap = saveDatesReader.outData;
+//			solver.inSaveDate = bCValueMap;
 			
 			solver.inCurrentDate = topBCReader.tCurrent;
 			
@@ -163,7 +163,7 @@ public class TestHeatDiffusion extends WGTestCase{
 
 			
 			buffer.inputDate = solver.inCurrentDate;
-			buffer.doProcessBuffer = solver.doProcessBuffer;
+			buffer.doProcessBuffer = true;// solver.doProcessBuffer;
 			buffer.inputVariable = solver.outputToBuffer;
 			
 			buffer.solve();

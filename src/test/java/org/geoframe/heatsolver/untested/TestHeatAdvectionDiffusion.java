@@ -17,7 +17,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.geoframe.heatsolver;
+package org.geoframe.heatsolver.untested;
 
 import java.nio.file.Files;
 import java.util.HashMap;
