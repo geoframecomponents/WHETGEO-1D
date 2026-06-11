@@ -19,15 +19,16 @@
 
 package org.geoframe.heatsolver.untested;
 
-import java.net.URISyntaxException;
+import java.io.File;
+import java.nio.file.Files;
 import java.util.HashMap;
 
+import org.geoframe.whetgeo.WGTestCase;
 import org.geoframe.whetgeo1d.heatsolver.HeatAdvectionDiffusionSolverWithSurfaceEnergyBalance1DMain;
 import org.hortonmachine.gears.io.geoframe.HeatAdvectionDiffusionBuffer1D;
 import org.hortonmachine.gears.io.geoframe.ReadNetCDFHeatAdvectionDiffusionGrid1D;
 import org.hortonmachine.gears.io.geoframe.WriteNetCDFHeatAdvectionDiffusion1D;
 import org.hortonmachine.gears.io.timedependent.OmsTimeSeriesIteratorReader;
-import org.junit.Test;
 
 /**
  * Test the {@link TestHeatAdvectionDiffusionSurfaceEnergyBalance} module.
@@ -35,10 +36,9 @@ import org.junit.Test;
  * 
  * @author Niccolo' Tubini and Concetta D'Amato  
  */
-public class TestHeatAdvectionDiffusionSurfaceEnergyBalance {
+public class TestHeatAdvectionDiffusionSurfaceEnergyBalance extends WGTestCase{
 
-	@Test
-	public void Test() throws Exception {
+	public void testHeatAdvectionDiffusionSurfaceEnergyBalance() throws Exception {
 
 
 		String startDate = "2003-01-01 01:00";
@@ -47,20 +47,21 @@ public class TestHeatAdvectionDiffusionSurfaceEnergyBalance {
 		String fId = "ID";
 		String lab = "01";
 				
-		String pathAirT = "resources/input/TimeSeries/airT_T0135.csv";
-		String pathWindVelocity = "resources/input/TimeSeries/windVelocity_T0135.csv";
-		String pathSW = "resources/input/TimeSeries/TotalSolarRadiation_T0135.csv";
-		String pathLW = "resources/input/TimeSeries/LWDownwelling_T0135.csv";
-		String pathLE = "resources/input/TimeSeries/LatentHeat_PT_T0135.csv";
-		String pathBottomBC = "resources/input/TimeSeries/noFlux_T0135.csv";
+		String pathAirT = getRes("/input/TimeSeries/airT_T0135.csv");
+		String pathWindVelocity = getRes("/input/TimeSeries/windVelocity_T0135.csv");
+		String pathSW = getRes("/input/TimeSeries/TotalSolarRadiation_T0135.csv");
+		String pathLW = getRes("/input/TimeSeries/LWDownwelling_T0135.csv");
+		String pathLE = getRes("/input/TimeSeries/LatentHeat_PT_T0135.csv");
+		String pathBottomBC = getRes("/input/TimeSeries/noFlux_T0135.csv");
 		
-		String pathRichardsTopBC = "resources/input/TimeSeries/Precip_T0135.csv"; //Precip_T0135.csv";
-		String pathRichardsBottomBC = "resources/input/TimeSeries/noFlux_T0135.csv";
+		String pathRichardsTopBC = getRes("/input/TimeSeries/Precip_T0135.csv"); //Precip_T0135.csv";
+		String pathRichardsBottomBC = getRes("/input/TimeSeries/noFlux_T0135.csv");
 		
-		String pathSaveDates = "resources/input/TimeSeries/saveAll_T0135.csv"; 
+		String pathSaveDates = getRes("/input/TimeSeries/saveAll_T0135.csv"); 
 		
-		String pathGrid =  "resources/input/Grid_NetCDF/Heat_advection_diffusion - Copy.nc";
-		String pathOutput = "resources/output/_cancella.nc";
+		String pathGrid =  getRes("/input/Grid_NetCDF/Heat_advection_diffusion.nc");
+		File tempFile = Files.createTempFile("Sim_heat_adv_diffusion_energ_bal", "_cancella.nc").toFile();
+		String pathOutput = tempFile.getAbsolutePath();
 		
 		//Solute boundary conditions
 //		String topSoluteBC = "Top dirichlet";
@@ -283,18 +284,5 @@ public class TestHeatAdvectionDiffusionSurfaceEnergyBalance {
 			}
 		}*/
 
-	}
-
-	private OmsTimeSeriesIteratorReader getTimeseriesReader( String inPath, String id, String startDate, String endDate,
-			int timeStepMinutes ) throws URISyntaxException {
-		OmsTimeSeriesIteratorReader reader = new OmsTimeSeriesIteratorReader();
-		reader.file = inPath;
-		reader.idfield = "ID";
-		reader.tStart = startDate;
-		reader.tTimestep = timeStepMinutes;
-		reader.tEnd = endDate;
-		reader.fileNovalue = "-9999";
-		reader.initProcess();
-		return reader;
 	}
 }

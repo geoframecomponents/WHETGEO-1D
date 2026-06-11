@@ -30,6 +30,7 @@ import org.geoframe.closureequation.conductivitymodel.ConductivityEquationFactor
 import org.geoframe.closureequation.equationstate.EquationState;
 import org.geoframe.closureequation.interfaceconductivity.InterfaceConductivity;
 import org.geoframe.closureequation.interfaceconductivity.SimpleInterfaceConductivityFactory;
+import org.geoframe.whetgeo1d.boundaryconditions.IBoundaryCondition.DiffusionBoundaryConditionType;
 import org.geoframe.whetgeo1d.equationstate.EquationStateFactory;
 import org.geoframe.whetgeo1d.equationstate.EquationStateFactory.StateEquationModel;
 import org.geoframe.whetgeo1d.surfaceproperties.ISurfaceAereodynamicResistance;
@@ -98,11 +99,11 @@ public class ComputeQuantitiesHeatDiffusionFreezingThawingWithSurfaceEnergyBalan
 
 	@Description("This object evaluate the surface water vapor resistance.")
 	private ISurfaceWaterVaporResistance surfaceWaterVaporResistanceModel;
-	private String bottomBCType;
+	private DiffusionBoundaryConditionType bottomBCType;
 
 	public ComputeQuantitiesHeatDiffusionFreezingThawingWithSurfaceEnergyBalance(String[] typeClosureEquation,
 			String[] typeEquationState, String[] typeThermalConductivity, String interfaceHydraulicConductivityModel,
-			String bottomBCType, String surfaceAlbedoType, String surfaceEmissivityType,
+			DiffusionBoundaryConditionType bottomBCType, String surfaceAlbedoType, String surfaceEmissivityType,
 			String surfaceAereodynamicResistanceType, String surfaceWaterVaporResistanceType,
 			ProblemQuantities variables, GFGeometry geometry, Parameters parameters) {
 
@@ -220,8 +221,7 @@ public class ComputeQuantitiesHeatDiffusionFreezingThawingWithSurfaceEnergyBalan
 		}
 
 		// bottom interface
-		if (this.bottomBCType.equalsIgnoreCase("Bottom Dirichlet")
-				|| this.bottomBCType.equalsIgnoreCase("BottomDirichlet")) {
+		if (this.bottomBCType == DiffusionBoundaryConditionType.BOTTOM_DIRICHLET) {
 			variables.lambdasInterface[0] = thermalConductivity.get(variables.equationStateID[0])
 					.k(variables.internalEnergyBottomBCValue, variables.waterSuctions[0], variables.parameterID[0], 0);
 		} else {
@@ -295,8 +295,7 @@ public class ComputeQuantitiesHeatDiffusionFreezingThawingWithSurfaceEnergyBalan
 		}
 
 		// bottom interface
-		if (this.bottomBCType.equalsIgnoreCase("Bottom Dirichlet")
-				|| this.bottomBCType.equalsIgnoreCase("BottomDirichlet")) {
+		if (this.bottomBCType == DiffusionBoundaryConditionType.BOTTOM_DIRICHLET) {
 			variables.conductionHeatFluxs[0] = -variables.lambdasInterface[0]
 					* (variables.temperatures[0] - variables.internalEnergyBottomBCValue) / geometry.spaceDeltaZ[0];
 		} else {

@@ -344,7 +344,7 @@ public class HeatDiffusionFreezingThawingSolverWithSurfaceEnergyBalance1DMain {
 			+ "- Dirichlet boundary condition --> Bottom Dirichlet"
 			+ "- Neumann boundary condition --> Bottom Neumann")
 	@In 
-	public String bottomBCType;
+	public DiffusionBoundaryConditionType bottomBCType;
 	
 	@Description("")
 	@In 
@@ -467,7 +467,7 @@ public class HeatDiffusionFreezingThawingSolverWithSurfaceEnergyBalance1DMain {
 
 			List<EquationState> equationState = computeQuantities.getInternalEnergyStateEquation();
 			
-			bottomBoundaryCondition = IBoundaryCondition.createDiffusionBoundaryCondition(DiffusionBoundaryConditionType.fromString(bottomBCType));
+			bottomBoundaryCondition = IBoundaryCondition.createDiffusionBoundaryCondition(bottomBCType);
 			
 			heatDiffusionSolver = new HeatDiffusionWithSurfaceEnergyBalance1DFiniteVolumeSolver(bottomBoundaryCondition, KMAX, nestedNewton, newtonTolerance, delta, MAXITER_NEWT, equationState);
 
@@ -495,7 +495,7 @@ public class HeatDiffusionFreezingThawingSolverWithSurfaceEnergyBalance1DMain {
 
 		
 		variables.internalEnergyBottomBCValue = 0.0;
-		if(bottomBCType.equalsIgnoreCase("Bottom Neumann") || bottomBCType.equalsIgnoreCase("BottomNeumann")) {
+		if(bottomBCType == DiffusionBoundaryConditionType.BOTTOM_NEUMANN) {
 			variables.internalEnergyBottomBCValue = inBottomBC.get(stationID)[0];
 		} else {
 			variables.internalEnergyBottomBCValue = inBottomBC.get(stationID)[0] + 273.15;

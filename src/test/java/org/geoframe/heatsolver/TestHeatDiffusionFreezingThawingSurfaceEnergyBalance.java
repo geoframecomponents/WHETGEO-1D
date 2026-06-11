@@ -17,18 +17,20 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.geoframe.heatsolver.untested;
+package org.geoframe.heatsolver;
 
-import java.net.URISyntaxException;
+import java.io.File;
+import java.nio.file.Files;
 import java.util.HashMap;
 
+import org.geoframe.whetgeo.WGTestCase;
+import org.geoframe.whetgeo1d.boundaryconditions.IBoundaryCondition.DiffusionBoundaryConditionType;
 import org.geoframe.whetgeo1d.heatsolver.HeatDiffusionFreezingThawingSolverWithSurfaceEnergyBalance1DMain;
 import org.hortonmachine.gears.io.geoframe.HeatDiffusionFreezingThawingBufferWithSurfaceEnergyBudget1D;
 import org.hortonmachine.gears.io.geoframe.ReadNetCDFHeatDiffusionGrid1D;
 import org.hortonmachine.gears.io.geoframe.ReadNetCDFHeatDiffusionOutput1D;
 import org.hortonmachine.gears.io.geoframe.WriteNetCDFHeatDiffusionFreezingThawingWithSurfaceEnergyBudget1DDouble;
 import org.hortonmachine.gears.io.timedependent.OmsTimeSeriesIteratorReader;
-import org.junit.Test;
 
 /**
  * Test the {@link TestHeatDiffusionFreezingThawingSurfaceEnergyBalance} module.
@@ -36,10 +38,9 @@ import org.junit.Test;
  * 
  * @author Niccolo' Tubini
  */
-public class TestHeatDiffusionFreezingThawingSurfaceEnergyBalance {
+public class TestHeatDiffusionFreezingThawingSurfaceEnergyBalance extends WGTestCase{
 
-	@Test
-	public void Test() throws Exception {
+	public void testHeatDiffusionFreezingThawingSurfaceEnergyBalance() throws Exception {
 
 
 		String startDate = "2003-01-01 00:00";
@@ -47,18 +48,19 @@ public class TestHeatDiffusionFreezingThawingSurfaceEnergyBalance {
 		int timeStepMinutes = 60;
 		String fId = "ID";
 		
-		String pathAirT = "resources/input/TimeSeries/airT_T0135.csv";
-		String pathWindVelocity = "resources/input/TimeSeries/windVelocity_T0135.csv";
-		String pathSW = "resources/input/TimeSeries/TotalSolarRadiation_T0135.csv";
-		String pathLW = "resources/input/TimeSeries/LWDownwelling_T0135.csv";
-		String pathLE = "resources/input/TimeSeries/LatentHeat_PT_T0135.csv";
-		String pathBottomBC = "resources/input/TimeSeries/noFlux_T0135.csv";
-		String pathSaveDates = "resources/input/TimeSeries/saveDates_T0135.csv"; 
-		String pathGrid =  "resources/input/Grid_NetCDF/heat_diffusion.nc";
+		String pathAirT = getRes("/input/TimeSeries/airT_T0135.csv");
+		String pathWindVelocity = getRes("/input/TimeSeries/windVelocity_T0135.csv");
+		String pathSW = getRes("/input/TimeSeries/TotalSolarRadiation_T0135.csv");
+		String pathLW = getRes("/input/TimeSeries/LWDownwelling_T0135.csv");
+		String pathLE = getRes("/input/TimeSeries/LatentHeat_PT_T0135.csv");
+		String pathBottomBC = getRes("/input/TimeSeries/noFlux_T0135.csv");
+		String pathSaveDates = getRes("/input/TimeSeries/saveDates_T0135.csv"); 
+		String pathGrid =  getRes("/input/Grid_NetCDF/Heat_diffusion.nc");
 
-		String pathOutput = "resources/output/Sim_heat_diffusion_freezing_thawing.nc";
+		File tempFile = Files.createTempFile("Sim_heat_diffusion_freezing_thawing", ".nc").toFile();
+		String pathOutput = tempFile.getAbsolutePath();
 		
-		String bottomBC = "Bottom Neumann";
+		var bottomBC = DiffusionBoundaryConditionType.BOTTOM_NEUMANN;
 
 		String outputDescription = "\n"
 				+ "Pure heat diffusion driven by the surface energy budget. Soil is saturated.";
@@ -118,7 +120,7 @@ public class TestHeatDiffusionFreezingThawingSurfaceEnergyBalance {
 		solver.bottomBCType = bottomBC;
 		solver.surfaceAlbedoType = "Constant";
 		solver.surfaceEmissivityType = "Constant";
-		solver.surfaceAereodynamicResistanceType = "Neutral";
+		solver.surfaceAereodynamicResistanceType = "NeutralCondition";
 		solver.surfaceWaterVaporResistanceType = "Feddes";
 		solver.h1 = 0.1;
 		solver.h2 = -5;
@@ -139,7 +141,7 @@ public class TestHeatDiffusionFreezingThawingSurfaceEnergyBalance {
 		writeNetCDF.briefDescritpion = outputDescription;
 		writeNetCDF.pathGrid = pathGrid;
 		writeNetCDF.pathBottomBC = pathBottomBC; 
-		writeNetCDF.bottomBC = bottomBC;
+		writeNetCDF.bottomBC = bottomBC.name();
 		writeNetCDF.swrcModel = "VG";
 		writeNetCDF.soilThermalConductivityModel = "Cosenza";
 		writeNetCDF.interfaceConductivityModel = "max";
@@ -153,7 +155,12 @@ public class TestHeatDiffusionFreezingThawingSurfaceEnergyBalance {
 		writeNetCDF.timeZone = "UTC"; 
 		writeNetCDF.fileSizeMax = 10000;
 		
+		int iterCount = 0;
 		while( swReader.doProcess  ) {
+			iterCount++;
+			if(iterCount%100==0) {
+				System.out.println("Iteration "+iterCount+" with date: "+swReader.tCurrent);
+			}
 		
 			
 			swReader.nextRecord();	
@@ -199,7 +206,6 @@ public class TestHeatDiffusionFreezingThawingSurfaceEnergyBalance {
 			writeNetCDF.doProcess = swReader.doProcess;
 			writeNetCDF.writeNetCDF();
 
-
 		}
 
 		swReader.close();
@@ -211,7 +217,7 @@ public class TestHeatDiffusionFreezingThawingSurfaceEnergyBalance {
 		 */
 		System.out.println("Assert");
 		ReadNetCDFHeatDiffusionOutput1D readTestData = new ReadNetCDFHeatDiffusionOutput1D();
-		readTestData.gridFilename = "resources/Output/Check_heat_diffusion_freezing_thawing_0000.nc";
+		readTestData.gridFilename = getRes("/output/Check_heat_diffusion_freezing_thawing_0000.nc");
 		readTestData.read();
 		
 		ReadNetCDFHeatDiffusionOutput1D readSimData = new ReadNetCDFHeatDiffusionOutput1D();
@@ -224,18 +230,5 @@ public class TestHeatDiffusionFreezingThawingSurfaceEnergyBalance {
 			}
 		}
 
-	}
-
-	private OmsTimeSeriesIteratorReader getTimeseriesReader( String inPath, String id, String startDate, String endDate,
-			int timeStepMinutes ) throws URISyntaxException {
-		OmsTimeSeriesIteratorReader reader = new OmsTimeSeriesIteratorReader();
-		reader.file = inPath;
-		reader.idfield = "ID";
-		reader.tStart = startDate;
-		reader.tTimestep = timeStepMinutes;
-		reader.tEnd = endDate;
-		reader.fileNovalue = "-9999";
-		reader.initProcess();
-		return reader;
 	}
 }

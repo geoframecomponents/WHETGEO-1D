@@ -30,6 +30,7 @@ import org.geoframe.closureequation.conductivitymodel.ConductivityEquationFactor
 import org.geoframe.closureequation.equationstate.EquationState;
 import org.geoframe.closureequation.interfaceconductivity.InterfaceConductivity;
 import org.geoframe.closureequation.interfaceconductivity.SimpleInterfaceConductivityFactory;
+import org.geoframe.whetgeo1d.boundaryconditions.IBoundaryCondition;
 import org.geoframe.whetgeo1d.equationstate.EquationStateFactory;
 import org.geoframe.whetgeo1d.equationstate.EquationStateFactory.StateEquationModel;
 import org.geoframe.whetgeo1d.surfaceproperties.ISurfaceAereodynamicResistance;
@@ -67,7 +68,6 @@ public class ComputeQuantitiesHeatDiffusionWithSurfaceEnergyBalance {
 	
 	private ProblemQuantities variables;
 	private GFGeometry geometry;
-	private Parameters parameters;
 	
 
 	@Description("List containing the closure equations")
@@ -102,17 +102,15 @@ public class ComputeQuantitiesHeatDiffusionWithSurfaceEnergyBalance {
 	@Description("This object evaluate the surface water vapor resistance.")
 	private ISurfaceWaterVaporResistance surfaceWaterVaporResistanceModel;
 	
-	private String bottomBCType;
+	private IBoundaryCondition.DiffusionBoundaryConditionType bottomBCType;
 	
 	
 	public ComputeQuantitiesHeatDiffusionWithSurfaceEnergyBalance(String[] typeClosureEquation, String[] typeEquationState, String[] typeThermalConductivity,
-			String interfaceHydraulicConductivityModel, String bottomBCType, String surfaceAlbedoType, String surfaceEmissivityType,
+			String interfaceHydraulicConductivityModel, IBoundaryCondition.DiffusionBoundaryConditionType bottomBCType, String surfaceAlbedoType, String surfaceEmissivityType,
 			String surfaceAereodynamicResistanceType, String surfaceWaterVaporResistanceType, ProblemQuantities variables, GFGeometry geometry, Parameters parameters) {
 		
 		this.variables = variables;
 		this.geometry = geometry;
-		this.parameters = parameters;
-
 
 		soilWaterRetentionCurveFactory = new SoilWaterRetentionCurveFactory();
 		
@@ -203,7 +201,7 @@ public class ComputeQuantitiesHeatDiffusionWithSurfaceEnergyBalance {
 		}			
 		
 		// bottom interface 
-		if(this.bottomBCType.equalsIgnoreCase("Bottom Dirichlet") || this.bottomBCType.equalsIgnoreCase("BottomDirichlet")){
+		if(this.bottomBCType == IBoundaryCondition.DiffusionBoundaryConditionType.BOTTOM_DIRICHLET){
 			variables.lambdasInterface[0] = thermalConductivity.get(variables.equationStateID[0]).k(variables.internalEnergyBottomBCValue, variables.waterSuctions[0], variables.parameterID[0], 0);
 		} else {
 			variables.lambdasInterface[0] = - 9999.0;
@@ -268,7 +266,7 @@ public class ComputeQuantitiesHeatDiffusionWithSurfaceEnergyBalance {
 		}
 		
 		// bottom interface
-		if (this.bottomBCType.equalsIgnoreCase("Bottom Dirichlet") || this.bottomBCType.equalsIgnoreCase("BottomDirichlet")) {
+		if (this.bottomBCType == IBoundaryCondition.DiffusionBoundaryConditionType.BOTTOM_DIRICHLET) {
 			variables.conductionHeatFluxs[0] = -variables.lambdasInterface[0] * (variables.temperatures[0]-variables.internalEnergyBottomBCValue)/geometry.spaceDeltaZ[0];
 		} else {
 			variables.conductionHeatFluxs[0] = -variables.internalEnergyBottomBCValue;
