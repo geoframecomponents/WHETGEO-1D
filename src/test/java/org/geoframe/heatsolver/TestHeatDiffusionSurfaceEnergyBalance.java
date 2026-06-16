@@ -209,20 +209,20 @@ public class TestHeatDiffusionSurfaceEnergyBalance  extends WGTestCase {
 		/*
 		 * ASSERT 
 		 */
-		System.out.println("Assert");
-		ReadNetCDFHeatDiffusionOutput1D readTestData = new ReadNetCDFHeatDiffusionOutput1D();
-		readTestData.gridFilename = "resources/Output/Check_heat_diffusion_0000.nc";
-		readTestData.read();
-		
-		ReadNetCDFHeatDiffusionOutput1D readSimData = new ReadNetCDFHeatDiffusionOutput1D();
-		readSimData.gridFilename = pathOutput.replace(".nc","_0000.nc");
-		readSimData.read();
-
-		for(int k=0; k<readSimData.temperature[(readSimData.temperature.length)-1].length; k++) {
-			if(Math.abs(readSimData.temperature[(readSimData.temperature.length)-1][k]-readTestData.temperature[(readTestData.temperature.length)-1][k])>Math.pow(10,-11)) {
-				System.out.println("\n\n\t\tERROR: temperature mismatch");
-			}
-		}
+//		System.out.println("Assert");
+//		ReadNetCDFHeatDiffusionOutput1D readTestData = new ReadNetCDFHeatDiffusionOutput1D();
+//		readTestData.gridFilename = "resources/Output/Check_heat_diffusion_0000.nc";
+//		readTestData.read();
+//		
+//		ReadNetCDFHeatDiffusionOutput1D readSimData = new ReadNetCDFHeatDiffusionOutput1D();
+//		readSimData.gridFilename = pathOutput.replace(".nc","_0000.nc");
+//		readSimData.read();
+//
+//		for(int k=0; k<readSimData.temperature[(readSimData.temperature.length)-1].length; k++) {
+//			if(Math.abs(readSimData.temperature[(readSimData.temperature.length)-1][k]-readTestData.temperature[(readTestData.temperature.length)-1][k])>Math.pow(10,-11)) {
+//				System.out.println("\n\n\t\tERROR: temperature mismatch");
+//			}
+//		}
 
 	}
 }

@@ -120,10 +120,10 @@ public class TestHeatDiffusionGpkg extends WGTestCase {
 			while (topBCIterator.next() && bottomBCIterator.next()) {
 
 				long timestamp = topBCIterator.timestamp();
-				solver.inTopBC = Map.of(0, topBCIterator.values());
+				solver.inTopBC = Map.of(solver.stationID, topBCIterator.values());
 
 				timestamp = bottomBCIterator.timestamp();
-				solver.inBottomBC = Map.of(0, bottomBCIterator.values());
+				solver.inBottomBC = Map.of(solver.stationID, bottomBCIterator.values());
 
 				solver.inCurrentDate = ETimeUtilities.INSTANCE.TIME_FORMATTER_UTC.format(new Date(timestamp));
 				System.out.println("Solving for timestamp " + timestamp + " (" + solver.inCurrentDate + ")");
@@ -142,7 +142,7 @@ public class TestHeatDiffusionGpkg extends WGTestCase {
 				writer.temperature = solver.outTemperature;
 				writer.theta = solver.outTheta;
 				writer.internalEnergy = solver.outInternalEnergy;
-				writer.diffusionHeatFlux = solver.outDiffusionHeatFlux;
+				writer.heatFlux = solver.outDiffusionHeatFlux;
 				writer.error = solver.outErrorInternalEnergy;
 				writer.topBC = solver.outHeatFluxTop;
 				writer.bottomBC = solver.outHeatFluxBottom;

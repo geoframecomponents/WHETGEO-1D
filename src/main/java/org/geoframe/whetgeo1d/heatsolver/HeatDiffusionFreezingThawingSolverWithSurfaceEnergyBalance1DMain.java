@@ -28,6 +28,7 @@ package org.geoframe.whetgeo1d.heatsolver;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.geoframe.closureequation.closureequation.Parameters;
 import org.geoframe.closureequation.equationstate.EquationState;
@@ -312,32 +313,32 @@ public class HeatDiffusionFreezingThawingSolverWithSurfaceEnergyBalance1DMain {
 	@Description("The HashMap with the time series of the incoming short-wave radiation")
 	@In
 	@Unit ("W m-2")
-	public HashMap<Integer, double[]> inShortWave;
+	public Map<Integer, double[]> inShortWave;
 	
 	@Description("The HashMap with the time series of the incoming long-wave radiation")
 	@In
 	@Unit ("W m-2")
-	public HashMap<Integer, double[]> inLongWave;
+	public Map<Integer, double[]> inLongWave;
 	
 	@Description("The HashMap with the time series of air temperature")
 	@In
 	@Unit ("C")
-	public HashMap<Integer, double[]> inAirT;
+	public Map<Integer, double[]> inAirT;
 	
 	@Description("The HashMap with the time series of wind velocity")
 	@In
 	@Unit ("m/s")
-	public HashMap<Integer, double[]> inWindVelocity;
+	public Map<Integer, double[]> inWindVelocity;
 
 	@Description("The HashMap with the time series of potential evapotranspiration")
 	@In
 	@Unit ("W m-2")
-	public HashMap<Integer, double[]> inPotentialLatentHeatFlux;
+	public Map<Integer, double[]> inPotentialLatentHeatFlux;
 	
 	@Description("The HashMap with the time series of the boundary condition at the bottom of soil column")
 	@In
 	@Unit ("m")
-	public HashMap<Integer, double[]> inBottomBC;
+	public Map<Integer, double[]> inBottomBC;
 	
 	@Description("It is possibile to chose among 2 different kind "
 			+ "of boundary condition at the bottom of the domain: "
@@ -407,7 +408,63 @@ public class HeatDiffusionFreezingThawingSolverWithSurfaceEnergyBalance1DMain {
 	/*
 	 * OUTPUT
 	 */
-
+	@Description("Output temperature")
+	@Out
+	public double[] outTemperature;
+	
+	@Description("Output water content")
+	@Out
+	public double[] outTheta;
+	
+	@Description("Output ice content")
+	@Out
+	public double[] outIceContent;
+	
+	@Description("Output internal energy")
+	@Out
+	public double[] outInternalEnergy;
+	
+	@Description("Output conduction heat flux")
+	@Out
+	public double[] outConductionHeatFlux;
+	
+	@Description("Output error in internal energy")
+	@Out
+	public double outErrorInternalEnergy;
+	
+	@Description("Output air temperature")
+	@Out
+	public double outAirT;
+	
+	@Description("Output short-wave radiation out")
+	@Out
+	public double outShortWaveOut;
+	
+	@Description("Output short-wave radiation in")
+	@Out
+	public double outShortWaveIn;
+	
+	@Description("Output long-wave radiation out")
+	@Out
+	public double outLongWaveOut;
+	
+	@Description("Output long-wave radiation in")
+	@Out
+	public double outLongWaveIn;
+	
+	@Description("Output sensible heat flux")
+	@Out
+	public double outSensibleHeatFlux;
+	
+	@Description("Output actual latent heat flux")
+	@Out
+	public double outActualLatentHeatFlux;
+	
+	@Description("Output heat flux at the bottom of the domain")
+	@Out
+	public double outHeatFluxBottom;
+	
+	
 	@Description("ArrayList of variable to be stored in the buffer writer")
 	@Out
 	public ArrayList<double[]> outputToBuffer;
@@ -501,8 +558,10 @@ public class HeatDiffusionFreezingThawingSolverWithSurfaceEnergyBalance1DMain {
 			variables.internalEnergyBottomBCValue = inBottomBC.get(stationID)[0] + 273.15;
 		}
 
-		saveDate = -1.0;
-		saveDate = inSaveDate.get(stationID)[0];
+		if(inSaveDate != null) {
+			saveDate = -1.0;
+			saveDate = inSaveDate.get(stationID)[0];
+		}
 		outputToBuffer.clear();
 
 		double sumTimeDelta = 0;
@@ -592,8 +651,23 @@ public class HeatDiffusionFreezingThawingSolverWithSurfaceEnergyBalance1DMain {
 
 		}
 
+		outTemperature = variables.temperatures;
+		outTheta = variables.thetas;
+		outIceContent = variables.iceContent;
+		outInternalEnergy = variables.internalEnergys;
+		outConductionHeatFlux = variables.conductionHeatFluxs;
+		outErrorInternalEnergy = variables.errorInternalEnergy;
+		outAirT = variables.airT;
+		outShortWaveOut = variables.shortWaveOut;
+		outShortWaveIn = variables.shortWaveIn;
+		outLongWaveOut = variables.longWaveOut;
+		outLongWaveIn = variables.longWaveIn;
+		outSensibleHeatFlux = variables.sensibleHeatFlux;
+		outActualLatentHeatFlux = variables.actualLatentHeatFlux;
+		outHeatFluxBottom = variables.heatFluxBottom;
+		
 
-		if(saveDate == 1) {
+		if(inSaveDate != null && saveDate == 1) {
 			outputToBuffer.add(variables.temperatures);
 			outputToBuffer.add(variables.thetas);
 			outputToBuffer.add(variables.iceContent);
@@ -609,8 +683,6 @@ public class HeatDiffusionFreezingThawingSolverWithSurfaceEnergyBalance1DMain {
 			outputToBuffer.add(new double[] {variables.actualLatentHeatFlux});
 			outputToBuffer.add(new double[] {variables.heatFluxBottom});
 			doProcessBuffer = true;
-		} else {
-
 		}
 		step++;
 

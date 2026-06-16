@@ -22,6 +22,7 @@ package org.geoframe.whetgeo1d.heatsolver;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.geoframe.closureequation.closureequation.Parameters;
 import org.geoframe.closureequation.equationstate.EquationState;
@@ -43,7 +44,6 @@ import oms3.annotations.License;
 import oms3.annotations.Out;
 import oms3.annotations.Unit;
 
-
 @Description("Solve the pure heat diffusion equation in the conservative form for the 1D domain.")
 @Documentation("")
 @Author(name = "Niccolo' Tubini, and Riccardo Rigon", contact = "tubini.niccolo@gmail.com")
@@ -58,177 +58,171 @@ public class HeatDiffusionSolverWithSurfaceEnergyBalance1DMain {
 	/*
 	 * WATER THERMAL PROPERTIES
 	 */
-	
+
 	@Description("Water density. Default value 1000.0 [kg m-3].")
-	@In 
-	@Unit ("kg m-3")
+	@In
+	@Unit("kg m-3")
 	public double waterDensity = 1000.0;
 
 	@Description("Ice density. Default value 920.0 [kg m-3].")
-	@In 
-	@Unit ("kg m-3")
+	@In
+	@Unit("kg m-3")
 	public double iceDensity = 920.0;
 
 	@Description("Specific thermal capacity of water. Default value 4188.0 [J kg-1 K-1].")
-	@In 
-	@Unit ("J kg-1 K-1")
+	@In
+	@Unit("J kg-1 K-1")
 	public double specificThermalCapacityWater = 4188.0;
 
 	@Description("Specific thermal capacity of ice. Default value 2117.0 [J kg-1 K-1].")
-	@In 
-	@Unit ("J kg-1 K-1")
+	@In
+	@Unit("J kg-1 K-1")
 	public double specificThermalCapacityIce = 2117.0;
 
 	@Description("Thermal conductivity of water. Default value 0.6 [W m-1 K-1].")
-	@In 
-	@Unit ("W m-1 K-1")
+	@In
+	@Unit("W m-1 K-1")
 	public double thermalConductivityWater = 0.6;
 
 	@Description("Thermal conductivity of ice. Default value 2.29 [W m-1 K-1].")
-	@In 
-	@Unit ("W m-1 K-1")
+	@In
+	@Unit("W m-1 K-1")
 	public double thermalConductivityIce = 2.29;
 
 	@Description("Latent heat of fusion. Default value 333700 [J kg-1].")
-	@In 
-	@Unit ("J kg-1")
+	@In
+	@Unit("J kg-1")
 	public double latentHeatFusion = 333700;
-	
 
 	/*
 	 * SOIL PARAMETERS
 	 */
 	@Description("The hydraulic conductivity at saturation")
-	@In 
-	@Unit ("m/s")
+	@In
+	@Unit("m/s")
 	public double[] ks;
 
 	@Description("Saturated water content")
-	@In 
-	@Unit ("-")
+	@In
+	@Unit("-")
 	public double[] thetaS;
 
 	@Description("Residual water content")
-	@In 
-	@Unit ("-")
+	@In
+	@Unit("-")
 	public double[] thetaR;
 
 	@Description("First parameter of SWRC")
-	@In 
-	@Unit ("-")
+	@In
+	@Unit("-")
 	public double[] par1SWRC;
 
 	@Description("Second parameter of SWRC")
-	@In 
-	@Unit ("-")
+	@In
+	@Unit("-")
 	public double[] par2SWRC;
 
 	@Description("Third parameter of SWRC")
-	@In 
-	@Unit ("-")
+	@In
+	@Unit("-")
 	public double[] par3SWRC;
 
 	@Description("Fourth parameter of SWRC")
-	@In 
-	@Unit ("-")
+	@In
+	@Unit("-")
 	public double[] par4SWRC;
 
 	@Description("Fifth parameter of SWRC")
-	@In 
-	@Unit ("-")
+	@In
+	@Unit("-")
 	public double[] par5SWRC;
 
 	@Description("Aquitard compressibility")
-	@In 
-	@Unit ("1/Pa")
+	@In
+	@Unit("1/Pa")
 	public double[] alphaSpecificStorage;
 
 	@Description("Water compressibility")
-	@In 
-	@Unit ("1/Pa")
+	@In
+	@Unit("1/Pa")
 	public double[] betaSpecificStorage;
 
 	@Description("Coefficient for water suction dependence on temperature")
-	@In 
-	@Unit ("K")
+	@In
+	@Unit("K")
 	public double beta0 = -776.45;
 
 	@Description("Reference temperature for soil water content")
-	@In 
-	@Unit ("K")
+	@In
+	@Unit("K")
 	public double referenceTemperatureSWRC = 278.15;
-	
+
 	@Description("Reference temperature to compute internal energy")
-	@In 
-	@Unit ("K")
+	@In
+	@Unit("K")
 	public double referenceTemperatureInternalEnergy = 273.15;
-	
+
 	@Description("Soil particles density")
-	@In 
-	@Unit ("kg m-3")
+	@In
+	@Unit("kg m-3")
 	public double[] soilParticlesDensity;
 
 	@Description("Specific thermal capacity of soil particles")
-	@In 
-	@Unit ("J kg-1 K-1")
+	@In
+	@Unit("J kg-1 K-1")
 	public double[] specificThermalCapacitySoilParticles;
 
 	@Description("Thermal conductivity of soil particles")
-	@In 
-	@Unit ("W m-1 K-1")
+	@In
+	@Unit("W m-1 K-1")
 	public double[] thermalConductivitySoilParticles;
-	
+
 	@Description("Surface albedo")
-	@In 
-	@Unit ("-")
+	@In
+	@Unit("-")
 	public double surfaceAlbedo;
-	
+
 	@Description("Surface emissivity")
-	@In 
-	@Unit ("-")
+	@In
+	@Unit("-")
 	public double surfaceEmissivity;
 
 	@Description("Melting temperature")
-	@In 
-	@Unit ("K")
+	@In
+	@Unit("K")
 	public double[] meltingTemperature;
-	
+
 	@Description("Control volume label defining the equation state")
-	@In 
+	@In
 	@Unit("-")
 	public int[] inEquationStateID;
 
 	@Description("Control volume label defining the set of the paramters")
-	@In 
+	@In
 	@Unit("-")
 	public int[] inParameterID;
-	
+
 	/*
-	 * MODELS
-	 * - closure equation
-	 * - conductivity model
-	 * - interface conductivity model
+	 * MODELS - closure equation - conductivity model - interface conductivity model
 	 */
 	@Description("Closure equation models")
-	@In 
+	@In
 	public String[] typeClosureEquation;
-	
+
 	@Description("Equation state")
-	@In 
+	@In
 	public String[] typeEquationState;
 
 	@Description("Thermal conductivity models")
-	@In 
+	@In
 	public String[] typeThermalConductivity;
 
 	@Description("Thermal conductivity at control volume interface can be evaluated as"
-			+ " the average of kappas[i] and kappas[i+1]"
-			+ " the maximum between kappas[i] and kappas[i+1]"
+			+ " the average of kappas[i] and kappas[i+1]" + " the maximum between kappas[i] and kappas[i+1]"
 			+ " the minimum between kappas[i] and kappas[i+1]"
 			+ " a weighted average of kappas[i] and kappas[i+1] where weights are dx[i] and dx[i+1]")
 	@In
 	public String interfaceThermalConductivityModel;
-
 
 	/*
 	 * INITIAL CONDITION
@@ -252,12 +246,12 @@ public class HeatDiffusionSolverWithSurfaceEnergyBalance1DMain {
 	public double[] z;
 
 	@Description("Space delta to compute gradients read from grid NetCDF file")
-	@In 
+	@In
 	@Unit("m")
 	public double[] spaceDeltaZ;
 
 	@Description("Length of control volumes read from grid NetCDF file")
-	@In 
+	@In
 	@Unit("m")
 	public double[] controlVolume;
 
@@ -266,12 +260,12 @@ public class HeatDiffusionSolverWithSurfaceEnergyBalance1DMain {
 	 */
 	@Description("Time amount at every time-loop")
 	@In
-	@Unit ("s")
+	@Unit("s")
 	public double tTimeStep;
 
 	@Description("Time step of integration")
 	@In
-	@Unit ("s")
+	@Unit("s")
 	public double timeDelta;
 
 	/*
@@ -281,113 +275,111 @@ public class HeatDiffusionSolverWithSurfaceEnergyBalance1DMain {
 	@In
 	public double newtonTolerance;
 
-	@Description("Control parameter for nested Newton algorithm:"
-			+"0 --> simple Newton method"
-			+"1 --> nested Newton method")
+	@Description("Control parameter for nested Newton algorithm:" + "0 --> simple Newton method"
+			+ "1 --> nested Newton method")
 	@In
-	public int nestedNewton; 
+	public int nestedNewton;
 
 	@Description("Damped factor for Newton algorithm")
 	@In
-	public double delta = 0.0; 
-	
+	public double delta = 0.0;
+
 	@Description("Number of Picard iteration to update the diffusive flux matrix")
 	@In
-	public int picardIteration=1;
+	public int picardIteration = 1;
 
 	/*
-	 *  BOUNDARY CONDITIONS
+	 * BOUNDARY CONDITIONS
 	 */
 	@Description("The station ID in the timeseries file")
 	@In
-	@Unit ("-")
+	@Unit("-")
 	public int stationID;
-		
+
 	@Description("The HashMap with the time series of the incoming short-wave radiation")
 	@In
-	@Unit ("W m-2")
-	public HashMap<Integer, double[]> inShortWave;
-	
+	@Unit("W m-2")
+	public Map<Integer, double[]> inShortWave;
+
 	@Description("The HashMap with the time series of the incoming long-wave radiation")
 	@In
-	@Unit ("W m-2")
-	public HashMap<Integer, double[]> inLongWave;
-	
+	@Unit("W m-2")
+	public Map<Integer, double[]> inLongWave;
+
 	@Description("The HashMap with the time series of air temperature")
 	@In
-	@Unit ("C")
-	public HashMap<Integer, double[]> inAirT;
-	
+	@Unit("C")
+	public Map<Integer, double[]> inAirT;
+
 	@Description("The HashMap with the time series of wind velocity")
 	@In
-	@Unit ("m/s")
-	public HashMap<Integer, double[]> inWindVelocity;
-	
+	@Unit("m/s")
+	public Map<Integer, double[]> inWindVelocity;
+
 	@Description("The HashMap with the time series of potential evapotranspiration")
 	@In
-	@Unit ("W m-2")
-	public HashMap<Integer, double[]> inPotentialLatentHeatFlux;
+	@Unit("W m-2")
+	public Map<Integer, double[]> inPotentialLatentHeatFlux;
 
 	@Description("The HashMap with the time series of the boundary condition at the bottom of soil column")
 	@In
-	@Unit ("m")
-	public HashMap<Integer, double[]> inBottomBC;
-	
+	@Unit("m")
+	public Map<Integer, double[]> inBottomBC;
+
 	@Description("It is possibile to chose among 2 different kind "
 			+ "of boundary condition at the bottom of the domain: "
-			+ "- Dirichlet boundary condition --> Bottom Dirichlet"
-			+ "- Neumann boundary condition --> Bottom Neumann")
-	@In 
+			+ "- Dirichlet boundary condition --> Bottom Dirichlet" + "- Neumann boundary condition --> Bottom Neumann")
+	@In
 	public DiffusionBoundaryConditionType bottomBCType;
-	
+
 	@Description("")
-	@In 
+	@In
 	public String surfaceAlbedoType;
-	
+
 	@Description("")
-	@In 
+	@In
 	public String surfaceEmissivityType;
-	
+
 	@Description("")
-	@In 
+	@In
 	public String surfaceAereodynamicResistanceType;
 
 	@Description("")
-	@In 
+	@In
 	public String surfaceWaterVaporResistanceType;
 
 	@Description("")
 	@In
-	@Unit ("")
+	@Unit("")
 	public HashMap<Integer, double[]> inSaveDate;
-	
+
 	@Description("Reference height for the sensible heat flux at soil surface")
 	@In
-	@Unit ("m")
+	@Unit("m")
 	public double referenceHeight;
-	
+
 	@Description("Roughness length of soil surface")
 	@In
-	@Unit ("m")
+	@Unit("m")
 	public double surfaceRoughness;
-	
+
 	@Description("Zero height displacement")
 	@In
-	@Unit ("m")
+	@Unit("m")
 	public double surfaceZeroHeightDisplacement;
-	
+
 	@Description("")
 	@In
 	public double h1 = -0.5;
-	
+
 	@Description("")
 	@In
 	public double h2 = -5;
-	
+
 	@Description("")
 	@In
 	public double h3 = -15;
-	
+
 	@Description("")
 	@In
 	public double h4 = -55;
@@ -397,15 +389,66 @@ public class HeatDiffusionSolverWithSurfaceEnergyBalance1DMain {
 	@Out
 	public String inCurrentDate;
 
-
 	/*
 	 * OUTPUT
 	 */
+	
+	@Description("Temperature at the current time step")
+	@Out
+	public double[] outTemperature;
+	
+	@Description("Water content at the current time step")
+	@Out
+	public double[] outTheta;
+	
+	@Description("Internal energy at the current time step")
+	@Out
+	public double[] outInternalEnergy;
+	
+	@Description("Conduction heat flux at the current time step")
+	@Out
+	public double[] outConductionHeatFlux;
+	
+	@Description("Error on internal energy at the current time step")
+	@Out
+	public double outErrorInternalEnergy;
+	
+	@Description("Air temperature at the current time step")
+	@Out
+	public double outAirT;
+	
+	@Description("Short-wave radiation outgoing at the current time step")
+	@Out
+	public double outShortWaveOut;
+	
+	@Description("Short-wave radiation incoming at the current time step")
+	@Out
+	public double outShortWaveIn;
+	
+	@Description("Long-wave radiation outgoing at the current time step")
+	@Out
+	public double outLongWaveOut;
+	
+	@Description("Long-wave radiation incoming at the current time step")
+	@Out
+	public double outLongWaveIn;
+	
+	@Description("Sensible heat flux at the current time step")
+	@Out
+	public double outSensibleHeatFlux;
+	
+	@Description("Latent heat flux at the current time step")
+	@Out
+	public double outActualLatentHeatFlux;
+	
+	@Description("Heat flux at the bottom of soil column at the current time step")
+	@Out
+	public double outHeatFluxBottom;
+	
 
 	@Description("ArrayList of variable to be stored in the buffer writer")
 	@Out
 	public ArrayList<double[]> outputToBuffer;
-
 
 	@Description("Control variable")
 	@Out
@@ -413,23 +456,19 @@ public class HeatDiffusionSolverWithSurfaceEnergyBalance1DMain {
 
 	//////////////////////////////////////////
 	//////////////////////////////////////////
-	
 
 	@Description("Maximun number of Newton iterations")
 	private final int MAXITER_NEWT = 50;
 
 	@Description("Number of control volume for domain discetrization")
-	@Unit (" ")
-	private int KMAX; 
+	@Unit(" ")
+	private int KMAX;
 
 	@Description("It is needed to iterate on the date")
 	private int step;
 
-	@Description("Control value to save output:"
-			+ "- 1 save the current time step output"
-			+ "- 0 do not save")
+	@Description("Control value to save output:" + "- 1 save the current time step output" + "- 0 do not save")
 	private double saveDate;
-
 
 	private HeatDiffusionWithSurfaceEnergyBalance1DFiniteVolumeSolver heatDiffusionSolver;
 	private ProblemQuantities variables;
@@ -441,29 +480,31 @@ public class HeatDiffusionSolverWithSurfaceEnergyBalance1DMain {
 	@Execute
 	public void solve() {
 
-
-
-		if(step==0){
+		if (step == 0) {
 			KMAX = psiIC.length;
 
 			variables = new ProblemQuantities(psiIC, temperature, inEquationStateID, inParameterID);
 			geometry = new GFGeometry(z, spaceDeltaZ, controlVolume);
 			parameters = new Parameters(waterDensity, iceDensity, specificThermalCapacityWater,
-					specificThermalCapacityIce, thermalConductivityWater, thermalConductivityIce, latentHeatFusion, referenceTemperatureInternalEnergy,
-					referenceTemperatureSWRC, beta0,
-					thetaS, thetaR, soilParticlesDensity, specificThermalCapacitySoilParticles, thermalConductivitySoilParticles,
-					meltingTemperature, par1SWRC, par2SWRC, par3SWRC, par4SWRC, par5SWRC, ks, alphaSpecificStorage, betaSpecificStorage);
+					specificThermalCapacityIce, thermalConductivityWater, thermalConductivityIce, latentHeatFusion,
+					referenceTemperatureInternalEnergy, referenceTemperatureSWRC, beta0, thetaS, thetaR,
+					soilParticlesDensity, specificThermalCapacitySoilParticles, thermalConductivitySoilParticles,
+					meltingTemperature, par1SWRC, par2SWRC, par3SWRC, par4SWRC, par5SWRC, ks, alphaSpecificStorage,
+					betaSpecificStorage);
 
-			computeQuantities = new ComputeQuantitiesHeatDiffusionWithSurfaceEnergyBalance(typeClosureEquation, typeEquationState, typeThermalConductivity, interfaceThermalConductivityModel, bottomBCType,
-					surfaceAlbedoType, surfaceEmissivityType, surfaceAereodynamicResistanceType, surfaceWaterVaporResistanceType, variables, geometry, parameters);
-			
+			computeQuantities = new ComputeQuantitiesHeatDiffusionWithSurfaceEnergyBalance(typeClosureEquation,
+					typeEquationState, typeThermalConductivity, interfaceThermalConductivityModel, bottomBCType,
+					surfaceAlbedoType, surfaceEmissivityType, surfaceAereodynamicResistanceType,
+					surfaceWaterVaporResistanceType, variables, geometry, parameters);
+
 			outputToBuffer = new ArrayList<double[]>();
 
 			List<EquationState> equationState = computeQuantities.getInternalEnergyStateEquation();
-			
+
 			bottomBoundaryCondition = IBoundaryCondition.createDiffusionBoundaryCondition(bottomBCType);
-			
-			heatDiffusionSolver = new HeatDiffusionWithSurfaceEnergyBalance1DFiniteVolumeSolver(bottomBoundaryCondition, KMAX, nestedNewton, newtonTolerance, delta, MAXITER_NEWT, equationState);
+
+			heatDiffusionSolver = new HeatDiffusionWithSurfaceEnergyBalance1DFiniteVolumeSolver(bottomBoundaryCondition,
+					KMAX, nestedNewton, newtonTolerance, delta, MAXITER_NEWT, equationState);
 
 			variables.referenceHeight = referenceHeight;
 			variables.surfaceRoughness = surfaceRoughness;
@@ -479,85 +520,85 @@ public class HeatDiffusionSolverWithSurfaceEnergyBalance1DMain {
 
 		doProcessBuffer = false;
 
-
 		variables.internalEnergyTopBCValue = 0.0;
 		variables.shortWaveIn = inShortWave.get(stationID)[0];
 		variables.longWaveIn = inLongWave.get(stationID)[0];
 		variables.airT = inAirT.get(stationID)[0] + 273.15;
 		variables.windVelocity = inWindVelocity.get(stationID)[0];
 		variables.potentialLatentHeatFlux = inPotentialLatentHeatFlux.get(stationID)[0];
-		
+
 		variables.internalEnergyBottomBCValue = 0.0;
-		if(bottomBCType == IBoundaryCondition.DiffusionBoundaryConditionType.BOTTOM_NEUMANN) {
+		if (bottomBCType == IBoundaryCondition.DiffusionBoundaryConditionType.BOTTOM_NEUMANN) {
 			variables.internalEnergyBottomBCValue = inBottomBC.get(stationID)[0];
 		} else {
 			variables.internalEnergyBottomBCValue = inBottomBC.get(stationID)[0] + 273.15;
 		}
 
-		saveDate = -1.0;
-		saveDate = inSaveDate.get(stationID)[0];
+		if (inSaveDate != null) {
+			saveDate = -1.0;
+			saveDate = inSaveDate.get(stationID)[0];
+		}
 		outputToBuffer.clear();
 
 		double sumTimeDelta = 0;
 
-		
-		while(sumTimeDelta < tTimeStep) {
+		while (sumTimeDelta < tTimeStep) {
 
-			
-			if(sumTimeDelta + timeDelta>tTimeStep) {
+			if (sumTimeDelta + timeDelta > tTimeStep) {
 				timeDelta = tTimeStep - sumTimeDelta;
 			}
 			sumTimeDelta = sumTimeDelta + timeDelta;
-
 
 			/*
 			 * Compute internal energy
 			 */
 			computeQuantities.computeInternalEnergy(KMAX);
 
-			
 			/*
 			 * Compute xStar
 			 */
 			computeQuantities.computeXStar(KMAX);
-			
+
 			computeQuantities.computeThetas(KMAX);
-			
+
 			computeQuantities.computeSensibleHeatCoefficient();
-			
+
 			computeQuantities.computeSurfaceAlbedo(KMAX);
-			
+
 			computeQuantities.computeSurfaceEmissivity(KMAX);
-			
+
 			computeQuantities.computeActualLatentHeatFlux(KMAX);
 
 			/*
 			 * Solve PDE
 			 */
-			for(int picard=0; picard<picardIteration; picard++) {
+			for (int picard = 0; picard < picardIteration; picard++) {
 
 				/*
 				 * Compute thermal conductivity
 				 * 
-				 */	
+				 */
 				computeQuantities.computeThermalConductivity(KMAX);
 
 				computeQuantities.computeInterfaceThermalConductivity(KMAX);
-				
+
 				computeQuantities.computeLinearizedLongWaveOut(KMAX);
-				
+
 				/*
 				 * Solve PDE
 				 */
-				variables.temperatures = heatDiffusionSolver.solve(timeDelta, variables.internalEnergyBottomBCValue, variables.shortWaveIn, variables.longWaveIn, variables.surfaceAlbedo, variables.surfaceEmissivity, variables.linearizedLongWaveOut, variables.sensibleHeatCoefficient, variables.actualLatentHeatFlux, variables.airT,
-						KMAX, variables.lambdasInterface, variables.internalEnergys, geometry.spaceDeltaZ, variables.heatSourcesSinksTerm, variables.temperatures, variables.waterSuctions, variables.parameterID, variables.equationStateID);
+				variables.temperatures = heatDiffusionSolver.solve(timeDelta, variables.internalEnergyBottomBCValue,
+						variables.shortWaveIn, variables.longWaveIn, variables.surfaceAlbedo,
+						variables.surfaceEmissivity, variables.linearizedLongWaveOut, variables.sensibleHeatCoefficient,
+						variables.actualLatentHeatFlux, variables.airT, KMAX, variables.lambdasInterface,
+						variables.internalEnergys, geometry.spaceDeltaZ, variables.heatSourcesSinksTerm,
+						variables.temperatures, variables.waterSuctions, variables.parameterID,
+						variables.equationStateID);
 
 			} // close Picard iteration
-			
 
 			/*
-			 * Compute 
-			 * - internal energy and total internal energy
+			 * Compute - internal energy and total internal energy
 			 */
 			computeQuantities.computeInternalEnergyNew(KMAX);
 
@@ -567,41 +608,49 @@ public class HeatDiffusionSolverWithSurfaceEnergyBalance1DMain {
 			computeQuantities.computeLongWaveOut(KMAX);
 
 			computeQuantities.computeShortWaveOut();
-			
+
 			computeQuantities.computeSensibleHeatFlux(KMAX);
-			
+
 			computeQuantities.computeConductionHeatFlux(KMAX);
-			
+
 			/*
 			 * Compute error
 			 */
 			computeQuantities.computeErrorDiffusion(KMAX, timeDelta);
 		}
 
-
-		if(saveDate == 1) {
+		outTemperature = variables.temperatures;
+		outTheta = variables.thetas;
+		outInternalEnergy = variables.internalEnergys;
+		outConductionHeatFlux = variables.conductionHeatFluxs;
+		outErrorInternalEnergy = variables.errorInternalEnergy;
+		outAirT = variables.airT;
+		outShortWaveOut = variables.shortWaveOut;
+		outShortWaveIn = variables.shortWaveIn;
+		outLongWaveOut = variables.longWaveOut;
+		outLongWaveIn = variables.longWaveIn;
+		outSensibleHeatFlux = variables.sensibleHeatFlux;
+		outActualLatentHeatFlux = variables.actualLatentHeatFlux;
+		outHeatFluxBottom = variables.heatFluxBottom;
+		
+		if (saveDate == 1) {
 			outputToBuffer.add(variables.temperatures);
 			outputToBuffer.add(variables.thetas);
 			outputToBuffer.add(variables.internalEnergys);
 			outputToBuffer.add(variables.conductionHeatFluxs);
-			outputToBuffer.add(new double[] {variables.errorInternalEnergy});
-			outputToBuffer.add(new double[] {variables.airT});
-			outputToBuffer.add(new double[] {variables.shortWaveOut});
-			outputToBuffer.add(new double[] {variables.shortWaveIn});
-			outputToBuffer.add(new double[] {variables.longWaveOut});
-			outputToBuffer.add(new double[] {variables.longWaveIn});
-			outputToBuffer.add(new double[] {variables.sensibleHeatFlux});
-			outputToBuffer.add(new double[] {variables.actualLatentHeatFlux});
-			outputToBuffer.add(new double[] {variables.heatFluxBottom});
+			outputToBuffer.add(new double[] { variables.errorInternalEnergy });
+			outputToBuffer.add(new double[] { variables.airT });
+			outputToBuffer.add(new double[] { variables.shortWaveOut });
+			outputToBuffer.add(new double[] { variables.shortWaveIn });
+			outputToBuffer.add(new double[] { variables.longWaveOut });
+			outputToBuffer.add(new double[] { variables.longWaveIn });
+			outputToBuffer.add(new double[] { variables.sensibleHeatFlux });
+			outputToBuffer.add(new double[] { variables.actualLatentHeatFlux });
+			outputToBuffer.add(new double[] { variables.heatFluxBottom });
 			doProcessBuffer = true;
-		} else {
-			//			System.out.println("SaveDate = " + saveDate);
 		}
 		step++;
 
 	} //// MAIN CYCLE END ////
 
-}  /// CLOSE ///
-
-
-
+} /// CLOSE ///
