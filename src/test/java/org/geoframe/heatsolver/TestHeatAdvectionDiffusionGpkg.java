@@ -152,25 +152,26 @@ public class TestHeatAdvectionDiffusionGpkg extends WGTestCase {
 			// check average temperature, water_suction and theta for min and max eta values
 			// through time in the output gpkg
 			// TODO create a more meaningful testcase
-			ADb db = EDb.GEOPACKAGE.getDb();
-			db.open(outputsPath);
-			String sql = """
-					SELECT eta, avg(temperature), avg(water_suction), avg(theta)
-					FROM output_state
-					WHERE eta = (SELECT min(eta) FROM output_state)
-					   OR eta = (SELECT max(eta) FROM output_state)
-					GROUP BY eta
-					order by eta
-					""";
-			QueryResult result = db.getTableRecordsMapFromRawSql(sql, -1);
-			assertEquals(-29.975, ((Number) result.data.get(0)[0]).doubleValue(), 0);
-			assertEquals(-0.025, ((Number) result.data.get(1)[0]).doubleValue(), 0);
-			assertEquals(285.1499999731842, ((Number) result.data.get(0)[1]).doubleValue(), 0.0001);
-			assertEquals(285.85806352331406, ((Number) result.data.get(1)[1]).doubleValue(), 0.0001);
-			assertEquals(-0.9397979718297476, ((Number) result.data.get(0)[2]).doubleValue(), 0.0001);
-			assertEquals(-0.795455766638089, ((Number) result.data.get(1)[2]).doubleValue(), 0.0001);
-			assertEquals(0.07543167132138487, ((Number) result.data.get(0)[3]).doubleValue(), 0.0001);
-			assertEquals(0.09687384391267753, ((Number) result.data.get(1)[3]).doubleValue(), 0.0001);
+			try (ADb db = EDb.GEOPACKAGE.getDb()) {
+				db.open(outputsPath);
+				String sql = """
+						SELECT eta, avg(temperature), avg(water_suction), avg(theta)
+						FROM output_state
+						WHERE eta = (SELECT min(eta) FROM output_state)
+						   OR eta = (SELECT max(eta) FROM output_state)
+						GROUP BY eta
+						order by eta
+						""";
+				QueryResult result = db.getTableRecordsMapFromRawSql(sql, -1);
+				assertEquals(-29.975, ((Number) result.data.get(0)[0]).doubleValue(), 0);
+				assertEquals(-0.025, ((Number) result.data.get(1)[0]).doubleValue(), 0);
+				assertEquals(285.1499999731842, ((Number) result.data.get(0)[1]).doubleValue(), 0.0001);
+				assertEquals(285.85806352331406, ((Number) result.data.get(1)[1]).doubleValue(), 0.0001);
+				assertEquals(-0.9397979718297476, ((Number) result.data.get(0)[2]).doubleValue(), 0.0001);
+				assertEquals(-0.795455766638089, ((Number) result.data.get(1)[2]).doubleValue(), 0.0001);
+				assertEquals(0.07543167132138487, ((Number) result.data.get(0)[3]).doubleValue(), 0.0001);
+				assertEquals(0.09687384391267753, ((Number) result.data.get(1)[3]).doubleValue(), 0.0001);
+			}
 		}
 	}
 

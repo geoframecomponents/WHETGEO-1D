@@ -53,7 +53,7 @@ public class TestHeatDiffusionGpkg extends WGTestCase {
 		String startDate = "2013-12-15 01:00";
 		String endDate = "2015-12-16 01:00";
 		String inputsPath = getRes("/input/gpkg/HeatDiffusion.gpkg");
-		String outputsPath = getTmpPath("HeatDiffusion_output", "gpkg");   
+		String outputsPath = getTmpPath("HeatDiffusion_output", "gpkg");
 		Files.deleteIfExists(Path.of(outputsPath));
 
 		var inputsHandler = new Whetgeo1DInputsHandler(inputsPath);
@@ -144,27 +144,27 @@ public class TestHeatDiffusionGpkg extends WGTestCase {
 
 			}
 		} // iterators and writer all closed here; writer flushes remaining buffer
-		
-		
+
 		// check average temperature and internal energy for min and max eta values
 		// through time in the output gpkg
 		// TODO create a more meaningful testcase
-		ADb db = EDb.GEOPACKAGE.getDb();
-		db.open(outputsPath);	
-		String sql ="""
-				SELECT eta, avg(temperature), avg(internal_energy)
-				FROM output_state
-				WHERE eta = (SELECT min(eta) FROM output_state)
-				   OR eta = (SELECT max(eta) FROM output_state)
-				GROUP BY eta order by eta
-				""";
-		QueryResult result = db.getTableRecordsMapFromRawSql(sql, -1);
-		assertEquals(-29.975, ((Number)result.data.get(0)[0]).doubleValue(), 0);
-		assertEquals(-0.025, ((Number)result.data.get(1)[0]).doubleValue(), 0);
-		assertEquals(1068.7785001837876, ((Number)result.data.get(0)[1]).doubleValue(), 0.0001);
-		assertEquals(285.1552027413406, ((Number)result.data.get(1)[1]).doubleValue(), 0.0001);
-		assertEquals(1.3129997785765049E8, ((Number)result.data.get(0)[2]).doubleValue(), 0.0001);
-		assertEquals(8226205.610392944, ((Number)result.data.get(1)[2]).doubleValue(), 0.0001);
-		
+		try (ADb db = EDb.GEOPACKAGE.getDb()) {
+			db.open(outputsPath);
+			String sql = """
+					SELECT eta, avg(temperature), avg(internal_energy)
+					FROM output_state
+					WHERE eta = (SELECT min(eta) FROM output_state)
+					   OR eta = (SELECT max(eta) FROM output_state)
+					GROUP BY eta order by eta
+					""";
+			QueryResult result = db.getTableRecordsMapFromRawSql(sql, -1);
+			assertEquals(-29.975, ((Number) result.data.get(0)[0]).doubleValue(), 0);
+			assertEquals(-0.025, ((Number) result.data.get(1)[0]).doubleValue(), 0);
+			assertEquals(1068.7785001837876, ((Number) result.data.get(0)[1]).doubleValue(), 0.0001);
+			assertEquals(285.1552027413406, ((Number) result.data.get(1)[1]).doubleValue(), 0.0001);
+			assertEquals(1.3129997785765049E8, ((Number) result.data.get(0)[2]).doubleValue(), 0.0001);
+			assertEquals(8226205.610392944, ((Number) result.data.get(1)[2]).doubleValue(), 0.0001);
+		}
+
 	}
 }
