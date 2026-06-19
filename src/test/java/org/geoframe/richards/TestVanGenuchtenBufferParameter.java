@@ -22,6 +22,7 @@ package org.geoframe.richards;
 import java.net.URISyntaxException;
 import java.util.HashMap;
 
+import org.geoframe.whetgeo1d.boundaryconditions.IBoundaryCondition.RichardsBoundaryConditionType;
 import org.geoframe.whetgeo1d.richardssolver.RichardsSolver1DMain;
 import org.hortonmachine.gears.io.geoframe.BufferCalibrationRichards1D;
 import org.hortonmachine.gears.io.geoframe.BufferParameterRichards1D;
@@ -62,8 +63,8 @@ public class TestVanGenuchtenBufferParameter {
 		String pathCalibrationPointPsi = "resources/output/cancella_psi.csv";
 		String pathCalibrationPointTheta = "resources/output/cancella_theta.csv";
 		
-		String topBC = "Top Neumann";
-		String bottomBC = "Bottom free drainage";
+		var topBC = RichardsBoundaryConditionType.TOP_NEUMANN;
+		var bottomBC = RichardsBoundaryConditionType.BOTTOM_FREE_DRAINAGE;
 
 		String outputDescription = "\n"
 				+ "Initial condition hydrostatic no ponding\n		"
@@ -163,8 +164,8 @@ public class TestVanGenuchtenBufferParameter {
 		writeNetCDF.pathGrid = pathGrid;
 		writeNetCDF.pathBottomBC = pathBottomBC; 
 		writeNetCDF.pathTopBC = pathTopBC; 
-		writeNetCDF.bottomBC = bottomBC;
-		writeNetCDF.topBC = topBC;
+		writeNetCDF.bottomBC = bottomBC.name();
+		writeNetCDF.topBC = topBC.name();
 		writeNetCDF.swrcModel = "VG";
 		writeNetCDF.soilHydraulicConductivityModel = "Mualem VG no temperature";
 		writeNetCDF.interfaceConductivityModel = "max";

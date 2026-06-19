@@ -22,6 +22,7 @@ package org.geoframe.solutetrasport;
 import java.net.URISyntaxException;
 import java.util.HashMap;
 
+import org.geoframe.whetgeo1d.boundaryconditions.IBoundaryCondition.RichardsBoundaryConditionType;
 import org.geoframe.whetgeo1d.solutetransport.RichardsConservativeSoluteADESolver1DMain;
 import org.hortonmachine.gears.io.geoframe.ReadNetCDFRichardsSoluteADEGrid1D;
 import org.hortonmachine.gears.io.geoframe.RichardsSoluteADEBuffer1D;
@@ -61,8 +62,8 @@ public class TestRichardsSoluteADEDouble {
 		String bottomSoluteBC = "Bottom dirichlet";
 		
 		//Richards boundary conditions
-		String topRichardsBC = "Top Coupled";
-		String bottomRichardsBC = "Bottom Free Drainage"; //"Bottom Free drainage"
+		var topRichardsBC = RichardsBoundaryConditionType.TOP_COUPLED;
+		var bottomRichardsBC = RichardsBoundaryConditionType.BOTTOM_FREE_DRAINAGE;
 
 		String outputDescription = "\n"
 				+ "Richards' equation coupled with the solute advection-dispersion equation";

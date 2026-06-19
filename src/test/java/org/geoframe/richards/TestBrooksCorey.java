@@ -23,13 +23,13 @@ import java.nio.file.Files;
 import java.util.HashMap;
 
 import org.geoframe.whetgeo.WGTestCase;
+import org.geoframe.whetgeo1d.boundaryconditions.IBoundaryCondition.RichardsBoundaryConditionType;
 import org.geoframe.whetgeo1d.richardssolver.RichardsSolver1DMain;
 import org.hortonmachine.gears.io.geoframe.ReadNetCDFRichardsGrid1D;
 import org.hortonmachine.gears.io.geoframe.ReadNetCDFRichardsOutput1D;
 import org.hortonmachine.gears.io.geoframe.RichardsBuffer1D;
 import org.hortonmachine.gears.io.geoframe.WriteNetCDFRichards1DDouble;
 import org.hortonmachine.gears.io.timedependent.OmsTimeSeriesIteratorReader;
-
 /**
  * Test the {@link TestBrooksCorey} module.
  * 
@@ -55,8 +55,8 @@ public class TestBrooksCorey extends WGTestCase {
 		String pathGrid =  getRes("/input/Grid_NetCDF/RichardsCoupled_BC.nc");
 		String pathOutput = Files.createTempFile("Sim_RichardsCoupled_BC_", ".nc").toString();
 		
-		String topBC = "Top Coupled";
-		String bottomBC = "Bottom free drainage";
+		var topBC = RichardsBoundaryConditionType.TOP_COUPLED;
+		var bottomBC = RichardsBoundaryConditionType.BOTTOM_FREE_DRAINAGE;
 
 		String outputDescription = "\n"
 				+ "Initial condition hydrostatic no ponding\n		"
@@ -122,8 +122,8 @@ public class TestBrooksCorey extends WGTestCase {
 		writeNetCDF.pathGrid = pathGrid;
 		writeNetCDF.pathBottomBC = pathBottomBC; 
 		writeNetCDF.pathTopBC = pathTopBC; 
-		writeNetCDF.bottomBC = bottomBC;
-		writeNetCDF.topBC = topBC;
+		writeNetCDF.bottomBC = bottomBC.name();
+		writeNetCDF.topBC = topBC.name();
 		writeNetCDF.swrcModel = "BC";
 		writeNetCDF.soilHydraulicConductivityModel = "Mualem BC no temperature";
 		writeNetCDF.interfaceConductivityModel = "max";

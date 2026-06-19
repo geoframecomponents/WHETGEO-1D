@@ -24,6 +24,7 @@ import java.nio.file.Files;
 import java.util.HashMap;
 
 import org.geoframe.whetgeo.WGTestCase;
+import org.geoframe.whetgeo1d.boundaryconditions.IBoundaryCondition.RichardsBoundaryConditionType;
 import org.geoframe.whetgeo1d.richardssolver.RichardsSolver1DMain;
 import org.hortonmachine.gears.io.geoframe.ReadNetCDFRichardsGrid1D;
 import org.hortonmachine.gears.io.geoframe.ReadNetCDFRichardsOutput1D;
@@ -55,8 +56,9 @@ public class TestKosugi extends WGTestCase{
 		String pathGrid =  getRes("/input/Grid_NetCDF/RichardsCoupled_Kosugi.nc");
 		String pathOutput = Files.createTempFile("Sim_RichardsCoupled_Kosugi", ".nc").toString();
 		
-		String topBC = "Top Coupled";
-		String bottomBC = "Bottom free drainage";
+		
+		var topBC = RichardsBoundaryConditionType.TOP_COUPLED;
+		var bottomBC = RichardsBoundaryConditionType.BOTTOM_FREE_DRAINAGE;
 
 		String outputDescription = "\n"
 				+ "Initial condition hydrostatic no ponding\n		"
@@ -122,8 +124,8 @@ public class TestKosugi extends WGTestCase{
 		writeNetCDF.pathGrid = pathGrid;
 		writeNetCDF.pathBottomBC = pathBottomBC; 
 		writeNetCDF.pathTopBC = pathTopBC; 
-		writeNetCDF.bottomBC = bottomBC;
-		writeNetCDF.topBC = topBC;
+		writeNetCDF.bottomBC = bottomBC.name();
+		writeNetCDF.topBC = topBC.name();
 		writeNetCDF.swrcModel = "Kosugi";
 		writeNetCDF.soilHydraulicConductivityModel = "Mualem Kosugi no temperature";
 		writeNetCDF.interfaceConductivityModel = "max";

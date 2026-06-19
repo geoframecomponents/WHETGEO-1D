@@ -22,6 +22,7 @@ package org.geoframe.richards;
 import java.net.URISyntaxException;
 import java.util.HashMap;
 
+import org.geoframe.whetgeo1d.boundaryconditions.IBoundaryCondition.RichardsBoundaryConditionType;
 import org.geoframe.whetgeo1d.richardssolver.RichardsSolver1DMain;
 import org.hortonmachine.gears.io.geoframe.ReadNetCDFRichardsGrid1D;
 import org.hortonmachine.gears.io.geoframe.ReadNetCDFRichardsOutput1D;
@@ -53,8 +54,9 @@ public class TestSrivastavaYehAnalyticalSolution {
 		String pathGrid =  "resources/input/Grid_NetCDF/SrivastavaYeh_homogeneous_1000.nc";
 		String pathOutput = "resources/output/SrivastavaYeh_homogeneous_harmonic.nc";
 		
-		String topBC = "Top Neumann";
-		String bottomBC = "Bottom Dirichlet";
+		
+		var topBC = RichardsBoundaryConditionType.TOP_NEUMANN;
+		var bottomBC = RichardsBoundaryConditionType.BOTTOM_DIRICHLET;
 
 		String outputDescription = "\n"
 				+ "Comparison with Srivastava and Yeh 1991 analytical solution.\nHomogeneous soil, wetting case, alpha=0.1 [cm-1].\n		"
@@ -120,8 +122,8 @@ public class TestSrivastavaYehAnalyticalSolution {
 		writeNetCDF.pathGrid = pathGrid;
 		writeNetCDF.pathBottomBC = pathBottomBC; 
 		writeNetCDF.pathTopBC = pathTopBC; 
-		writeNetCDF.bottomBC = bottomBC;
-		writeNetCDF.topBC = topBC;
+		writeNetCDF.bottomBC = bottomBC.name();
+		writeNetCDF.topBC = topBC.name();
 		writeNetCDF.swrcModel = "Exponential model (Srivastava Yeh 1991";
 		writeNetCDF.soilHydraulicConductivityModel = "Exponential model (Srivastava Yeh 1991";
 		writeNetCDF.interfaceConductivityModel = "harmonic mean";

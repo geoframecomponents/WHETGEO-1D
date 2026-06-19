@@ -22,6 +22,7 @@ package org.geoframe.richards;
 import java.net.URISyntaxException;
 import java.util.HashMap;
 
+import org.geoframe.whetgeo1d.boundaryconditions.IBoundaryCondition.RichardsBoundaryConditionType;
 import org.geoframe.whetgeo1d.richardssolver.RichardsSolver1DMain;
 import org.hortonmachine.gears.io.geoframe.ReadNetCDFRichardsGrid1D;
 import org.hortonmachine.gears.io.geoframe.ReadNetCDFRichardsOutput1D;
@@ -55,8 +56,8 @@ public class TestVanGenuchtenSeepage {
 		String pathGrid =  "resources/input/Grid_NetCDF/RichardsCoupled_VG.nc";
 		String pathOutput = "resources/output/Sim_RichardsCoupled_VG_seepage_1.nc";
 		
-		String topBC = "Top Coupled";
-		String bottomBC = "Bottom seepage";
+		var topBC = RichardsBoundaryConditionType.TOP_COUPLED;
+		var bottomBC = RichardsBoundaryConditionType.BOTTOM_SEEPAGE;
 
 		String outputDescription = "\n"
 				+ "Initial condition hydrostatic no ponding\n		"
@@ -135,8 +136,8 @@ public class TestVanGenuchtenSeepage {
 		writeNetCDF.pathGrid = pathGrid;
 		writeNetCDF.pathBottomBC = pathBottomBC; 
 		writeNetCDF.pathTopBC = pathTopBC; 
-		writeNetCDF.bottomBC = bottomBC;
-		writeNetCDF.topBC = topBC;
+		writeNetCDF.bottomBC = bottomBC.name();
+		writeNetCDF.topBC = topBC.name();
 		writeNetCDF.swrcModel = "VG";
 		writeNetCDF.soilHydraulicConductivityModel = "Mualem VG no temperature";
 		writeNetCDF.interfaceConductivityModel = "max";

@@ -24,6 +24,7 @@ import java.nio.file.Files;
 import java.util.HashMap;
 
 import org.geoframe.whetgeo.WGTestCase;
+import org.geoframe.whetgeo1d.boundaryconditions.IBoundaryCondition.RichardsBoundaryConditionType;
 import org.geoframe.whetgeo1d.heatsolver.HeatAdvectionDiffusionSolverWithSurfaceEnergyBalance1DMain;
 import org.hortonmachine.gears.io.geoframe.HeatAdvectionDiffusionBuffer1D;
 import org.hortonmachine.gears.io.geoframe.ReadNetCDFHeatAdvectionDiffusionGrid1D;
@@ -68,8 +69,8 @@ public class TestHeatAdvectionDiffusionSurfaceEnergyBalance extends WGTestCase{
 		String bottomSoluteBC = "Bottom No Gradient";
 		
 		//Richards boundary conditions
-		String topRichardsBC = "Top Coupled";
-		String bottomRichardsBC = "Bottom Dirichlet"; //"Bottom Free drainage"
+		var topRichardsBC = RichardsBoundaryConditionType.TOP_COUPLED;
+		var bottomRichardsBC = RichardsBoundaryConditionType.BOTTOM_DIRICHLET;
 
 		String outputDescription = "\n"
 				+ "Richards' equation coupled with the solute advection-dispersion equation";
@@ -158,7 +159,7 @@ public class TestHeatAdvectionDiffusionSurfaceEnergyBalance extends WGTestCase{
 		solver.bottomInternalEnergyBCType = bottomSoluteBC;
 		solver.surfaceAlbedoType = "Constant";
 		solver.surfaceEmissivityType = "Constant";
-		solver.surfaceAereodynamicResistanceType = "Neutral";
+		solver.surfaceAereodynamicResistanceType = "NeutralCondition";
 		solver.tTimeStep = 3600;
 		solver.timeDelta = 3600;
 		solver.newtonTolerance = Math.pow(10,-12);

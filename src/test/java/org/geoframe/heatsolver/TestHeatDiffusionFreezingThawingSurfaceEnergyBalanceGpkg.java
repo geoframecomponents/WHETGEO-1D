@@ -42,11 +42,11 @@ public class TestHeatDiffusionFreezingThawingSurfaceEnergyBalanceGpkg extends WG
 
 	public void testHeatDiffusionFreezingThawingSurfaceEnergyBalance() throws Exception {
 
-		String startDate = "2003-01-01 00:00";
-		String endDate = "2007-01-01 00:00";
-
-		String inputsPath = "/home/hydrologis/TMP/UNITN/whetgeo1d/TestHeatDiffusionFreezingThawingSurfaceEnergyBalance/HeatDiffusionSurfaceEnergyBalance.gpkg";
-		String outputsPath ="/home/hydrologis/TMP/UNITN/whetgeo1d/TestHeatDiffusionFreezingThawingSurfaceEnergyBalance/HeatDiffusionFreezingThawingSurfaceEnergyBalance_output.gpkg";
+		String startDate = "2003-01-01 01:00";
+		String endDate = "2006-12-01 00:00";
+		String folder = "/home/hydrologis/TMP/UNITN/whetgeo1d/TestHeatDiffusionFreezingThawingSurfaceEnergyBalance_fem20260617/";
+		String inputsPath = folder + "HeatDiffusionSurfaceEnergyBalance.gpkg";
+		String outputsPath =folder + "HeatDiffusionFreezingThawingSurfaceEnergyBalance_output.gpkg";
 		Files.deleteIfExists(Path.of(outputsPath));
 
 		var bottomBC = DiffusionBoundaryConditionType.BOTTOM_NEUMANN;

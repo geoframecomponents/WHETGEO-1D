@@ -19,6 +19,7 @@
 
 package org.geoframe.whetgeo1d.data;
 
+import org.geoframe.whetgeo1d.boundaryconditions.IBoundaryCondition.DiffusionBoundaryConditionType;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -53,21 +54,18 @@ import oms3.annotations.License;
 //@Status()
 @License("General Public License Version 3 (GPLv3)")
 
-
 public class ComputeQuantitiesHeatAdvectionDiffusion {
-	
-	
+
 	private ProblemQuantities variables;
 	private GFGeometry geometry;
 	private Parameters parameters;
-	
 
 	@Description("List containing the closure equations")
 	private List<ClosureEquation> soilWaterRetentionCurve;
-	
+
 	@Description("Factory for the closure equations")
 	private SoilWaterRetentionCurveFactory soilWaterRetentionCurveFactory;
-	
+
 	@Description("List containig the objects that describes the state equations of the problem")
 	private List<EquationState> equationState;
 
@@ -82,184 +80,218 @@ public class ComputeQuantitiesHeatAdvectionDiffusion {
 	private InterfaceConductivity interfaceConductivity;
 	private SimpleInterfaceConductivityFactory interfaceConductivityFactory;
 
+	private DiffusionBoundaryConditionType topBCType;
+	private DiffusionBoundaryConditionType bottomBCType;
 
-	private String topBCType;
-	private String bottomBCType;
-	
-	public ComputeQuantitiesHeatAdvectionDiffusion(String[] typeClosureEquation, String[] typeEquationState, String[] typeThermalConductivity,
-			String interfaceHydraulicConductivityModel, String topBCType, String bottomBCType, ProblemQuantities variables, GFGeometry geometry, Parameters parameters) {
-		
+	public ComputeQuantitiesHeatAdvectionDiffusion(String[] typeClosureEquation, String[] typeEquationState,
+			String[] typeThermalConductivity, String interfaceHydraulicConductivityModel,
+			DiffusionBoundaryConditionType topBCType, DiffusionBoundaryConditionType bottomBCType,
+			ProblemQuantities variables, GFGeometry geometry, Parameters parameters) {
+
 		this.variables = variables;
 		this.geometry = geometry;
 		this.parameters = parameters;
 
-
 		soilWaterRetentionCurveFactory = new SoilWaterRetentionCurveFactory();
-		
+
 		soilWaterRetentionCurve = new ArrayList<ClosureEquation>();
-		for(int i=0; i<typeClosureEquation.length; i++) {
+		for (int i = 0; i < typeClosureEquation.length; i++) {
 			soilWaterRetentionCurve.add(soilWaterRetentionCurveFactory.create(typeClosureEquation[i], parameters));
 		}
 
 		equationStateFactory = new EquationStateFactory();
 
 		equationState = new ArrayList<EquationState>();
-		for(int i=0; i<typeEquationState.length; i++) {
-			equationState.add(equationStateFactory.create(EnumUtils.fromString(StateEquationModel.class, typeEquationState[i]), soilWaterRetentionCurve.get(i),
-					geometry, variables));
+		for (int i = 0; i < typeEquationState.length; i++) {
+			equationState.add(
+					equationStateFactory.create(EnumUtils.fromString(StateEquationModel.class, typeEquationState[i]),
+							soilWaterRetentionCurve.get(i), geometry, variables));
 		}
 
 		conductivityEquationFactory = new ConductivityEquationFactory();
 		thermalConductivity = new ArrayList<ConductivityEquation>();
-		for(int i=0; i<typeThermalConductivity.length; i++) {
-			thermalConductivity.add(conductivityEquationFactory.create(typeThermalConductivity[i], soilWaterRetentionCurve.get(i)));
+		for (int i = 0; i < typeThermalConductivity.length; i++) {
+			thermalConductivity.add(
+					conductivityEquationFactory.create(typeThermalConductivity[i], soilWaterRetentionCurve.get(i)));
 		}
-		
+
 		interfaceConductivityFactory = new SimpleInterfaceConductivityFactory();
-		interfaceConductivity = interfaceConductivityFactory.createInterfaceConductivity(interfaceHydraulicConductivityModel);
-		
+		interfaceConductivity = interfaceConductivityFactory
+				.createInterfaceConductivity(interfaceHydraulicConductivityModel);
+
 		this.topBCType = topBCType;
 		this.bottomBCType = bottomBCType;
-		
+
 	}
-	
-	
-	public List<EquationState> getInternalEnergyStateEquation(){
+
+	public List<EquationState> getInternalEnergyStateEquation() {
 		return equationState;
 	}
-	
-	
-	
+
 	public void computeHeatCapacity(int KMAX) {
-		
-		for(int element = 0; element < KMAX; element++) {
-			variables.heatCapacitys[element] = equationState.get(variables.equationStateID[element]).equationState(variables.temperatures[element], variables.waterSuctions[element], variables.parameterID[element], element);
+
+		for (int element = 0; element < KMAX; element++) {
+			variables.heatCapacitys[element] = equationState.get(variables.equationStateID[element]).equationState(
+					variables.temperatures[element], variables.waterSuctions[element], variables.parameterID[element],
+					element);
 		}
 	}
-	
+
 	public void computeInternalEnergy(int KMAX) {
-		
+
 		variables.internalEnergy = 0.0;
-		for(int element = 0; element < KMAX; element++) {
+		for (int element = 0; element < KMAX; element++) {
 //			variables.internalEnergys[element] = equationState.get(variables.equationStateID[element]).equationState(variables.temperatures[element], variables.waterSuctions[element], variables.parameterID[element], element);
-			variables.internalEnergys[element] = variables.heatCapacitys[element]*(variables.temperatures[element]-parameters.referenceTemperatureInternalEnergy);
+			variables.internalEnergys[element] = variables.heatCapacitys[element]
+					* (variables.temperatures[element] - parameters.referenceTemperatureInternalEnergy);
 			variables.internalEnergy += variables.internalEnergys[element];
 		}
 	}
-	
+
 	public void computeHeatCapacityNew(int KMAX) {
-		
-		for(int element = 0; element < KMAX; element++) {
-			variables.heatCapacitysNew[element] = equationState.get(variables.equationStateID[element]).equationState(variables.temperatures[element], variables.waterSuctions[element], variables.parameterID[element], element);
+
+		for (int element = 0; element < KMAX; element++) {
+			variables.heatCapacitysNew[element] = equationState.get(variables.equationStateID[element]).equationState(
+					variables.temperatures[element], variables.waterSuctions[element], variables.parameterID[element],
+					element);
 		}
 	}
-	
+
 	public void computeInternalEnergyNew(int KMAX) {
-		
+
 		variables.internalEnergyNew = 0.0;
-		for(int element = 0; element < KMAX; element++) {
+		for (int element = 0; element < KMAX; element++) {
 //			variables.internalEnergys[element] = equationState.get(variables.equationStateID[element]).equationState(variables.temperatures[element], variables.waterSuctions[element], variables.parameterID[element], element);
-			variables.internalEnergysNew[element] = variables.heatCapacitysNew[element]*(variables.temperatures[element]-parameters.referenceTemperatureInternalEnergy);
+			variables.internalEnergysNew[element] = variables.heatCapacitysNew[element]
+					* (variables.temperatures[element] - parameters.referenceTemperatureInternalEnergy);
 			variables.internalEnergyNew += variables.internalEnergysNew[element];
 		}
 	}
-	
+
 	public void computeTransportedQuantity(int KMAX) {
-		
-		for(int element = 0; element < KMAX; element++) {
-			variables.waterCapacityTransported[element] =  parameters.waterDensity*parameters.specificThermalCapacityWater;
+
+		for (int element = 0; element < KMAX; element++) {
+			variables.waterCapacityTransported[element] = parameters.waterDensity
+					* parameters.specificThermalCapacityWater;
 		}
 	}
-	
+
 	public void computeThermalConductivity(int KMAX) {
-		
-		for(int element = 0; element < KMAX; element++) {
-			variables.lambdas[element] = thermalConductivity.get(variables.equationStateID[element]).k(variables.temperatures[element], variables.waterSuctions[element], variables.parameterID[element], element);
-		}			
+
+		for (int element = 0; element < KMAX; element++) {
+			variables.lambdas[element] = thermalConductivity.get(variables.equationStateID[element]).k(
+					variables.temperatures[element], variables.waterSuctions[element], variables.parameterID[element],
+					element);
+		}
 
 	}
-	
+
 	public void computeInterfaceThermalConductivity(int KMAX) {
-		
-		for(int k = 1; k <= KMAX-1; k++) {
-			variables.lambdasInterface[k] = interfaceConductivity.compute(variables.lambdas[k-1],variables.lambdas[k], geometry.controlVolume[k-1], geometry.controlVolume[k]);
-		}			
-		
-		// bottom interface 
-		if(this.bottomBCType.equalsIgnoreCase("Bottom Dirichlet") || this.bottomBCType.equalsIgnoreCase("BottomDirichlet")){
-			variables.lambdasInterface[0] = thermalConductivity.get(variables.equationStateID[0]).k(variables.internalEnergyBottomBCValue, variables.waterSuctions[0], variables.parameterID[0], 0);
-		} else {
-			variables.lambdasInterface[0] = - 9999.0;
-		}
-		
-		if(this.topBCType.equalsIgnoreCase("Top Dirichlet") || this.bottomBCType.equalsIgnoreCase("TopDirichlet")){
-			variables.lambdasInterface[KMAX] = thermalConductivity.get(variables.equationStateID[0]).k(variables.internalEnergyBottomBCValue, variables.waterSuctions[0], variables.parameterID[0], 0);
-		} else {
-			variables.lambdasInterface[KMAX] = - 9999.0;
+
+		for (int k = 1; k <= KMAX - 1; k++) {
+			variables.lambdasInterface[k] = interfaceConductivity.compute(variables.lambdas[k - 1],
+					variables.lambdas[k], geometry.controlVolume[k - 1], geometry.controlVolume[k]);
 		}
 
-		
-	}
-	
-	public void computeConductionHeatFlux(int KMAX) {
-		
-		for(int k = 1; k <= KMAX-1; k++) {
-			variables.conductionHeatFluxs[k] = -variables.lambdasInterface[k] * (variables.temperatures[k]-variables.temperatures[k-1])/geometry.spaceDeltaZ[k];
-		}
-		
 		// bottom interface
-		if (this.bottomBCType.equalsIgnoreCase("Bottom Dirichlet") || this.bottomBCType.equalsIgnoreCase("BottomDirichlet")) {
-			variables.conductionHeatFluxs[0] = -variables.lambdasInterface[0] * (variables.temperatures[0]-variables.internalEnergyBottomBCValue)/geometry.spaceDeltaZ[0];
+		if (this.bottomBCType == DiffusionBoundaryConditionType.BOTTOM_DIRICHLET) {
+			variables.lambdasInterface[0] = thermalConductivity.get(variables.equationStateID[0])
+					.k(variables.internalEnergyBottomBCValue, variables.waterSuctions[0], variables.parameterID[0], 0);
+		} else {
+			variables.lambdasInterface[0] = -9999.0;
+		}
+
+		if (this.topBCType == DiffusionBoundaryConditionType.TOP_DIRICHLET) {
+			variables.lambdasInterface[KMAX] = thermalConductivity.get(variables.equationStateID[0])
+					.k(variables.internalEnergyBottomBCValue, variables.waterSuctions[0], variables.parameterID[0], 0);
+		} else {
+			variables.lambdasInterface[KMAX] = -9999.0;
+		}
+
+	}
+
+	public void computeConductionHeatFlux(int KMAX) {
+
+		for (int k = 1; k <= KMAX - 1; k++) {
+			variables.conductionHeatFluxs[k] = -variables.lambdasInterface[k]
+					* (variables.temperatures[k] - variables.temperatures[k - 1]) / geometry.spaceDeltaZ[k];
+		}
+
+		// bottom interface
+		if (this.bottomBCType == DiffusionBoundaryConditionType.BOTTOM_DIRICHLET) {
+			variables.conductionHeatFluxs[0] = -variables.lambdasInterface[0]
+					* (variables.temperatures[0] - variables.internalEnergyBottomBCValue) / geometry.spaceDeltaZ[0];
 		} else {
 			variables.conductionHeatFluxs[0] = -variables.internalEnergyBottomBCValue;
 		}
-		
+
 		// top interface
-		if (this.topBCType.equalsIgnoreCase("Top Dirichlet") || this.topBCType.equalsIgnoreCase("TopDirichlet")) {
-			variables.conductionHeatFluxs[KMAX] = -variables.lambdasInterface[KMAX] * (variables.internalEnergyTopBCValue-variables.temperatures[KMAX-1])/geometry.spaceDeltaZ[KMAX];
+		if (this.topBCType == DiffusionBoundaryConditionType.TOP_DIRICHLET) {
+			variables.conductionHeatFluxs[KMAX] = -variables.lambdasInterface[KMAX]
+					* (variables.internalEnergyTopBCValue - variables.temperatures[KMAX - 1])
+					/ geometry.spaceDeltaZ[KMAX];
 		} else {
 			variables.conductionHeatFluxs[KMAX] = -variables.internalEnergyTopBCValue;
 		}
-		
+
 	}
-	
+
 	public void computeAdvectionHeatFlux(int KMAX) {
-		
-		for(int k = 1; k <= KMAX-1; k++) {
-			variables.advectionHeatFluxs[k] = variables.waterCapacityTransported[k]*( 0.5*variables.darcyVelocities[k]*(variables.temperatures[k]-parameters.referenceTemperatureInternalEnergy+variables.temperatures[k-1]-parameters.referenceTemperatureInternalEnergy)
-					- 0.5*Math.abs(variables.darcyVelocities[k])*(variables.temperatures[k]-parameters.referenceTemperatureInternalEnergy-variables.temperatures[k-1]+parameters.referenceTemperatureInternalEnergy));
+
+		for (int k = 1; k <= KMAX - 1; k++) {
+			variables.advectionHeatFluxs[k] = variables.waterCapacityTransported[k]
+					* (0.5 * variables.darcyVelocities[k]
+							* (variables.temperatures[k] - parameters.referenceTemperatureInternalEnergy
+									+ variables.temperatures[k - 1] - parameters.referenceTemperatureInternalEnergy)
+							- 0.5 * Math.abs(variables.darcyVelocities[k])
+									* (variables.temperatures[k] - parameters.referenceTemperatureInternalEnergy
+											- variables.temperatures[k - 1]
+											+ parameters.referenceTemperatureInternalEnergy));
 		}
-		
+
 		// bottom interface
-		variables.advectionHeatFluxs[0] = variables.waterCapacityTransported[0]*( 0.5*variables.darcyVelocities[0]*(variables.temperatures[0]-parameters.referenceTemperatureInternalEnergy + variables.internalEnergyBottomBCValue-parameters.referenceTemperatureInternalEnergy)
-				- 0.5*Math.abs(variables.darcyVelocities[0])*(variables.temperatures[0]-parameters.referenceTemperatureInternalEnergy - variables.internalEnergyBottomBCValue+parameters.referenceTemperatureInternalEnergy));
+		variables.advectionHeatFluxs[0] = variables.waterCapacityTransported[0] * (0.5 * variables.darcyVelocities[0]
+				* (variables.temperatures[0] - parameters.referenceTemperatureInternalEnergy
+						+ variables.internalEnergyBottomBCValue - parameters.referenceTemperatureInternalEnergy)
+				- 0.5 * Math.abs(variables.darcyVelocities[0])
+						* (variables.temperatures[0] - parameters.referenceTemperatureInternalEnergy
+								- variables.internalEnergyBottomBCValue
+								+ parameters.referenceTemperatureInternalEnergy));
 
 //		variables.advectionHeatFluxs[0] = variables.waterCapacityTransported[0]*( 0.5*variables.darcyVelocities[0]*(variables.temperatures[0] + variables.internalEnergyBottomBCValue)
 //				- 0.5*Math.abs(variables.darcyVelocities[0])*(variables.temperatures[0] - variables.internalEnergyBottomBCValue));
 		/*
-		 * FIXME: check the case for Neumann boundary condition: T_BC = Flux*DeltaZ/lambda_0 - T_0
+		 * FIXME: check the case for Neumann boundary condition: T_BC =
+		 * Flux*DeltaZ/lambda_0 - T_0
 		 */
 		// top interface
-		variables.advectionHeatFluxs[KMAX] = variables.waterCapacityTransported[KMAX-1]*( 0.5*variables.darcyVelocities[KMAX]*(variables.internalEnergyTopBCValue-parameters.referenceTemperatureInternalEnergy + variables.temperatures[KMAX-1]-parameters.referenceTemperatureInternalEnergy)
-				- 0.5*Math.abs(variables.darcyVelocities[KMAX])*(variables.internalEnergyTopBCValue-parameters.referenceTemperatureInternalEnergy - variables.temperatures[KMAX-1]+parameters.referenceTemperatureInternalEnergy));
+		variables.advectionHeatFluxs[KMAX] = variables.waterCapacityTransported[KMAX - 1]
+				* (0.5 * variables.darcyVelocities[KMAX]
+						* (variables.internalEnergyTopBCValue - parameters.referenceTemperatureInternalEnergy
+								+ variables.temperatures[KMAX - 1] - parameters.referenceTemperatureInternalEnergy)
+						- 0.5 * Math.abs(variables.darcyVelocities[KMAX])
+								* (variables.internalEnergyTopBCValue - parameters.referenceTemperatureInternalEnergy
+										- variables.temperatures[KMAX - 1]
+										+ parameters.referenceTemperatureInternalEnergy));
 
 //		variables.advectionHeatFluxs[KMAX] = variables.waterCapacityTransported[KMAX-1]*( 0.5*variables.darcyVelocities[KMAX]*(variables.internalEnergyTopBCValue + variables.temperatures[KMAX-1])
 //				- 0.5*Math.abs(variables.darcyVelocities[KMAX])*(variables.internalEnergyTopBCValue - variables.temperatures[KMAX-1]));
-		
+
 	}
 
 	public void computeHeatFlux(int KMAX) {
-		
-		for(int k = 0; k <= KMAX; k++) {
-			variables.heatFluxs[k] = variables.conductionHeatFluxs[k]+variables.advectionHeatFluxs[k];
+
+		for (int k = 0; k <= KMAX; k++) {
+			variables.heatFluxs[k] = variables.conductionHeatFluxs[k] + variables.advectionHeatFluxs[k];
 		}
-		
+
 	}
-	
 
 	public void computeError(int KMAX, double timeDelta) {
-		variables.errorInternalEnergy = variables.internalEnergyNew - variables.internalEnergy - timeDelta*(-variables.conductionHeatFluxs[KMAX]-variables.advectionHeatFluxs[KMAX] + variables.conductionHeatFluxs[0] + variables.advectionHeatFluxs[0]);
+		variables.errorInternalEnergy = variables.internalEnergyNew - variables.internalEnergy
+				- timeDelta * (-variables.conductionHeatFluxs[KMAX] - variables.advectionHeatFluxs[KMAX]
+						+ variables.conductionHeatFluxs[0] + variables.advectionHeatFluxs[0]);
 
 	}
-	
+
 }

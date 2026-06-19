@@ -22,6 +22,7 @@ package org.geoframe.richards;
 import java.net.URISyntaxException;
 import java.util.HashMap;
 
+import org.geoframe.whetgeo1d.boundaryconditions.IBoundaryCondition.RichardsBoundaryConditionType;
 import org.geoframe.whetgeo1d.richardssolver.RichardsSolver1DMain;
 import org.hortonmachine.gears.io.geoframe.ReadNetCDFRichardsGrid1D;
 import org.hortonmachine.gears.io.geoframe.ReadNetCDFRichardsOutput1D;
@@ -55,8 +56,8 @@ public class TestVanGenuchtenDirichlet {
 		String pathGrid =  "resources/input/Grid_NetCDF/Richards_VG.nc";
 		String pathOutput = "resources/output/Sim_Richards_VG_Dirichlet_new.nc";
 		
-		String topBC = "Top Dirichlet";
-		String bottomBC = "Bottom free drainage";
+		var topBC = RichardsBoundaryConditionType.TOP_DIRICHLET;
+		var bottomBC = RichardsBoundaryConditionType.BOTTOM_FREE_DRAINAGE;
 
 		String outputDescription = "\n"
 				+ "Initial condition hydrostatic no ponding\n		"
@@ -122,8 +123,8 @@ public class TestVanGenuchtenDirichlet {
 		writeNetCDF.pathGrid = pathGrid;
 		writeNetCDF.pathBottomBC = pathBottomBC; 
 		writeNetCDF.pathTopBC = pathTopBC; 
-		writeNetCDF.bottomBC = bottomBC;
-		writeNetCDF.topBC = topBC;
+		writeNetCDF.bottomBC = bottomBC.name();
+		writeNetCDF.topBC = topBC.name();
 		writeNetCDF.swrcModel = "VG";
 		writeNetCDF.soilHydraulicConductivityModel = "Mualem VG no temperature";
 		writeNetCDF.interfaceConductivityModel = "max";

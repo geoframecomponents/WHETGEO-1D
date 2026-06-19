@@ -55,7 +55,7 @@ import oms3.annotations.Unit;
 //@Name()
 //@Status()
 @License("General Public License Version 3 (GPLv3)")
-public class RichardsSolver1DMain extends HMModel{
+public class RichardsSolver1DMain extends HMModel {
 
 	/*
 	 * SOIL PARAMETERS
@@ -244,7 +244,7 @@ public class RichardsSolver1DMain extends HMModel{
 			+ "of boundary condition at the top of the domain: " + "- Dirichlet boundary condition --> Top Dirichlet"
 			+ "- Neumann boundary condition --> Top Neumann")
 	@In
-	public String topBCType;
+	public RichardsBoundaryConditionType topBCType;
 
 	@Description("The HashMap with the time series of the boundary condition at the bottom of soil column")
 	@In
@@ -261,7 +261,7 @@ public class RichardsSolver1DMain extends HMModel{
 			+ "- Dirichlet boundary condition --> Bottom Dirichlet" + "- Neumann boundary condition --> Bottom Neumann"
 			+ "- Impervious boundary condition --> Bottom Impervious")
 	@In
-	public String bottomBCType;
+	public RichardsBoundaryConditionType bottomBCType;
 
 	@Description("The current date of the simulation.")
 	@In
@@ -279,7 +279,6 @@ public class RichardsSolver1DMain extends HMModel{
 	@Description("Control variable")
 	@Out
 	public boolean doProcessBuffer;
-
 
 	//////////////////////////////////////////
 	//////////////////////////////////////////
@@ -316,20 +315,19 @@ public class RichardsSolver1DMain extends HMModel{
 
 			variables = new ProblemQuantities(psiIC, temperature, inEquationStateID, inParameterID);
 			geometry = new GFGeometry(z, spaceDeltaZ, controlVolume);
-			parameters = new Parameters(referenceTemperatureSWRC, beta0, thetaS, thetaR, par1SWRC, par2SWRC, par3SWRC, par4SWRC, par5SWRC, ks, alphaSpecificStorage, betaSpecificStorage);
+			parameters = new Parameters(referenceTemperatureSWRC, beta0, thetaS, thetaR, par1SWRC, par2SWRC, par3SWRC,
+					par4SWRC, par5SWRC, ks, alphaSpecificStorage, betaSpecificStorage);
 
 			computeQuantitiesRichards = new ComputeQuantitiesRichards(typeClosureEquation, typeEquationState,
-					typeUHCModel, typeUHCTemperatureModel, interfaceHydraulicConductivityModel, topBCType,
-					bottomBCType, variables, geometry, parameters);
+					typeUHCModel, typeUHCTemperatureModel, interfaceHydraulicConductivityModel, topBCType, bottomBCType,
+					variables, geometry, parameters);
 
 			outputToBuffer = new ArrayList<double[]>();
 
 			List<EquationState> equationState = computeQuantitiesRichards.getRichardsStateEquation();
 
-			topBoundaryCondition = IBoundaryCondition
-					.createRichardsSimpleBoundaryCondition(RichardsBoundaryConditionType.fromString(topBCType));
-			bottomBoundaryCondition = IBoundaryCondition
-					.createRichardsSimpleBoundaryCondition(RichardsBoundaryConditionType.fromString(bottomBCType));
+			topBoundaryCondition = IBoundaryCondition.createRichardsSimpleBoundaryCondition(topBCType);
+			bottomBoundaryCondition = IBoundaryCondition.createRichardsSimpleBoundaryCondition(bottomBCType);
 
 			richardsSolver = new Richards1DFiniteVolumeSolver(topBoundaryCondition, bottomBoundaryCondition, KMAX,
 					nestedNewton, newtonTolerance, delta, MAXITER_NEWT, equationState);
@@ -342,8 +340,8 @@ public class RichardsSolver1DMain extends HMModel{
 		tmpBCValue = inTopBC.get(stationID)[0];
 		if (isNovalue(tmpBCValue))
 			tmpBCValue = 0;
-		if (topBCType.equalsIgnoreCase("Top Neumann") || topBCType.equalsIgnoreCase("TopNeumann")
-				|| topBCType.equalsIgnoreCase("Top Coupled") || topBCType.equalsIgnoreCase("TopCoupled")) {
+		if (topBCType == RichardsBoundaryConditionType.TOP_NEUMANN
+				|| topBCType == RichardsBoundaryConditionType.TOP_COUPLED) {
 			variables.richardsTopBCValue = (tmpBCValue / 1000) / tTimeStep;
 		} else {
 			variables.richardsTopBCValue = tmpBCValue / 1000;

@@ -22,6 +22,7 @@ package org.geoframe.richards;
 import java.net.URISyntaxException;
 import java.util.HashMap;
 
+import org.geoframe.whetgeo1d.boundaryconditions.IBoundaryCondition.RichardsBoundaryConditionType;
 import org.geoframe.whetgeo1d.richardssolver.RichardsSolver1DMain;
 import org.hortonmachine.gears.io.geoframe.ReadNetCDFRichardsGrid1D;
 import org.hortonmachine.gears.io.geoframe.ReadNetCDFRichardsOutput1D;
@@ -55,8 +56,9 @@ public class TestSrivastavaYehAnalyticalSolutionLayered {
 		String pathGrid =  "resources/input/Grid_NetCDF/SrivastavaYeh_layered_2000.nc";
 		String pathOutput = "resources/output/SrivastavaYeh_layered_harmonic.nc";
 		
-		String topBC = "Top Neumann";
-		String bottomBC = "Bottom Dirichlet";
+		
+		var topBC = RichardsBoundaryConditionType.TOP_NEUMANN;
+		var bottomBC = RichardsBoundaryConditionType.BOTTOM_DIRICHLET;
 
 		String outputDescription = "\n"
 				+ "Comparison with Srivastava and Yeh 1991 analytical solution.\nLayered soil, wetting case, alpha=0.1 [cm-1].\n		"
@@ -123,8 +125,8 @@ public class TestSrivastavaYehAnalyticalSolutionLayered {
 		writeNetCDF.pathGrid = pathGrid;
 		writeNetCDF.pathBottomBC = pathBottomBC; 
 		writeNetCDF.pathTopBC = pathTopBC; 
-		writeNetCDF.bottomBC = bottomBC;
-		writeNetCDF.topBC = topBC;
+		writeNetCDF.bottomBC = bottomBC.name();
+		writeNetCDF.topBC = topBC.name();
 		writeNetCDF.swrcModel = "Gardener";
 		writeNetCDF.soilHydraulicConductivityModel = "Gardner";
 		writeNetCDF.interfaceConductivityModel = "harmonic mean";
