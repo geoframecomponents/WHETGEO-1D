@@ -17,7 +17,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.geoframe.richards;
+package org.geoframe.richards.untested;
 
 import java.net.URISyntaxException;
 import java.util.HashMap;
@@ -32,14 +32,14 @@ import org.hortonmachine.gears.io.timedependent.OmsTimeSeriesIteratorReader;
 import org.junit.Test;
 
 /**
- * Test the {@link TestVanGenuchtenSeepage} module.
+ * Test the {@link TestVanGenuchtenDirichlet} module.
  * 
- * This test consider an initial hydrostatic condition with Neumann boundary condition at the 
+ * This test consider an initial hydrostatic condition with Dirichlet boundary condition at the 
  * top and free drainage at the bottom. 
  * 
  * @author Niccolo' Tubini
  */
-public class TestVanGenuchtenSeepage {
+public class TestVanGenuchtenDirichlet {
 
 	@Test
 	public void Test() throws Exception {
@@ -50,14 +50,14 @@ public class TestVanGenuchtenSeepage {
 		int timeStepMinutes = 60;
 		String fId = "ID";
 				
-		String pathTopBC = "resources/input/TimeSeries/precip.csv";
+		String pathTopBC = "resources/input/TimeSeries/bottom.csv";
 		String pathBottomBC = "resources/input/TimeSeries/bottom.csv";
 		String pathSaveDates = "resources/input/TimeSeries/save.csv"; 
-		String pathGrid =  "resources/input/Grid_NetCDF/RichardsCoupled_VG.nc";
-		String pathOutput = "resources/output/Sim_RichardsCoupled_VG_seepage_1.nc";
+		String pathGrid =  "resources/input/Grid_NetCDF/Richards_VG.nc";
+		String pathOutput = "resources/output/Sim_Richards_VG_Dirichlet_new.nc";
 		
-		var topBC = RichardsBoundaryConditionType.TOP_COUPLED;
-		var bottomBC = RichardsBoundaryConditionType.BOTTOM_SEEPAGE;
+		var topBC = RichardsBoundaryConditionType.TOP_DIRICHLET;
+		var bottomBC = RichardsBoundaryConditionType.BOTTOM_FREE_DRAINAGE;
 
 		String outputDescription = "\n"
 				+ "Initial condition hydrostatic no ponding\n		"
@@ -99,37 +99,24 @@ public class TestVanGenuchtenSeepage {
 		R1DSolver.betaSpecificStorage = readNetCDF.betaSS;
 		R1DSolver.inEquationStateID = readNetCDF.equationStateID;
 		R1DSolver.inParameterID = readNetCDF.parameterID;
-		
-
-		R1DSolver.typeClosureEquation = new String[] {"Water Depth", "Van Genuchten"};
-		R1DSolver.typeEquationState = new String[] {"Water Depth", "Van Genuchten"};
-		
-		R1DSolver.typeUHCModel = new String[] {"", "Mualem Van Genuchten"};
-		R1DSolver.typeUHCTemperatureModel = "notemperature"; //"Ronan1998";
-		R1DSolver.interfaceHydraulicConductivityModel = "max";
-		
-		R1DSolver.topBCType = topBC;
-		R1DSolver.bottomBCType = bottomBC;
-		
 		R1DSolver.beta0 = -766.45;
 		R1DSolver.referenceTemperatureSWRC = 278.15;
-		
 		R1DSolver.maxPonding = 0.0;
-		
+		R1DSolver.typeClosureEquation = new String[] {"Van Genuchten"};
+		R1DSolver.typeEquationState = new String[] {"Van Genuchten"};
+		R1DSolver.typeUHCModel = new String[] {"Mualem Van Genuchten"};
+		R1DSolver.typeUHCTemperatureModel = "notemperature"; //"Ronan1998";
+		R1DSolver.interfaceHydraulicConductivityModel = "max";
+		R1DSolver.topBCType = topBC;
+		R1DSolver.bottomBCType = bottomBC;
+		R1DSolver.delta = 0;
 		R1DSolver.tTimeStep = 3600;
 		R1DSolver.timeDelta = 1800;
-		
 		R1DSolver.newtonTolerance = 0.00000000001;//Math.pow(10,-10);
 		R1DSolver.nestedNewton = 1;
-		R1DSolver.delta = 0;
-		
 		R1DSolver.picardIteration = 1;
 
-		
-		
 		buffer.writeFrequency = writeFrequency;
-		
-		
 		
 		writeNetCDF.fileName = pathOutput;
 		writeNetCDF.briefDescritpion = outputDescription;
@@ -169,7 +156,9 @@ public class TestVanGenuchtenSeepage {
 			R1DSolver.inSaveDate = bCValueMap;
 			
 			R1DSolver.inCurrentDate = topBCReader.tCurrent;
+			
 			R1DSolver.solve();
+
 			
 			buffer.inputDate = R1DSolver.inCurrentDate;
 			buffer.doProcessBuffer = R1DSolver.doProcessBuffer;
@@ -193,7 +182,7 @@ public class TestVanGenuchtenSeepage {
 		 */
 		System.out.println("Assert");
 		ReadNetCDFRichardsOutput1D readTestData = new ReadNetCDFRichardsOutput1D();
-		readTestData.richardsOutputFilename = "resources/Output/Check_RichardsCoupled_VG.nc";
+		readTestData.richardsOutputFilename = "resources/Output/Check_Richards_VG_Dirichlet.nc";
 		readTestData.read();
 		
 		ReadNetCDFRichardsOutput1D readSimData = new ReadNetCDFRichardsOutput1D();

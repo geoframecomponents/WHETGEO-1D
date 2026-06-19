@@ -17,7 +17,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.geoframe.solutetrasport;
+package org.geoframe.solutetrasport.untested;
 
 import java.net.URISyntaxException;
 import java.util.HashMap;

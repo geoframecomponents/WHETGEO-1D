@@ -17,7 +17,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.geoframe.richards;
+package org.geoframe.richards.untested;
 
 import java.net.URISyntaxException;
 import java.util.HashMap;
@@ -32,36 +32,35 @@ import org.hortonmachine.gears.io.timedependent.OmsTimeSeriesIteratorReader;
 import org.junit.Test;
 
 /**
- * Test the {@link TestSrivastavaYehAnalyticalSolution} module.
- * 
+ * Test the {@link TestRomano} module.
  * 
  * @author Niccolo' Tubini
  */
-public class TestSrivastavaYehAnalyticalSolution {
+public class TestRomano {
 
 	@Test
 	public void Test() throws Exception {
 
 
-		String startDate = "2020-01-01 00:00";
-		String endDate = "2020-01-09 00:00";
-		int timeStepMinutes = 1;
+		String startDate = "2015-01-15 00:00";
+		String endDate = "2015-01-31 00:00";
+		int timeStepMinutes = 60;
 		String fId = "ID";
 				
-		String pathTopBC = "resources/input/TimeSeries/SrivastavaYeh_q09.csv"; 
-		String pathBottomBC = "resources/input/TimeSeries/SrivastavaYeh_psi0.csv";
-		String pathSaveDates = "resources/input/TimeSeries/SrivastavaYeh_save.csv"; 
-		String pathGrid =  "resources/input/Grid_NetCDF/SrivastavaYeh_homogeneous_1000.nc";
-		String pathOutput = "resources/output/SrivastavaYeh_homogeneous_harmonic.nc";
+		String pathTopBC = "resources/input/TimeSeries/precip.csv";
+		String pathBottomBC = "resources/input/TimeSeries/bottom.csv";
+		String pathSaveDates = "resources/input/TimeSeries/save.csv"; 
+		String pathGrid =  "resources/input/Grid_NetCDF/RichardsCoupled_Romano_new.nc";
+		String pathOutput = "resources/output/Sim_RichardsCoupled_Romano.nc";
 		
 		
-		var topBC = RichardsBoundaryConditionType.TOP_NEUMANN;
+		var topBC = RichardsBoundaryConditionType.TOP_COUPLED;
 		var bottomBC = RichardsBoundaryConditionType.BOTTOM_DIRICHLET;
 
 		String outputDescription = "\n"
-				+ "Comparison with Srivastava and Yeh 1991 analytical solution.\nHomogeneous soil, wetting case, alpha=0.1 [cm-1].\n		"
-				+ "DeltaT: 60s\n		"
-				+ "Picard iteration: 2\n		";
+				+ "Initial condition hydrostatic no ponding\n		"
+				+ "DeltaT: 1800s\n		"
+				+ "Picard iteration: 1\n		";
 		
 		int writeFrequency = 1000000;
 		
@@ -101,19 +100,19 @@ public class TestSrivastavaYehAnalyticalSolution {
 		R1DSolver.beta0 = -766.45;
 		R1DSolver.referenceTemperatureSWRC = 278.15;
 		R1DSolver.maxPonding = 0.0;
-		R1DSolver.typeClosureEquation = new String[] {"Gardner"};
-		R1DSolver.typeEquationState = new String[] {"Gardner"};
-		R1DSolver.typeUHCModel = new String[] {"Gardner"};
-		R1DSolver.typeUHCTemperatureModel = "notemperature";
-		R1DSolver.interfaceHydraulicConductivityModel = "Harmonic mean";
+		R1DSolver.typeClosureEquation = new String[] {"Water Depth", "Romano"};
+		R1DSolver.typeEquationState = new String[] {"Water Depth", "Romano"};
+		R1DSolver.typeUHCModel = new String[] {"", "Mualem Romano"};
+		R1DSolver.typeUHCTemperatureModel = "notemperature"; //"Ronan1998";
+		R1DSolver.interfaceHydraulicConductivityModel = "max";
 		R1DSolver.topBCType = topBC;
 		R1DSolver.bottomBCType = bottomBC;
 		R1DSolver.delta = 0;
-		R1DSolver.tTimeStep = 60;
-		R1DSolver.timeDelta = 60;
-		R1DSolver.newtonTolerance = Math.pow(10,-12);
+		R1DSolver.tTimeStep = 3600;
+		R1DSolver.timeDelta = 1800;
+		R1DSolver.newtonTolerance = 0.000000001;//Math.pow(10,-10);
 		R1DSolver.nestedNewton = 1;
-		R1DSolver.picardIteration = 2;
+		R1DSolver.picardIteration = 1;
 
 		buffer.writeFrequency = writeFrequency;
 		
@@ -124,17 +123,17 @@ public class TestSrivastavaYehAnalyticalSolution {
 		writeNetCDF.pathTopBC = pathTopBC; 
 		writeNetCDF.bottomBC = bottomBC.name();
 		writeNetCDF.topBC = topBC.name();
-		writeNetCDF.swrcModel = "Exponential model (Srivastava Yeh 1991";
-		writeNetCDF.soilHydraulicConductivityModel = "Exponential model (Srivastava Yeh 1991";
-		writeNetCDF.interfaceConductivityModel = "harmonic mean";
+		writeNetCDF.swrcModel = "Romano";
+		writeNetCDF.soilHydraulicConductivityModel = "Mualem Romano no temperature";
+		writeNetCDF.interfaceConductivityModel = "max";
 		writeNetCDF.writeFrequency = writeFrequency;
 		writeNetCDF.spatialCoordinate = readNetCDF.eta;
 		writeNetCDF.dualSpatialCoordinate = readNetCDF.etaDual;	
 		writeNetCDF.controlVolume = readNetCDF.controlVolume;
 		writeNetCDF.psiIC = readNetCDF.psiIC;
 		writeNetCDF.temperature = readNetCDF.temperature;
-		writeNetCDF.outVariables = new String[] {"darcyVelocity"};
-		writeNetCDF.timeUnits = "Minutes since 01/01/1970 00:00:00 UTC";
+		writeNetCDF.outVariables = new String[] {"darcy_velocity"};
+		writeNetCDF.timeUnits = "Minutes since 01/01/1970 01:00:00 UTC";
 		writeNetCDF.timeZone = "UTC"; 
 		writeNetCDF.fileSizeMax = 10000;
 		
@@ -181,7 +180,7 @@ public class TestSrivastavaYehAnalyticalSolution {
 		 */
 		System.out.println("Assert");
 		ReadNetCDFRichardsOutput1D readTestData = new ReadNetCDFRichardsOutput1D();
-		readTestData.richardsOutputFilename = "resources/Output/Check_SrivastavaYeh_homogeneous_harmonic_0000.nc";
+		readTestData.richardsOutputFilename = "resources/Output/Check_RichardsCoupled_Romano.nc";
 		readTestData.read();
 		
 		ReadNetCDFRichardsOutput1D readSimData = new ReadNetCDFRichardsOutput1D();
@@ -189,7 +188,7 @@ public class TestSrivastavaYehAnalyticalSolution {
 		readSimData.read();
 
 		for(int k=0; k<readSimData.psi[(readSimData.psi.length)-1].length; k++) {
-			if(Math.abs(readSimData.psi[(readSimData.psi.length)-1][k]-readTestData.psi[(readTestData.psi.length)-1][k])>Math.pow(10,-7)) {
+			if(Math.abs(readSimData.psi[(readSimData.psi.length)-1][k]-readTestData.psi[(readTestData.psi.length)-1][k])>Math.pow(10,-11)) {
 				System.out.println("\n\n\t\tERROR: psi mismatch");
 			}
 		}

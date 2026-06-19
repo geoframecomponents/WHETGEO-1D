@@ -17,7 +17,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.geoframe.richards;
+package org.geoframe.richards.untested;
 
 import java.net.URISyntaxException;
 import java.util.HashMap;
@@ -32,14 +32,12 @@ import org.hortonmachine.gears.io.timedependent.OmsTimeSeriesIteratorReader;
 import org.junit.Test;
 
 /**
- * Test the {@link TestSrivastavaYehAnalyticalSolutionLayered} module.
+ * Test the {@link TestSrivastavaYehAnalyticalSolution} module.
  * 
- * This test consider an initial hydrostatic condition with Dirichlet boundary condition at the 
- * top and free drainage at the bottom. 
  * 
  * @author Niccolo' Tubini
  */
-public class TestSrivastavaYehAnalyticalSolutionLayered {
+public class TestSrivastavaYehAnalyticalSolution {
 
 	@Test
 	public void Test() throws Exception {
@@ -53,20 +51,19 @@ public class TestSrivastavaYehAnalyticalSolutionLayered {
 		String pathTopBC = "resources/input/TimeSeries/SrivastavaYeh_q09.csv"; 
 		String pathBottomBC = "resources/input/TimeSeries/SrivastavaYeh_psi0.csv";
 		String pathSaveDates = "resources/input/TimeSeries/SrivastavaYeh_save.csv"; 
-		String pathGrid =  "resources/input/Grid_NetCDF/SrivastavaYeh_layered_2000.nc";
-		String pathOutput = "resources/output/SrivastavaYeh_layered_harmonic.nc";
+		String pathGrid =  "resources/input/Grid_NetCDF/SrivastavaYeh_homogeneous_1000.nc";
+		String pathOutput = "resources/output/SrivastavaYeh_homogeneous_harmonic.nc";
 		
 		
 		var topBC = RichardsBoundaryConditionType.TOP_NEUMANN;
 		var bottomBC = RichardsBoundaryConditionType.BOTTOM_DIRICHLET;
 
 		String outputDescription = "\n"
-				+ "Comparison with Srivastava and Yeh 1991 analytical solution.\nLayered soil, wetting case, alpha=0.1 [cm-1].\n		"
+				+ "Comparison with Srivastava and Yeh 1991 analytical solution.\nHomogeneous soil, wetting case, alpha=0.1 [cm-1].\n		"
 				+ "DeltaT: 60s\n		"
-				+ "Interface: harmonic mean\n		"
 				+ "Picard iteration: 2\n		";
 		
-		int writeFrequency = 2880;
+		int writeFrequency = 1000000;
 		
 		OmsTimeSeriesIteratorReader topBCReader = getTimeseriesReader(pathTopBC, fId, startDate, endDate, timeStepMinutes);
 		OmsTimeSeriesIteratorReader bottomBCReader = getTimeseriesReader(pathBottomBC, fId, startDate, endDate, timeStepMinutes);
@@ -107,7 +104,7 @@ public class TestSrivastavaYehAnalyticalSolutionLayered {
 		R1DSolver.typeClosureEquation = new String[] {"Gardner"};
 		R1DSolver.typeEquationState = new String[] {"Gardner"};
 		R1DSolver.typeUHCModel = new String[] {"Gardner"};
-		R1DSolver.typeUHCTemperatureModel = "notemperature"; 
+		R1DSolver.typeUHCTemperatureModel = "notemperature";
 		R1DSolver.interfaceHydraulicConductivityModel = "Harmonic mean";
 		R1DSolver.topBCType = topBC;
 		R1DSolver.bottomBCType = bottomBC;
@@ -127,8 +124,8 @@ public class TestSrivastavaYehAnalyticalSolutionLayered {
 		writeNetCDF.pathTopBC = pathTopBC; 
 		writeNetCDF.bottomBC = bottomBC.name();
 		writeNetCDF.topBC = topBC.name();
-		writeNetCDF.swrcModel = "Gardener";
-		writeNetCDF.soilHydraulicConductivityModel = "Gardner";
+		writeNetCDF.swrcModel = "Exponential model (Srivastava Yeh 1991";
+		writeNetCDF.soilHydraulicConductivityModel = "Exponential model (Srivastava Yeh 1991";
 		writeNetCDF.interfaceConductivityModel = "harmonic mean";
 		writeNetCDF.writeFrequency = writeFrequency;
 		writeNetCDF.spatialCoordinate = readNetCDF.eta;
@@ -139,7 +136,7 @@ public class TestSrivastavaYehAnalyticalSolutionLayered {
 		writeNetCDF.outVariables = new String[] {"darcyVelocity"};
 		writeNetCDF.timeUnits = "Minutes since 01/01/1970 00:00:00 UTC";
 		writeNetCDF.timeZone = "UTC"; 
-		writeNetCDF.fileSizeMax = 350;
+		writeNetCDF.fileSizeMax = 10000;
 		
 		while( topBCReader.doProcess  ) {
 		
@@ -184,11 +181,11 @@ public class TestSrivastavaYehAnalyticalSolutionLayered {
 		 */
 		System.out.println("Assert");
 		ReadNetCDFRichardsOutput1D readTestData = new ReadNetCDFRichardsOutput1D();
-		readTestData.richardsOutputFilename = "resources/Output/Check_SrivastavaYeh_layered_harmonic_0001.nc";
+		readTestData.richardsOutputFilename = "resources/Output/Check_SrivastavaYeh_homogeneous_harmonic_0000.nc";
 		readTestData.read();
 		
 		ReadNetCDFRichardsOutput1D readSimData = new ReadNetCDFRichardsOutput1D();
-		readSimData.richardsOutputFilename = pathOutput.replace(".nc","_0001.nc");
+		readSimData.richardsOutputFilename = pathOutput.replace(".nc","_0000.nc");
 		readSimData.read();
 
 		for(int k=0; k<readSimData.psi[(readSimData.psi.length)-1].length; k++) {

@@ -17,7 +17,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.geoframe.richards;
+package org.geoframe.richards.untested;
 
 import java.io.File;
 import java.nio.file.Files;

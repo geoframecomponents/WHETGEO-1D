@@ -17,45 +17,53 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.geoframe.richards;
+package org.geoframe.richards.untested;
 
 import java.net.URISyntaxException;
 import java.util.HashMap;
 
 import org.geoframe.whetgeo1d.boundaryconditions.IBoundaryCondition.RichardsBoundaryConditionType;
 import org.geoframe.whetgeo1d.richardssolver.RichardsSolver1DMain;
+import org.hortonmachine.gears.io.geoframe.BufferCalibrationRichards1D;
 import org.hortonmachine.gears.io.geoframe.ReadNetCDFRichardsGrid1D;
-import org.hortonmachine.gears.io.geoframe.ReadNetCDFRichardsOutput1D;
 import org.hortonmachine.gears.io.geoframe.RichardsBuffer1D;
 import org.hortonmachine.gears.io.geoframe.WriteNetCDFRichards1DDouble;
 import org.hortonmachine.gears.io.timedependent.OmsTimeSeriesIteratorReader;
+import org.hortonmachine.gears.io.timedependent.OmsTimeSeriesIteratorWriter;
 import org.junit.Test;
 
 /**
- * Test the {@link TestRomano} module.
+ * Test the {@link TestVanGenuchtenCalib} module.
+ * 
+ * This test consider an initial hydrostatic condition with Neumann boundary condition at the 
+ * top and free drainage at the bottom. 
+ * 
+ * Here the simulated values in the measurament point are saved in a .csv file.
  * 
  * @author Niccolo' Tubini
  */
-public class TestRomano {
+public class TestVanGenuchtenCalib {
 
 	@Test
 	public void Test() throws Exception {
 
 
 		String startDate = "2015-01-15 00:00";
-		String endDate = "2015-01-31 00:00";
+		String endDate = "2015-12-15 00:00";
 		int timeStepMinutes = 60;
 		String fId = "ID";
 				
 		String pathTopBC = "resources/input/TimeSeries/precip.csv";
 		String pathBottomBC = "resources/input/TimeSeries/bottom.csv";
 		String pathSaveDates = "resources/input/TimeSeries/save.csv"; 
-		String pathGrid =  "resources/input/Grid_NetCDF/RichardsCoupled_Romano_new.nc";
-		String pathOutput = "resources/output/Sim_RichardsCoupled_Romano.nc";
+		String pathGrid =  "resources/input/Grid_NetCDF/RichardsCoupled_VG_calibration_new.nc";
+		String pathOutput = "resources/output/Sim_RichardsCoupled_VG_calibration.nc";
 		
+		String pathCalibrationPointPsi = "resources/output/calibration_Psi_VG.csv";
+		String pathCalibrationPointTheta = "resources/output/calibration_Theta_VG.csv";
 		
 		var topBC = RichardsBoundaryConditionType.TOP_COUPLED;
-		var bottomBC = RichardsBoundaryConditionType.BOTTOM_DIRICHLET;
+		var bottomBC = RichardsBoundaryConditionType.BOTTOM_FREE_DRAINAGE;
 
 		String outputDescription = "\n"
 				+ "Initial condition hydrostatic no ponding\n		"
@@ -67,10 +75,16 @@ public class TestRomano {
 		OmsTimeSeriesIteratorReader topBCReader = getTimeseriesReader(pathTopBC, fId, startDate, endDate, timeStepMinutes);
 		OmsTimeSeriesIteratorReader bottomBCReader = getTimeseriesReader(pathBottomBC, fId, startDate, endDate, timeStepMinutes);
 		OmsTimeSeriesIteratorReader saveDatesReader = getTimeseriesReader(pathSaveDates, fId, startDate, endDate, timeStepMinutes);
+		
+		OmsTimeSeriesIteratorWriter writerCalibrationPointsPsi = getTimeseriesWriter(pathCalibrationPointPsi, fId, startDate, endDate, timeStepMinutes);
+		OmsTimeSeriesIteratorWriter writerCalibrationPointsTheta = getTimeseriesWriter(pathCalibrationPointTheta, fId, startDate, endDate, timeStepMinutes);
 
 		RichardsBuffer1D buffer = new RichardsBuffer1D();
 		WriteNetCDFRichards1DDouble writeNetCDF = new WriteNetCDFRichards1DDouble();
 		ReadNetCDFRichardsGrid1D readNetCDF = new ReadNetCDFRichardsGrid1D();
+	
+		BufferCalibrationRichards1D bufferCalibration = new BufferCalibrationRichards1D();
+
 		
 		RichardsSolver1DMain R1DSolver = new RichardsSolver1DMain();
 		
@@ -100,9 +114,9 @@ public class TestRomano {
 		R1DSolver.beta0 = -766.45;
 		R1DSolver.referenceTemperatureSWRC = 278.15;
 		R1DSolver.maxPonding = 0.0;
-		R1DSolver.typeClosureEquation = new String[] {"Water Depth", "Romano"};
-		R1DSolver.typeEquationState = new String[] {"Water Depth", "Romano"};
-		R1DSolver.typeUHCModel = new String[] {"", "Mualem Romano"};
+		R1DSolver.typeClosureEquation = new String[] {"Water Depth", "Van Genuchten"};
+		R1DSolver.typeEquationState = new String[] {"Water Depth", "Van Genuchten"};
+		R1DSolver.typeUHCModel = new String[] {"", "Mualem Van Genuchten"};
 		R1DSolver.typeUHCTemperatureModel = "notemperature"; //"Ronan1998";
 		R1DSolver.interfaceHydraulicConductivityModel = "max";
 		R1DSolver.topBCType = topBC;
@@ -110,11 +124,13 @@ public class TestRomano {
 		R1DSolver.delta = 0;
 		R1DSolver.tTimeStep = 3600;
 		R1DSolver.timeDelta = 1800;
-		R1DSolver.newtonTolerance = 0.000000001;//Math.pow(10,-10);
+		R1DSolver.newtonTolerance = 0.00000000001;//Math.pow(10,-10);
 		R1DSolver.nestedNewton = 1;
 		R1DSolver.picardIteration = 1;
-
+		
 		buffer.writeFrequency = writeFrequency;
+		
+		bufferCalibration.controlVolumeIndex = readNetCDF.controlVolumeIndex;
 		
 		writeNetCDF.fileName = pathOutput;
 		writeNetCDF.briefDescritpion = outputDescription;
@@ -123,8 +139,8 @@ public class TestRomano {
 		writeNetCDF.pathTopBC = pathTopBC; 
 		writeNetCDF.bottomBC = bottomBC.name();
 		writeNetCDF.topBC = topBC.name();
-		writeNetCDF.swrcModel = "Romano";
-		writeNetCDF.soilHydraulicConductivityModel = "Mualem Romano no temperature";
+		writeNetCDF.swrcModel = "VG";
+		writeNetCDF.soilHydraulicConductivityModel = "Mualem VG no temperature";
 		writeNetCDF.interfaceConductivityModel = "max";
 		writeNetCDF.writeFrequency = writeFrequency;
 		writeNetCDF.spatialCoordinate = readNetCDF.eta;
@@ -133,7 +149,7 @@ public class TestRomano {
 		writeNetCDF.psiIC = readNetCDF.psiIC;
 		writeNetCDF.temperature = readNetCDF.temperature;
 		writeNetCDF.outVariables = new String[] {"darcy_velocity"};
-		writeNetCDF.timeUnits = "Minutes since 01/01/1970 01:00:00 UTC";
+		writeNetCDF.timeUnits = "Minutes since 01/01/1970 00:00:00 UTC";
 		writeNetCDF.timeZone = "UTC"; 
 		writeNetCDF.fileSizeMax = 10000;
 		
@@ -154,9 +170,12 @@ public class TestRomano {
 			R1DSolver.inSaveDate = bCValueMap;
 			
 			R1DSolver.inCurrentDate = topBCReader.tCurrent;
-			
+			System.out.println(topBCReader.tCurrent);
 			R1DSolver.solve();
 
+			bufferCalibration.inputVariable = R1DSolver.outputToBuffer;
+			
+			bufferCalibration.solve();
 			
 			buffer.inputDate = R1DSolver.inCurrentDate;
 			buffer.doProcessBuffer = R1DSolver.doProcessBuffer;
@@ -168,30 +187,22 @@ public class TestRomano {
 			writeNetCDF.variables = buffer.myVariable;
 			writeNetCDF.doProcess = topBCReader.doProcess;
 			writeNetCDF.writeNetCDF();
-
+			
+			writerCalibrationPointsPsi.inData = bufferCalibration.simulatedPsi;
+			writerCalibrationPointsTheta.inData = bufferCalibration.simulatedTheta;
+			
+			writerCalibrationPointsPsi.writeNextLine();
+			writerCalibrationPointsTheta.writeNextLine();
 
 		}
 
 		topBCReader.close();
 		bottomBCReader.close();
-				
-		/*
-		 * ASSERT 
-		 */
-		System.out.println("Assert");
-		ReadNetCDFRichardsOutput1D readTestData = new ReadNetCDFRichardsOutput1D();
-		readTestData.richardsOutputFilename = "resources/Output/Check_RichardsCoupled_Romano.nc";
-		readTestData.read();
+		saveDatesReader.close();
 		
-		ReadNetCDFRichardsOutput1D readSimData = new ReadNetCDFRichardsOutput1D();
-		readSimData.richardsOutputFilename = pathOutput.replace(".nc","_0000.nc");
-		readSimData.read();
-
-		for(int k=0; k<readSimData.psi[(readSimData.psi.length)-1].length; k++) {
-			if(Math.abs(readSimData.psi[(readSimData.psi.length)-1][k]-readTestData.psi[(readTestData.psi.length)-1][k])>Math.pow(10,-11)) {
-				System.out.println("\n\n\t\tERROR: psi mismatch");
-			}
-		}
+		writerCalibrationPointsPsi.close();
+		writerCalibrationPointsTheta.close();
+				
 
 	}
 
@@ -206,5 +217,15 @@ public class TestRomano {
 		reader.fileNovalue = "-9999";
 		reader.initProcess();
 		return reader;
+	}
+	
+	private OmsTimeSeriesIteratorWriter getTimeseriesWriter( String inPath, String id, String startDate, String endDate,
+			int timeStepMinutes ) throws URISyntaxException {
+		OmsTimeSeriesIteratorWriter writer = new OmsTimeSeriesIteratorWriter();
+		writer.file = inPath;
+		writer.tStart = startDate;
+		writer.tTimestep = timeStepMinutes;
+		writer.fileNovalue = "-9999";
+		return writer;
 	}
 }
