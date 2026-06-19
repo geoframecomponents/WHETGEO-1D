@@ -27,6 +27,9 @@ import java.util.Map;
 import org.geoframe.whetgeo.WGTestCase;
 import org.geoframe.whetgeo1d.boundaryconditions.IBoundaryCondition;
 import org.geoframe.whetgeo1d.heatsolver.HeatDiffusionSolver1DMain;
+import org.hortonmachine.dbs.compat.ADb;
+import org.hortonmachine.dbs.compat.EDb;
+import org.hortonmachine.dbs.compat.objects.QueryResult;
 // import org.hortonmachine.dbs.compat.ADb;
 // import org.hortonmachine.dbs.compat.EDb;
 // import org.hortonmachine.gears.io.geoframe.HeatDiffusionBuffer1D;
@@ -47,24 +50,17 @@ public class TestHeatDiffusionGpkg extends WGTestCase {
 
 	public void testHeatDiffusion() throws Exception {
 
-		String inputsPath = "/home/hydrologis/TMP/UNITN/whetgeo1d/whetgeo_1d_inputs__heat_diffusion_case.gpkg";//getRes("/input/whetgeo_1d_inputs.gpkg");
-		String outputsPath = "/home/hydrologis/TMP/UNITN/whetgeo1d/whetgeo_1d_outputs.gpkg";//getRes("/output/whetgeo_1d_outputs.gpkg");
+		String startDate = "2013-12-15 01:00";
+		String endDate = "2015-12-16 01:00";
+		String inputsPath = getRes("/input/gpkg/HeatDiffusion.gpkg");
+		String outputsPath = getTmpPath("HeatDiffusion_output", "gpkg");   
 		Files.deleteIfExists(Path.of(outputsPath));
-		
+
 		var inputsHandler = new Whetgeo1DInputsHandler(inputsPath);
 		inputsHandler.read();
-		
+
 		var topBC = IBoundaryCondition.DiffusionBoundaryConditionType.TOP_DIRICHLET;
 		var bottomBC = IBoundaryCondition.DiffusionBoundaryConditionType.BOTTOM_NEUMANN;
-
-		// String outputDescription = "\n"
-		// + "Initial condition constant temperature\n\t\t"
-		// + "DeltaT: 3600s\n\t\t"
-		// + "Picard iteration: 1\n\t\t";
-
-		// int writeFrequency = 100;
-
-		// HeatDiffusionBuffer1D buffer = new HeatDiffusionBuffer1D();
 
 		HeatDiffusionSolver1DMain solver = new HeatDiffusionSolver1DMain();
 
@@ -105,11 +101,13 @@ public class TestHeatDiffusionGpkg extends WGTestCase {
 		solver.picardIteration = 1;
 		solver.stationID = 0;
 
-		try (var topBCIterator = inputsHandler.iterateTemperatureTopInterface(1000);
-				var bottomBCIterator = inputsHandler.iterateTemperatureBottomInterface(1000);
+		try (var topBCIterator = inputsHandler.iterateTimeseries("timeseries_temperature_bottom_interface", startDate,
+				endDate, 1000);
+				var bottomBCIterator = inputsHandler.iterateTimeseries("timeseries_temperature_top_interface",
+						startDate, endDate, 1000);
 				var writer = new Whetgeo1DOutputsHandler(outputsPath, 500)) {
-			
-			writer.writeIntervalMinutes = 60 * 6; // write every 6 hours
+
+			writer.writeIntervalMinutes = 60 * 24; // write every day
 
 			writer.eta = inputsHandler.eta;
 			writer.etaDual = inputsHandler.etaDual;
@@ -117,6 +115,7 @@ public class TestHeatDiffusionGpkg extends WGTestCase {
 			writer.psi = inputsHandler.psi;
 			writer.temperatureIC = inputsHandler.temperatureIC;
 
+			int iterCount = 0;
 			while (topBCIterator.next() && bottomBCIterator.next()) {
 
 				long timestamp = topBCIterator.timestamp();
@@ -126,17 +125,12 @@ public class TestHeatDiffusionGpkg extends WGTestCase {
 				solver.inBottomBC = Map.of(solver.stationID, bottomBCIterator.values());
 
 				solver.inCurrentDate = ETimeUtilities.INSTANCE.TIME_FORMATTER_UTC.format(new Date(timestamp));
-				System.out.println("Solving for timestamp " + timestamp + " (" + solver.inCurrentDate + ")");
+				iterCount++;
+				if (iterCount % 100 == 0) {
+					System.out.println(iterCount + ") Solving for timestamp: " + solver.inCurrentDate);
+				}
 
 				solver.solve();
-
-				// buffer.inputDate = solver.inCurrentDate;
-				// buffer.doProcessBuffer = solver.doProcessBuffer;
-				// buffer.inputVariable = solver.outputToBuffer;
-				// buffer.solve();
-				// writeNetCDF.variables = buffer.myVariable;
-				// writeNetCDF.doProcess = topBCReader.doProcess;
-				// writeNetCDF.writeNetCDF();
 
 				writer.timestamp = timestamp;
 				writer.temperature = solver.outTemperature;
@@ -147,9 +141,30 @@ public class TestHeatDiffusionGpkg extends WGTestCase {
 				writer.topBC = solver.outHeatFluxTop;
 				writer.bottomBC = solver.outHeatFluxBottom;
 				writer.write();
-				
-				
+
 			}
 		} // iterators and writer all closed here; writer flushes remaining buffer
+		
+		
+		// check average temperature and internal energy for min and max eta values
+		// through time in the output gpkg
+		// TODO create a more meaningful testcase
+		ADb db = EDb.GEOPACKAGE.getDb();
+		db.open(outputsPath);	
+		String sql ="""
+				SELECT eta, avg(temperature), avg(internal_energy)
+				FROM output_state
+				WHERE eta = (SELECT min(eta) FROM output_state)
+				   OR eta = (SELECT max(eta) FROM output_state)
+				GROUP BY eta order by eta
+				""";
+		QueryResult result = db.getTableRecordsMapFromRawSql(sql, -1);
+		assertEquals(-29.975, ((Number)result.data.get(0)[0]).doubleValue(), 0);
+		assertEquals(-0.025, ((Number)result.data.get(1)[0]).doubleValue(), 0);
+		assertEquals(1068.7785001837876, ((Number)result.data.get(0)[1]).doubleValue(), 0.0001);
+		assertEquals(285.1552027413406, ((Number)result.data.get(1)[1]).doubleValue(), 0.0001);
+		assertEquals(1.3129997785765049E8, ((Number)result.data.get(0)[2]).doubleValue(), 0.0001);
+		assertEquals(8226205.610392944, ((Number)result.data.get(1)[2]).doubleValue(), 0.0001);
+		
 	}
 }

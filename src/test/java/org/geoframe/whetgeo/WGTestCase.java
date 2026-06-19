@@ -1,7 +1,9 @@
 package org.geoframe.whetgeo;
 
+import java.io.File;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.nio.file.Files;
 import java.nio.file.Paths;
 
 import org.hortonmachine.gears.io.timedependent.OmsTimeSeriesIteratorReader;
@@ -15,6 +17,12 @@ public class WGTestCase extends TestCase {
 			throw new Exception("Resource not found: " + name);
 		}
 		return Paths.get(url.toURI()).toString();
+	}
+	
+	protected String getTmpPath(String prefix, String ext) throws Exception {
+		File tempFile = Files.createTempFile(prefix, ext).toFile();
+		String pathOutput = tempFile.getAbsolutePath();
+		return pathOutput;
 	}
 	
 	
