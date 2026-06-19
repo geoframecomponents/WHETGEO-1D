@@ -126,7 +126,7 @@ public class TestHeatDiffusionGpkg extends WGTestCase {
 
 				solver.inCurrentDate = ETimeUtilities.INSTANCE.TIME_FORMATTER_UTC.format(new Date(timestamp));
 				iterCount++;
-				if (iterCount % 100 == 0) {
+				if (iterCount % 1000 == 0) {
 					System.out.println(iterCount + ") Solving for timestamp: " + solver.inCurrentDate);
 				}
 

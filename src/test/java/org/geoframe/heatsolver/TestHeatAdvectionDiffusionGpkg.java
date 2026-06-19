@@ -28,6 +28,9 @@ import org.geoframe.whetgeo.WGTestCase;
 import org.geoframe.whetgeo1d.boundaryconditions.IBoundaryCondition.DiffusionBoundaryConditionType;
 import org.geoframe.whetgeo1d.boundaryconditions.IBoundaryCondition.RichardsBoundaryConditionType;
 import org.geoframe.whetgeo1d.heatsolver.HeatAdvectionDiffusionSolver1DMain;
+import org.hortonmachine.dbs.compat.ADb;
+import org.hortonmachine.dbs.compat.EDb;
+import org.hortonmachine.dbs.compat.objects.QueryResult;
 import org.hortonmachine.gears.io.geoframe.whetgeo.Whetgeo1DInputsHandler;
 import org.hortonmachine.gears.io.geoframe.whetgeo.Whetgeo1DOutputsHandler;
 import org.hortonmachine.gears.utils.time.ETimeUtilities;
@@ -43,10 +46,9 @@ public class TestHeatAdvectionDiffusionGpkg extends WGTestCase {
 	public void testHeatAdvectionDiffusion() throws Exception {
 
 		String startDate = "2003-01-01 00:00";
-		String endDate = "2007-01-01 00:00";
-		String folder = "/home/hydrologis/TMP/UNITN/whetgeo1d/TestHeatAdvectionDiffusion/";
-		String inputsPath = folder + "HeatAdvectionDiffusion.gpkg";
-		String outputsPath = folder + "HeatAdvectionDiffusion_output.gpkg";
+		String endDate = "2004-01-01 00:00";
+		String inputsPath = getRes("/input/gpkg/HeatAdvectionDiffusion.gpkg");
+		String outputsPath = getTmpPath("HeatAdvectionDiffusion_output", "gpkg");
 		Files.deleteIfExists(Path.of(outputsPath));
 
 		var topInternalEnergyBC = DiffusionBoundaryConditionType.TOP_DIRICHLET;
@@ -109,9 +111,9 @@ public class TestHeatAdvectionDiffusionGpkg extends WGTestCase {
 				var bottomInternalEnergyBCIter = inputsHandler.iterateTimeseries(bottomTTable, startDate, endDate,
 						1000);
 				var top_bot_RichardsBCIter = inputsHandler.iterateTimeseries(precipTable, startDate, endDate, 1000);
-				var writer = new Whetgeo1DOutputsHandler(outputsPath, 500)) {
+				var writer = new Whetgeo1DOutputsHandler(outputsPath, 50)) {
 
-			writer.writeIntervalMinutes = 60 * 6; // write every 6 hours
+			writer.writeIntervalMinutes = 60 * 24; // write every day
 
 			writer.eta = inputsHandler.eta;
 			writer.etaDual = inputsHandler.etaDual;
@@ -131,7 +133,7 @@ public class TestHeatAdvectionDiffusionGpkg extends WGTestCase {
 				solver.inRichardsBottomBC = Map.of(solver.stationID, top_bot_RichardsBCIter.values());
 				solver.inCurrentDate = ETimeUtilities.INSTANCE.TIME_FORMATTER_UTC.format(new Date(timestamp));
 				iterCount++;
-				if (iterCount % 100 == 0) {
+				if (iterCount % 1000 == 0) {
 					System.out.println(iterCount + ") Solving for timestamp: " + solver.inCurrentDate);
 				}
 				solver.solve();
@@ -147,6 +149,28 @@ public class TestHeatAdvectionDiffusionGpkg extends WGTestCase {
 				writer.write();
 			}
 
+			// check average temperature, water_suction and theta for min and max eta values
+			// through time in the output gpkg
+			// TODO create a more meaningful testcase
+			ADb db = EDb.GEOPACKAGE.getDb();
+			db.open(outputsPath);
+			String sql = """
+					SELECT eta, avg(temperature), avg(water_suction), avg(theta)
+					FROM output_state
+					WHERE eta = (SELECT min(eta) FROM output_state)
+					   OR eta = (SELECT max(eta) FROM output_state)
+					GROUP BY eta
+					order by eta
+					""";
+			QueryResult result = db.getTableRecordsMapFromRawSql(sql, -1);
+			assertEquals(-29.975, ((Number) result.data.get(0)[0]).doubleValue(), 0);
+			assertEquals(-0.025, ((Number) result.data.get(1)[0]).doubleValue(), 0);
+			assertEquals(285.1499999731842, ((Number) result.data.get(0)[1]).doubleValue(), 0.0001);
+			assertEquals(285.85806352331406, ((Number) result.data.get(1)[1]).doubleValue(), 0.0001);
+			assertEquals(-0.9397979718297476, ((Number) result.data.get(0)[2]).doubleValue(), 0.0001);
+			assertEquals(-0.795455766638089, ((Number) result.data.get(1)[2]).doubleValue(), 0.0001);
+			assertEquals(0.07543167132138487, ((Number) result.data.get(0)[3]).doubleValue(), 0.0001);
+			assertEquals(0.09687384391267753, ((Number) result.data.get(1)[3]).doubleValue(), 0.0001);
 		}
 	}
 
