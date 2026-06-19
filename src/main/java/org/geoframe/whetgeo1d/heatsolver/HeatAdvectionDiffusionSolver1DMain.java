@@ -486,7 +486,6 @@ public class HeatAdvectionDiffusionSolver1DMain {
 		} // close step==0
 
 		doProcessBuffer = false;
-		System.out.println(inCurrentDate);
 		variables.richardsTopBCValue = 0.0;
 		if (topRichardsBCType == RichardsBoundaryConditionType.TOP_NEUMANN
 				|| topRichardsBCType == RichardsBoundaryConditionType.TOP_COUPLED) {
