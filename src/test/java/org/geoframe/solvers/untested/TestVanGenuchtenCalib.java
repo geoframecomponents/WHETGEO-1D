@@ -1,0 +1,231 @@
+/*
+  * GNU GPL v3 License
+ *
+ * Copyright 2020 Niccolo` Tubini
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
+package org.geoframe.solvers.untested;
+
+import java.net.URISyntaxException;
+import java.util.HashMap;
+
+import org.geoframe.whetgeo1d.core.boundaryconditions.IBoundaryCondition.RichardsBoundaryConditionType;
+import org.geoframe.whetgeo1d.solvers.RichardsSolver1D;
+import org.hortonmachine.gears.io.geoframe.BufferCalibrationRichards1D;
+import org.hortonmachine.gears.io.geoframe.ReadNetCDFRichardsGrid1D;
+import org.hortonmachine.gears.io.geoframe.RichardsBuffer1D;
+import org.hortonmachine.gears.io.geoframe.WriteNetCDFRichards1DDouble;
+import org.hortonmachine.gears.io.timedependent.OmsTimeSeriesIteratorReader;
+import org.hortonmachine.gears.io.timedependent.OmsTimeSeriesIteratorWriter;
+import org.junit.Test;
+
+/**
+ * Test the {@link TestVanGenuchtenCalib} module.
+ * 
+ * This test consider an initial hydrostatic condition with Neumann boundary condition at the 
+ * top and free drainage at the bottom. 
+ * 
+ * Here the simulated values in the measurament point are saved in a .csv file.
+ * 
+ * @author Niccolo' Tubini
+ */
+public class TestVanGenuchtenCalib {
+
+	@Test
+	public void Test() throws Exception {
+
+
+		String startDate = "2015-01-15 00:00";
+		String endDate = "2015-12-15 00:00";
+		int timeStepMinutes = 60;
+		String fId = "ID";
+				
+		String pathTopBC = "resources/input/TimeSeries/precip.csv";
+		String pathBottomBC = "resources/input/TimeSeries/bottom.csv";
+		String pathSaveDates = "resources/input/TimeSeries/save.csv"; 
+		String pathGrid =  "resources/input/Grid_NetCDF/RichardsCoupled_VG_calibration_new.nc";
+		String pathOutput = "resources/output/Sim_RichardsCoupled_VG_calibration.nc";
+		
+		String pathCalibrationPointPsi = "resources/output/calibration_Psi_VG.csv";
+		String pathCalibrationPointTheta = "resources/output/calibration_Theta_VG.csv";
+		
+		var topBC = RichardsBoundaryConditionType.TOP_COUPLED;
+		var bottomBC = RichardsBoundaryConditionType.BOTTOM_FREE_DRAINAGE;
+
+		String outputDescription = "\n"
+				+ "Initial condition hydrostatic no ponding\n		"
+				+ "DeltaT: 1800s\n		"
+				+ "Picard iteration: 1\n		";
+		
+		int writeFrequency = 1000000;
+		
+		OmsTimeSeriesIteratorReader topBCReader = getTimeseriesReader(pathTopBC, fId, startDate, endDate, timeStepMinutes);
+		OmsTimeSeriesIteratorReader bottomBCReader = getTimeseriesReader(pathBottomBC, fId, startDate, endDate, timeStepMinutes);
+		OmsTimeSeriesIteratorReader saveDatesReader = getTimeseriesReader(pathSaveDates, fId, startDate, endDate, timeStepMinutes);
+		
+		OmsTimeSeriesIteratorWriter writerCalibrationPointsPsi = getTimeseriesWriter(pathCalibrationPointPsi, fId, startDate, endDate, timeStepMinutes);
+		OmsTimeSeriesIteratorWriter writerCalibrationPointsTheta = getTimeseriesWriter(pathCalibrationPointTheta, fId, startDate, endDate, timeStepMinutes);
+
+		RichardsBuffer1D buffer = new RichardsBuffer1D();
+		WriteNetCDFRichards1DDouble writeNetCDF = new WriteNetCDFRichards1DDouble();
+		ReadNetCDFRichardsGrid1D readNetCDF = new ReadNetCDFRichardsGrid1D();
+	
+		BufferCalibrationRichards1D bufferCalibration = new BufferCalibrationRichards1D();
+
+		
+		RichardsSolver1D R1DSolver = new RichardsSolver1D();
+		
+		
+		readNetCDF.richardsGridFilename = pathGrid;
+		
+		readNetCDF.read();
+		
+		
+		R1DSolver.z = readNetCDF.z;
+		R1DSolver.spaceDeltaZ = readNetCDF.spaceDelta;
+		R1DSolver.psiIC = readNetCDF.psiIC;
+		R1DSolver.temperature = readNetCDF.temperature;
+		R1DSolver.controlVolume = readNetCDF.controlVolume;
+		R1DSolver.ks = readNetCDF.Ks;
+		R1DSolver.thetaS = readNetCDF.thetaS;
+		R1DSolver.thetaR = readNetCDF.thetaR;
+		R1DSolver.par1SWRC = readNetCDF.par1SWRC;
+		R1DSolver.par2SWRC = readNetCDF.par2SWRC;
+		R1DSolver.par3SWRC = readNetCDF.par3SWRC;
+		R1DSolver.par4SWRC = readNetCDF.par4SWRC;
+		R1DSolver.par5SWRC = readNetCDF.par5SWRC;
+		R1DSolver.alphaSpecificStorage = readNetCDF.alphaSS;
+		R1DSolver.betaSpecificStorage = readNetCDF.betaSS;
+		R1DSolver.inEquationStateID = readNetCDF.equationStateID;
+		R1DSolver.inParameterID = readNetCDF.parameterID;
+		R1DSolver.beta0 = -766.45;
+		R1DSolver.referenceTemperatureSWRC = 278.15;
+		R1DSolver.maxPonding = 0.0;
+		R1DSolver.typeClosureEquation = new String[] {"Water Depth", "Van Genuchten"};
+		R1DSolver.typeEquationState = new String[] {"Water Depth", "Van Genuchten"};
+		R1DSolver.typeUHCModel = new String[] {"", "Mualem Van Genuchten"};
+		R1DSolver.typeUHCTemperatureModel = "notemperature"; //"Ronan1998";
+		R1DSolver.interfaceHydraulicConductivityModel = "max";
+		R1DSolver.topBCType = topBC;
+		R1DSolver.bottomBCType = bottomBC;
+		R1DSolver.delta = 0;
+		R1DSolver.tTimeStep = 3600;
+		R1DSolver.timeDelta = 1800;
+		R1DSolver.newtonTolerance = 0.00000000001;//Math.pow(10,-10);
+		R1DSolver.nestedNewton = 1;
+		R1DSolver.picardIteration = 1;
+		
+		buffer.writeFrequency = writeFrequency;
+		
+		bufferCalibration.controlVolumeIndex = readNetCDF.controlVolumeIndex;
+		
+		writeNetCDF.fileName = pathOutput;
+		writeNetCDF.briefDescritpion = outputDescription;
+		writeNetCDF.pathGrid = pathGrid;
+		writeNetCDF.pathBottomBC = pathBottomBC; 
+		writeNetCDF.pathTopBC = pathTopBC; 
+		writeNetCDF.bottomBC = bottomBC.name();
+		writeNetCDF.topBC = topBC.name();
+		writeNetCDF.swrcModel = "VG";
+		writeNetCDF.soilHydraulicConductivityModel = "Mualem VG no temperature";
+		writeNetCDF.interfaceConductivityModel = "max";
+		writeNetCDF.writeFrequency = writeFrequency;
+		writeNetCDF.spatialCoordinate = readNetCDF.eta;
+		writeNetCDF.dualSpatialCoordinate = readNetCDF.etaDual;	
+		writeNetCDF.controlVolume = readNetCDF.controlVolume;
+		writeNetCDF.psiIC = readNetCDF.psiIC;
+		writeNetCDF.temperature = readNetCDF.temperature;
+		writeNetCDF.outVariables = new String[] {"darcy_velocity"};
+		writeNetCDF.timeUnits = "Minutes since 01/01/1970 00:00:00 UTC";
+		writeNetCDF.timeZone = "UTC"; 
+		writeNetCDF.fileSizeMax = 10000;
+		
+		while( topBCReader.doProcess  ) {
+		
+			
+			topBCReader.nextRecord();	
+			HashMap<Integer, double[]> bCValueMap = topBCReader.outData;
+			R1DSolver.inTopBC= bCValueMap;
+
+
+			bottomBCReader.nextRecord();
+			bCValueMap = bottomBCReader.outData;
+			R1DSolver.inBottomBC = bCValueMap;
+
+			saveDatesReader.nextRecord();
+			bCValueMap = saveDatesReader.outData;
+			R1DSolver.inSaveDate = bCValueMap;
+			
+			R1DSolver.inCurrentDate = topBCReader.tCurrent;
+			System.out.println(topBCReader.tCurrent);
+			R1DSolver.solve();
+
+			bufferCalibration.inputVariable = R1DSolver.outputToBuffer;
+			
+			bufferCalibration.solve();
+			
+			buffer.inputDate = R1DSolver.inCurrentDate;
+			buffer.doProcessBuffer = R1DSolver.doProcessBuffer;
+			buffer.inputVariable = R1DSolver.outputToBuffer;
+			
+			buffer.solve();
+			
+
+			writeNetCDF.variables = buffer.myVariable;
+			writeNetCDF.doProcess = topBCReader.doProcess;
+			writeNetCDF.writeNetCDF();
+			
+			writerCalibrationPointsPsi.inData = bufferCalibration.simulatedPsi;
+			writerCalibrationPointsTheta.inData = bufferCalibration.simulatedTheta;
+			
+			writerCalibrationPointsPsi.writeNextLine();
+			writerCalibrationPointsTheta.writeNextLine();
+
+		}
+
+		topBCReader.close();
+		bottomBCReader.close();
+		saveDatesReader.close();
+		
+		writerCalibrationPointsPsi.close();
+		writerCalibrationPointsTheta.close();
+				
+
+	}
+
+	private OmsTimeSeriesIteratorReader getTimeseriesReader( String inPath, String id, String startDate, String endDate,
+			int timeStepMinutes ) throws URISyntaxException {
+		OmsTimeSeriesIteratorReader reader = new OmsTimeSeriesIteratorReader();
+		reader.file = inPath;
+		reader.idfield = "ID";
+		reader.tStart = startDate;
+		reader.tTimestep = timeStepMinutes;
+		reader.tEnd = endDate;
+		reader.fileNovalue = "-9999";
+		reader.initProcess();
+		return reader;
+	}
+	
+	private OmsTimeSeriesIteratorWriter getTimeseriesWriter( String inPath, String id, String startDate, String endDate,
+			int timeStepMinutes ) throws URISyntaxException {
+		OmsTimeSeriesIteratorWriter writer = new OmsTimeSeriesIteratorWriter();
+		writer.file = inPath;
+		writer.tStart = startDate;
+		writer.tTimestep = timeStepMinutes;
+		writer.fileNovalue = "-9999";
+		return writer;
+	}
+}
