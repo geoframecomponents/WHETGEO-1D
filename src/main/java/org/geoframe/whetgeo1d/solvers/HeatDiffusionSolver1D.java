@@ -420,7 +420,7 @@ public class HeatDiffusionSolver1D extends HMModel {
 		}
 
 		variables.internalEnergyBottomBCValue = 0.0;
-		if (topBCType == IBoundaryCondition.DiffusionBoundaryConditionType.BOTTOM_NEUMANN) {
+		if (bottomBCType == IBoundaryCondition.DiffusionBoundaryConditionType.BOTTOM_NEUMANN) {
 			variables.internalEnergyBottomBCValue = inBottomBC.get(stationID)[0] / tTimeStep;
 		} else {
 			variables.internalEnergyBottomBCValue = inBottomBC.get(stationID)[0] + 273.15;

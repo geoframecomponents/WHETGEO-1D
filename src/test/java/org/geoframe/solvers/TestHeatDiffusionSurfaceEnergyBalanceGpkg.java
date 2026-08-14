@@ -39,7 +39,8 @@ import org.hortonmachine.gears.utils.time.ETimeUtilities;
  * inputs and outputs via {@link Whetgeo1DInputsHandler} /
  * {@link Whetgeo1DOutputsHandler}.
  *
- * @author Niccolo' Tubini, Andrea Antonello (https://g-ant.eu)
+ * @author Niccolo' Tubini
+ * @author Andrea Antonello (geopackage input/output adaption)
  */
 public class TestHeatDiffusionSurfaceEnergyBalanceGpkg extends WGTestCase {
 

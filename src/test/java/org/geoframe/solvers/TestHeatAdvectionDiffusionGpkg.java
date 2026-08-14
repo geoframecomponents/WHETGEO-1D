@@ -40,6 +40,7 @@ import org.hortonmachine.gears.utils.time.ETimeUtilities;
  * 
  * 
  * @author Niccolo' Tubini
+ * @author Andrea Antonello (geopackage input/output adaption)
  */
 public class TestHeatAdvectionDiffusionGpkg extends WGTestCase {
 

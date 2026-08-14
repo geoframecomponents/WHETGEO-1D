@@ -45,6 +45,7 @@ import org.hortonmachine.gears.utils.time.ETimeUtilities;
  * Test the HeatDiffusion module using GeoPackage inputs and outputs.
  *
  * @author Niccolo' Tubini
+ * @author Andrea Antonello (geopackage input/output adaption)
  */
 public class TestHeatDiffusionGpkg extends WGTestCase {
 
