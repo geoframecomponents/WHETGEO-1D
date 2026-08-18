@@ -272,6 +272,72 @@ public class RichardsSolver1D extends HMModel {
 	 * OUTPUT
 	 */
 
+	@Description("Water suction")
+	@Out
+	@Unit("m")
+	public double[] outWaterSuctions;
+
+	@Description("Water content")
+	@Out
+	@Unit("-")
+	public double[] outWaterContent;
+
+	@Description("Control volume water volume")
+	@Out
+	@Unit("m")
+	public double[] outVolumes;
+
+	@Description("Degree of saturation")
+	@Out
+	@Unit("-")
+	public double[] outSaturationDegree;
+
+	@Description("Darcy velocity")
+	@Out
+	@Unit("m s-1")
+	public double[] outDarcyVelocity;
+
+	@Description("Darcy velocity, capillary component")
+	@Out
+	@Unit("m s-1")
+	public double[] outDarcyVelocityCapillary;
+
+	@Description("Darcy velocity, gravity component")
+	@Out
+	@Unit("m s-1")
+	public double[] outDarcyVelocityGravity;
+
+	@Description("Pore water velocity")
+	@Out
+	@Unit("m s-1")
+	public double[] outPoreVelocity;
+
+	@Description("Celerity")
+	@Out
+	@Unit("m s-1")
+	public double[] outCelerity;
+
+	@Description("Kinematic ratio")
+	@Out
+	@Unit("-")
+	public double[] outKinematicRatio;
+
+	@Description("Error in water volume")
+	@Out
+	public double outErrorVolume;
+
+	@Description("Applied top boundary condition value")
+	@Out
+	public double outTopBCValue;
+
+	@Description("Applied bottom boundary condition value")
+	@Out
+	public double outBottomBCValue;
+
+	@Description("Surface runoff")
+	@Out
+	public double outRunOff;
+
 	@Description("ArrayList of variable to be stored in the buffer writer")
 	@Out
 	public ArrayList<double[]> outputToBuffer;
@@ -348,14 +414,13 @@ public class RichardsSolver1D extends HMModel {
 		}
 
 		variables.richardsBottomBCValue = 0.0;
-		tmpBCValue = inBottomBC.get(stationID)[0];
-		if (isNovalue(tmpBCValue))
-			tmpBCValue = 0;
 		if (inBottomBC != null) {
+			tmpBCValue = inBottomBC.get(stationID)[0];
+			if (isNovalue(tmpBCValue))
+				tmpBCValue = 0;
 			variables.richardsBottomBCValue = tmpBCValue;
 		}
 
-		saveDate = 1.0;
 		if (inSaveDate != null) {
 			saveDate = inSaveDate.get(stationID)[0];
 		}
@@ -436,7 +501,22 @@ public class RichardsSolver1D extends HMModel {
 
 		}
 
-		if (saveDate == 1) {
+		outWaterSuctions = variables.waterSuctions;
+		outWaterContent = variables.thetasNew;
+		outVolumes = variables.volumesNew;
+		outSaturationDegree = variables.saturationDegree;
+		outDarcyVelocity = variables.darcyVelocities;
+		outDarcyVelocityCapillary = variables.darcyVelocitiesCapillary;
+		outDarcyVelocityGravity = variables.darcyVelocitiesGravity;
+		outPoreVelocity = variables.poreVelocities;
+		outCelerity = variables.celerities;
+		outKinematicRatio = variables.kinematicRatio;
+		outErrorVolume = variables.errorVolume;
+		outTopBCValue = variables.richardsTopBCValue * tTimeStep * 1000;
+		outBottomBCValue = variables.richardsBottomBCValue;
+		outRunOff = variables.runOff / tTimeStep;
+
+		if (inSaveDate != null && saveDate == 1) {
 			outputToBuffer.add(variables.waterSuctions);
 			outputToBuffer.add(variables.thetasNew);
 			outputToBuffer.add(variables.volumesNew);
@@ -452,8 +532,6 @@ public class RichardsSolver1D extends HMModel {
 			outputToBuffer.add(new double[] { variables.richardsBottomBCValue });
 			outputToBuffer.add(new double[] { variables.runOff / tTimeStep }); // surface runoff
 			doProcessBuffer = true;
-		} else {
-
 		}
 		step++;
 
