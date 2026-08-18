@@ -27,6 +27,7 @@ import org.geoframe.whetgeo.WGTestCase;
 import org.geoframe.whetgeo1d.core.boundaryconditions.IBoundaryCondition.RichardsBoundaryConditionType;
 import org.geoframe.whetgeo1d.solvers.RichardsSolver1D;
 import org.hortonmachine.gears.io.geoframe.whetgeo.Whetgeo1DInputsHandler;
+import org.hortonmachine.gears.io.geoframe.whetgeo.Whetgeo1DOutputsHandler;
 import org.hortonmachine.gears.libs.monitor.LogProgressMonitor;
 import org.hortonmachine.gears.utils.time.ETimeUtilities;
 
@@ -110,11 +111,21 @@ public class TestVanGenuchtenDirichletGpkg extends WGTestCase {
 		double[] finalPsi = null;
 		double maxAbsWaterVolumeError = 0.0;
 
+		String outputPath = getTmpPath("VanGenuchtenDirichletOutput", ".gpkg");
 		var progressMonitor = new LogProgressMonitor("TestVanGenuchtenDirichletGpkg");
 		try (var topBCIterator = inputsHandler.iterateTimeseries("timeseries_topBC", startDate, endDate, 1000);
 				var bottomBCIterator = inputsHandler.iterateTimeseries("timeseries_bottomBC", startDate, endDate,
-						1000)) {
+						1000);
+				var writer = new Whetgeo1DOutputsHandler(outputPath, 500)) {
 			progressMonitor.beginTask(" -> Running test", -1);
+
+			writer.writeIntervalMinutes = 60 * 24; // write once a day, keep the output manageable
+			writer.eta = inputsHandler.eta;
+			writer.etaDual = inputsHandler.etaDual;
+			writer.controlVolume = inputsHandler.controlVolume;
+			writer.psi = inputsHandler.psi;
+			writer.temperatureIC = inputsHandler.temperatureIC;
+
 			while (topBCIterator.next() && bottomBCIterator.next()) {
 				long timestamp = topBCIterator.timestamp();
 				solver.inTopBC = new HashMap<>(Map.of(solver.stationID, topBCIterator.values()));
@@ -125,6 +136,18 @@ public class TestVanGenuchtenDirichletGpkg extends WGTestCase {
 
 				maxAbsWaterVolumeError = Math.max(maxAbsWaterVolumeError, Math.abs(solver.outErrorVolume));
 				finalPsi = solver.outWaterSuctions.clone();
+
+				// RichardsSolver1D doesn't solve temperature (notemperature model): the
+				// input array is written back unchanged at every step.
+				writer.timestamp = timestamp;
+				writer.temperature = solver.temperature;
+				writer.theta = solver.outWaterContent;
+				writer.waterSuction = solver.outWaterSuctions;
+				writer.darcyVelocity = solver.outDarcyVelocity;
+				writer.errorVolume = solver.outErrorVolume;
+				writer.topBC = solver.outTopBCValue;
+				writer.bottomBC = solver.outBottomBCValue;
+				writer.write();
 			}
 			progressMonitor.done();
 		}
