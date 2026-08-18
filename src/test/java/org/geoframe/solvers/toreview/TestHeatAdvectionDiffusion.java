@@ -17,7 +17,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.geoframe.solvers;
+package org.geoframe.solvers.toreview;
 
 import java.nio.file.Files;
 import java.util.HashMap;

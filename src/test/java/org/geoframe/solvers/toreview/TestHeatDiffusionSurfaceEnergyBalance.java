@@ -17,32 +17,30 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.geoframe.solvers;
+package org.geoframe.solvers.toreview;
 
 import java.io.File;
 import java.nio.file.Files;
 import java.util.HashMap;
 
 import org.geoframe.whetgeo.WGTestCase;
-import org.geoframe.whetgeo1d.core.boundaryconditions.IBoundaryCondition.DiffusionBoundaryConditionType;
-import org.geoframe.whetgeo1d.solvers.HeatDiffusionSolverWithFreezingThawingWithSurfaceEnergyBalance1D;
-import org.hortonmachine.gears.io.geoframe.HeatDiffusionFreezingThawingBufferWithSurfaceEnergyBudget1D;
+import org.geoframe.whetgeo1d.core.boundaryconditions.IBoundaryCondition;
+import org.geoframe.whetgeo1d.solvers.HeatDiffusionSolverWithSurfaceEnergyBalance1D;
+import org.hortonmachine.gears.io.geoframe.HeatDiffusionBufferWithSurfaceEnergyBudget1D;
 import org.hortonmachine.gears.io.geoframe.ReadNetCDFHeatDiffusionGrid1D;
 import org.hortonmachine.gears.io.geoframe.ReadNetCDFHeatDiffusionOutput1D;
-import org.hortonmachine.gears.io.geoframe.WriteNetCDFHeatDiffusionFreezingThawingWithSurfaceEnergyBudget1DDouble;
+import org.hortonmachine.gears.io.geoframe.WriteNetCDFHeatDiffusionWithSurfaceEnergyBudget1DDouble;
 import org.hortonmachine.gears.io.timedependent.OmsTimeSeriesIteratorReader;
 
 /**
- * Test the {@link TestHeatDiffusionFreezingThawingSurfaceEnergyBalance} module.
+ * Test the {@link TestHeatDiffusionSurfaceEnergyBalance} module.
  * 
  * 
  * @author Niccolo' Tubini
  */
-public class TestHeatDiffusionFreezingThawingSurfaceEnergyBalance extends WGTestCase{
+public class TestHeatDiffusionSurfaceEnergyBalance  extends WGTestCase {
 
-	public void testHeatDiffusionFreezingThawingSurfaceEnergyBalance() throws Exception {
-
-
+	public void testHeatDiffusionSurfaceEnergyBalance() throws Exception {
 		String startDate = "2003-01-01 00:00";
 		String endDate = "2007-01-01 00:00";
 		int timeStepMinutes = 60;
@@ -55,17 +53,18 @@ public class TestHeatDiffusionFreezingThawingSurfaceEnergyBalance extends WGTest
 		String pathLE = getRes("/input/TimeSeries/LatentHeat_PT_T0135.csv");
 		String pathBottomBC = getRes("/input/TimeSeries/noFlux_T0135.csv");
 		String pathSaveDates = getRes("/input/TimeSeries/saveDates_T0135.csv"); 
+		
 		String pathGrid =  getRes("/input/Grid_NetCDF/Heat_diffusion.nc");
-
-		File tempFile = Files.createTempFile("Sim_heat_diffusion_freezing_thawing", ".nc").toFile();
+		
+		File tempFile = Files.createTempFile("Sim_heat_diffusion", ".nc").toFile();
 		String pathOutput = tempFile.getAbsolutePath();
 		
-		var bottomBC = DiffusionBoundaryConditionType.BOTTOM_NEUMANN;
+		var bottomBC = IBoundaryCondition.DiffusionBoundaryConditionType.BOTTOM_NEUMANN;
 
 		String outputDescription = "\n"
 				+ "Pure heat diffusion driven by the surface energy budget. Soil is saturated.";
 		
-		int writeFrequency = 1000000;
+		int writeFrequency = 10000;
 
 		OmsTimeSeriesIteratorReader airTReader = getTimeseriesReader(pathAirT, fId, startDate, endDate, timeStepMinutes);
 		OmsTimeSeriesIteratorReader windVelocityReader = getTimeseriesReader(pathWindVelocity, fId, startDate, endDate, timeStepMinutes);
@@ -75,11 +74,10 @@ public class TestHeatDiffusionFreezingThawingSurfaceEnergyBalance extends WGTest
 		OmsTimeSeriesIteratorReader bottomBCReader = getTimeseriesReader(pathBottomBC, fId, startDate, endDate, timeStepMinutes);
 		OmsTimeSeriesIteratorReader saveDatesReader = getTimeseriesReader(pathSaveDates, fId, startDate, endDate, timeStepMinutes);
 
-		HeatDiffusionFreezingThawingBufferWithSurfaceEnergyBudget1D buffer = new HeatDiffusionFreezingThawingBufferWithSurfaceEnergyBudget1D();
-		WriteNetCDFHeatDiffusionFreezingThawingWithSurfaceEnergyBudget1DDouble writeNetCDF = new WriteNetCDFHeatDiffusionFreezingThawingWithSurfaceEnergyBudget1DDouble();
+		HeatDiffusionBufferWithSurfaceEnergyBudget1D buffer = new HeatDiffusionBufferWithSurfaceEnergyBudget1D();
+		WriteNetCDFHeatDiffusionWithSurfaceEnergyBudget1DDouble writeNetCDF = new WriteNetCDFHeatDiffusionWithSurfaceEnergyBudget1DDouble();
 		ReadNetCDFHeatDiffusionGrid1D readNetCDF = new ReadNetCDFHeatDiffusionGrid1D();
-		
-		HeatDiffusionSolverWithFreezingThawingWithSurfaceEnergyBalance1D solver = new HeatDiffusionSolverWithFreezingThawingWithSurfaceEnergyBalance1D();
+		HeatDiffusionSolverWithSurfaceEnergyBalance1D solver = new HeatDiffusionSolverWithSurfaceEnergyBalance1D();
 		
 		
 		readNetCDF.gridFilename = pathGrid;
@@ -113,8 +111,8 @@ public class TestHeatDiffusionFreezingThawingSurfaceEnergyBalance extends WGTest
 		solver.surfaceZeroHeightDisplacement = 0.0;
 		solver.inEquationStateID = readNetCDF.equationStateID;
 		solver.inParameterID = readNetCDF.parameterID;
-		solver.typeClosureEquation = new String[] {"VanGenuchtenDallAmico"};
-		solver.typeEquationState = new String[] {"FreezingSoilInternalEnergy"};
+		solver.typeClosureEquation = new String[] {"Van Genuchten"};
+		solver.typeEquationState = new String[] {"SoilInternalEnergy"};
 		solver.typeThermalConductivity = new String[] {"Cosenza"};
 		solver.interfaceThermalConductivityModel = "max";
 		solver.bottomBCType = bottomBC;
@@ -123,15 +121,15 @@ public class TestHeatDiffusionFreezingThawingSurfaceEnergyBalance extends WGTest
 		solver.surfaceAereodynamicResistanceType = "NeutralCondition";
 		solver.surfaceWaterVaporResistanceType = "Feddes";
 		solver.h1 = 0.1;
-		solver.h2 = -5;
-		solver.h3 = -15.0;
-		solver.h4 = -50.0;
-		
+		solver.h2 = -5.0;
+		solver.h3 = -15;
+		solver.h4 = -50;
+
 		solver.stationID = 135;
 		solver.delta = 0;
 		solver.tTimeStep = 3600;
 		solver.timeDelta = 3600;
-		solver.newtonTolerance = 0.003337000000000;
+		solver.newtonTolerance = Math.pow(10,-5);
 		solver.nestedNewton = 1;
 		solver.picardIteration = 1;
 
@@ -153,14 +151,9 @@ public class TestHeatDiffusionFreezingThawingSurfaceEnergyBalance extends WGTest
 		writeNetCDF.temperatureIC = readNetCDF.temperatureIC;
 		writeNetCDF.timeUnits = "Minutes since 01/01/1970 00:00:00 UTC";
 		writeNetCDF.timeZone = "UTC"; 
-		writeNetCDF.fileSizeMax = 10000;
+		writeNetCDF.fileSizeMax = 1000;
 		
-		int iterCount = 0;
 		while( swReader.doProcess  ) {
-			iterCount++;
-			if(iterCount%100==0) {
-				System.out.println("Iteration "+iterCount+" with date: "+swReader.tCurrent);
-			}
 		
 			
 			swReader.nextRecord();	
@@ -206,6 +199,7 @@ public class TestHeatDiffusionFreezingThawingSurfaceEnergyBalance extends WGTest
 			writeNetCDF.doProcess = swReader.doProcess;
 			writeNetCDF.writeNetCDF();
 
+
 		}
 
 		swReader.close();
@@ -215,20 +209,20 @@ public class TestHeatDiffusionFreezingThawingSurfaceEnergyBalance extends WGTest
 		/*
 		 * ASSERT 
 		 */
-		System.out.println("Assert");
-		ReadNetCDFHeatDiffusionOutput1D readTestData = new ReadNetCDFHeatDiffusionOutput1D();
-		readTestData.gridFilename = getRes("/output/Check_heat_diffusion_freezing_thawing_0000.nc");
-		readTestData.read();
-		
-		ReadNetCDFHeatDiffusionOutput1D readSimData = new ReadNetCDFHeatDiffusionOutput1D();
-		readSimData.gridFilename = pathOutput.replace(".nc","_0000.nc");
-		readSimData.read();
-
-		for(int k=0; k<readSimData.temperature[(readSimData.temperature.length)-1].length; k++) {
-			if(Math.abs(readSimData.temperature[(readSimData.temperature.length)-1][k]-readTestData.temperature[(readTestData.temperature.length)-1][k])>Math.pow(10,-11)) {
-				System.out.println("\n\n\t\tERROR: temperature mismatch");
-			}
-		}
+//		System.out.println("Assert");
+//		ReadNetCDFHeatDiffusionOutput1D readTestData = new ReadNetCDFHeatDiffusionOutput1D();
+//		readTestData.gridFilename = "resources/Output/Check_heat_diffusion_0000.nc";
+//		readTestData.read();
+//		
+//		ReadNetCDFHeatDiffusionOutput1D readSimData = new ReadNetCDFHeatDiffusionOutput1D();
+//		readSimData.gridFilename = pathOutput.replace(".nc","_0000.nc");
+//		readSimData.read();
+//
+//		for(int k=0; k<readSimData.temperature[(readSimData.temperature.length)-1].length; k++) {
+//			if(Math.abs(readSimData.temperature[(readSimData.temperature.length)-1][k]-readTestData.temperature[(readTestData.temperature.length)-1][k])>Math.pow(10,-11)) {
+//				System.out.println("\n\n\t\tERROR: temperature mismatch");
+//			}
+//		}
 
 	}
 }

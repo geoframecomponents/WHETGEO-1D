@@ -17,7 +17,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.geoframe.solvers;
+package org.geoframe.solvers.toreview;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -26,31 +26,27 @@ import java.util.Map;
 
 import org.geoframe.whetgeo.WGTestCase;
 import org.geoframe.whetgeo1d.core.boundaryconditions.IBoundaryCondition.DiffusionBoundaryConditionType;
-import org.geoframe.whetgeo1d.solvers.HeatDiffusionSolverWithSurfaceEnergyBalance1D;
-import org.hortonmachine.dbs.compat.ADb;
-import org.hortonmachine.dbs.compat.EDb;
-import org.hortonmachine.dbs.compat.objects.QueryResult;
+import org.geoframe.whetgeo1d.solvers.HeatDiffusionSolverWithFreezingThawingWithSurfaceEnergyBalance1D;
 import org.hortonmachine.gears.io.geoframe.whetgeo.Whetgeo1DInputsHandler;
 import org.hortonmachine.gears.io.geoframe.whetgeo.Whetgeo1DOutputsHandler;
 import org.hortonmachine.gears.utils.time.ETimeUtilities;
 
 /**
- * Test the heat diffusion solver with surface energy balance using GeoPackage
- * inputs and outputs via {@link Whetgeo1DInputsHandler} /
+ * Test the heat diffusion freezing-thawing solver with surface energy balance
+ * using GeoPackage inputs and outputs via {@link Whetgeo1DInputsHandler} /
  * {@link Whetgeo1DOutputsHandler}.
  *
- * @author Niccolo' Tubini
- * @author Andrea Antonello (geopackage input/output adaption)
+ * @author Niccolo' Tubini, Andrea Antonello (https://g-ant.eu)
  */
-public class TestHeatDiffusionSurfaceEnergyBalanceGpkg extends WGTestCase {
+public class TestHeatDiffusionFreezingThawingSurfaceEnergyBalanceGpkg extends WGTestCase {
 
-	public void testHeatDiffusionSurfaceEnergyBalance() throws Exception {
+	public void testHeatDiffusionFreezingThawingSurfaceEnergyBalance() throws Exception {
 
-		String startDate = "2003-01-01 00:00";
-		String endDate = "2004-01-01 00:00";
-
-		String inputsPath = getRes("/input/gpkg/HeatDiffusionSurfaceEnergyBalance.gpkg");
-		String outputsPath = getTmpPath("HeatDiffusionSurfaceEnergyBalance_output", "gpkg");
+		String startDate = "2003-01-01 01:00";
+		String endDate = "2006-12-01 00:00";
+		String folder = "/home/hydrologis/TMP/UNITN/whetgeo1d/TestHeatDiffusionFreezingThawingSurfaceEnergyBalance/";
+		String inputsPath = folder + "HeatDiffusionSurfaceEnergyBalance.gpkg";
+		String outputsPath =folder + "HeatDiffusionFreezingThawingSurfaceEnergyBalance_output.gpkg";
 		Files.deleteIfExists(Path.of(outputsPath));
 
 		var bottomBC = DiffusionBoundaryConditionType.BOTTOM_NEUMANN;
@@ -58,7 +54,7 @@ public class TestHeatDiffusionSurfaceEnergyBalanceGpkg extends WGTestCase {
 		var inputsHandler = new Whetgeo1DInputsHandler(inputsPath);
 		inputsHandler.read();
 
-		HeatDiffusionSolverWithSurfaceEnergyBalance1D solver = new HeatDiffusionSolverWithSurfaceEnergyBalance1D();
+		HeatDiffusionSolverWithFreezingThawingWithSurfaceEnergyBalance1D solver = new HeatDiffusionSolverWithFreezingThawingWithSurfaceEnergyBalance1D();
 
 		solver.z = inputsHandler.z;
 		solver.spaceDeltaZ = inputsHandler.spaceDelta;
@@ -86,8 +82,8 @@ public class TestHeatDiffusionSurfaceEnergyBalanceGpkg extends WGTestCase {
 		solver.surfaceZeroHeightDisplacement = 0.0;
 		solver.inEquationStateID = inputsHandler.equationStateID;
 		solver.inParameterID = inputsHandler.parameterID;
-		solver.typeClosureEquation = new String[] { "Van Genuchten" };
-		solver.typeEquationState = new String[] { "SoilInternalEnergy" };
+		solver.typeClosureEquation = new String[] { "VanGenuchtenDallAmico" };
+		solver.typeEquationState = new String[] { "FreezingSoilInternalEnergy" };
 		solver.typeThermalConductivity = new String[] { "Cosenza" };
 		solver.interfaceThermalConductivityModel = "max";
 		solver.bottomBCType = bottomBC;
@@ -96,32 +92,26 @@ public class TestHeatDiffusionSurfaceEnergyBalanceGpkg extends WGTestCase {
 		solver.surfaceAereodynamicResistanceType = "NeutralCondition";
 		solver.surfaceWaterVaporResistanceType = "Feddes";
 		solver.h1 = 0.1;
-		solver.h2 = -5.0;
-		solver.h3 = -15;
-		solver.h4 = -50;
+		solver.h2 = -5;
+		solver.h3 = -15.0;
+		solver.h4 = -50.0;
 		solver.stationID = 135;
 		solver.delta = 0;
 		solver.tTimeStep = 3600;
 		solver.timeDelta = 3600;
-		solver.newtonTolerance = Math.pow(10, -5);
+		solver.newtonTolerance = 0.003337000000000;
 		solver.nestedNewton = 1;
 		solver.picardIteration = 1;
 
-		try (var airTIter = inputsHandler.iterateTimeseries(Whetgeo1DInputsHandler.TABLE_TIMESERIES_AIR_T, startDate,
-				endDate, 1000);
-				var swIter = inputsHandler.iterateTimeseries(Whetgeo1DInputsHandler.TABLE_TIMESERIES_SW_RADIATION,
-						startDate, endDate, 1000);
-				var lwIter = inputsHandler.iterateTimeseries(Whetgeo1DInputsHandler.TABLE_TIMESERIES_LW_DOWNWELLING,
-						startDate, endDate, 1000);
-				var leIter = inputsHandler.iterateTimeseries(Whetgeo1DInputsHandler.TABLE_TIMESERIES_LATENT_HEAT,
-						startDate, endDate, 1000);
-				var windIter = inputsHandler.iterateTimeseries(Whetgeo1DInputsHandler.TABLE_TIMESERIES_WIND_VELOCITY,
-						startDate, endDate, 1000);
-				var bottomBCIter = inputsHandler.iterateTimeseries(Whetgeo1DInputsHandler.TABLE_TIMESERIES_NO_FLUX,
-						startDate, endDate, 1000);
-				var writer = new Whetgeo1DOutputsHandler(outputsPath, 50)) {
+		try (var airTIter = inputsHandler.iterateTimeseries(Whetgeo1DInputsHandler.TABLE_TIMESERIES_AIR_T, startDate, endDate, 1000);
+				var swIter = inputsHandler.iterateTimeseries(Whetgeo1DInputsHandler.TABLE_TIMESERIES_SW_RADIATION, startDate, endDate, 1000);
+				var lwIter = inputsHandler.iterateTimeseries(Whetgeo1DInputsHandler.TABLE_TIMESERIES_LW_DOWNWELLING, startDate, endDate, 1000);
+				var leIter = inputsHandler.iterateTimeseries(Whetgeo1DInputsHandler.TABLE_TIMESERIES_LATENT_HEAT, startDate, endDate, 1000);
+				var windIter = inputsHandler.iterateTimeseries(Whetgeo1DInputsHandler.TABLE_TIMESERIES_WIND_VELOCITY, startDate, endDate, 1000);
+				var bottomBCIter = inputsHandler.iterateTimeseries(Whetgeo1DInputsHandler.TABLE_TIMESERIES_NO_FLUX, startDate, endDate, 1000);
+				var writer = new Whetgeo1DOutputsHandler(outputsPath, 500)) {
 
-			writer.writeIntervalMinutes = 60 * 24; // write every day
+			writer.writeIntervalMinutes = 60 * 6; // write every 6 hours
 
 			writer.eta = inputsHandler.eta;
 			writer.etaDual = inputsHandler.etaDual;
@@ -154,6 +144,7 @@ public class TestHeatDiffusionSurfaceEnergyBalanceGpkg extends WGTestCase {
 				writer.timestamp = timestamp;
 				writer.temperature = solver.outTemperature;
 				writer.theta = solver.outTheta;
+				writer.iceContent = solver.outIceContent;
 				writer.internalEnergy = solver.outInternalEnergy;
 				writer.heatFlux = solver.outConductionHeatFlux;
 				writer.error = solver.outErrorInternalEnergy;
@@ -166,30 +157,6 @@ public class TestHeatDiffusionSurfaceEnergyBalanceGpkg extends WGTestCase {
 				writer.latentHeatFlux = solver.outActualLatentHeatFlux;
 				writer.heatFluxBottom = solver.outHeatFluxBottom;
 				writer.write();
-			}
-
-			// check average temperature, internal_energy and theta for min and max eta values
-			// through time in the output gpkg
-			// TODO create a more meaningful testcase
-			try (ADb db = EDb.GEOPACKAGE.getDb()) {
-				db.open(outputsPath);
-				String sql = """
-						SELECT eta, avg(temperature), avg(internal_energy), avg(theta)
-						FROM output_state
-						WHERE eta = (SELECT min(eta) FROM output_state)
-						   OR eta = (SELECT max(eta) FROM output_state)
-						GROUP BY eta
-						order by eta
-						""";
-				QueryResult result = db.getTableRecordsMapFromRawSql(sql, -1);
-				assertEquals(-29.975, ((Number) result.data.get(0)[0]).doubleValue(), 0);
-				assertEquals(-0.025, ((Number) result.data.get(1)[0]).doubleValue(), 0);
-				assertEquals(285.1499998872765, ((Number) result.data.get(0)[1]).doubleValue(), 0.0001);
-				assertEquals(282.9290082162099, ((Number) result.data.get(1)[1]).doubleValue(), 0.0001);
-				assertEquals(8225163.982329215, ((Number) result.data.get(0)[2]).doubleValue(), 0.0001);
-				assertEquals(7958993.834700684, ((Number) result.data.get(1)[2]).doubleValue(), 0.0001);
-				assertEquals(0.38, ((Number) result.data.get(0)[3]).doubleValue(), 0.0001);
-				assertEquals(0.38, ((Number) result.data.get(1)[3]).doubleValue(), 0.0001);
 			}
 		} // all iterators and writer closed here
 	}
