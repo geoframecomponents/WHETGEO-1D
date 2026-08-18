@@ -135,6 +135,18 @@ public class TestVanGenuchtenGpkg extends WGTestCase {
 			writer.controlVolume = inputsHandler.controlVolume;
 			writer.psi = inputsHandler.psi;
 			writer.temperatureIC = inputsHandler.temperatureIC;
+			// snapshot of the per-layer SWRC parameters, so the output gpkg is
+			// self-contained (e.g. for chart annotations) without needing the input gpkg
+			writer.parameterID = inputsHandler.parameterID;
+			writer.swrcThetaS = inputsHandler.thetaS;
+			writer.swrcThetaR = inputsHandler.thetaR;
+			writer.swrcKs = inputsHandler.Ks;
+			writer.swrcN = inputsHandler.par1SWRC;
+			writer.swrcAlpha = inputsHandler.par2SWRC;
+			// so a chart of the output can tell a fixed head apart from a flux or a
+			// coupled forcing, not just see the raw numeric value
+			writer.topBCType = topBC.name();
+			writer.bottomBCType = bottomBC.name();
 
 			while (topBCIterator.next() && bottomBCIterator.next()) {
 				long timestamp = topBCIterator.timestamp();
