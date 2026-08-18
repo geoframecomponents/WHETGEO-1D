@@ -26,6 +26,8 @@ import org.geoframe.whetgeo.WGTestCase;
 import org.geoframe.whetgeo1d.core.boundaryconditions.IBoundaryCondition;
 import org.geoframe.whetgeo1d.solvers.HeatDiffusionSolver1D;
 import org.hortonmachine.gears.io.geoframe.whetgeo.Whetgeo1DInputsHandler;
+import org.hortonmachine.gears.io.geoframe.whetgeo.Whetgeo1DOutputsHandler;
+import org.hortonmachine.gears.libs.monitor.LogProgressMonitor;
 import org.hortonmachine.gears.utils.time.ETimeUtilities;
 
 /**
@@ -118,10 +120,30 @@ public class TestHeatDiffusionSteadyStateTwoDirichlet extends WGTestCase {
 
 		double maxAbsEnergyError = 0.0;
 
+		String outputPath = getTmpPath("HeatDiffusionSteadyStateTwoDirichletOutput", ".gpkg");
+		var progressMonitor = new LogProgressMonitor("TestHeatDiffusionSteadyStateTwoDirichlet");
 		try (var topBCIterator = inputsHandler.iterateTimeseries("temperature_top_interface", startDate, endDate,
 				1000);
 				var bottomBCIterator = inputsHandler.iterateTimeseries("temperature_bottom_interface", startDate,
-						endDate, 1000)) {
+						endDate, 1000);
+				var writer = new Whetgeo1DOutputsHandler(outputPath, 500)) {
+			progressMonitor.beginTask(" -> Running test", -1);
+
+			writer.eta = inputsHandler.eta;
+			writer.etaDual = inputsHandler.etaDual;
+			writer.controlVolume = inputsHandler.controlVolume;
+			writer.psi = inputsHandler.psi;
+			writer.temperatureIC = inputsHandler.temperatureIC;
+			// snapshot of the per-layer SWRC parameters, so the output gpkg is
+			// self-contained (e.g. for chart annotations) without needing the input gpkg
+			writer.parameterID = inputsHandler.parameterID;
+			writer.swrcThetaS = inputsHandler.thetaS;
+			writer.swrcThetaR = inputsHandler.thetaR;
+			writer.swrcKs = inputsHandler.Ks;
+			writer.swrcN = inputsHandler.par1SWRC;
+			writer.swrcAlpha = inputsHandler.par2SWRC;
+			writer.topBCType = topBC.name();
+			writer.bottomBCType = bottomBC.name();
 
 			while (topBCIterator.next() && bottomBCIterator.next()) {
 				long timestamp = topBCIterator.timestamp();
@@ -132,7 +154,20 @@ public class TestHeatDiffusionSteadyStateTwoDirichlet extends WGTestCase {
 				solver.solve();
 
 				maxAbsEnergyError = Math.max(maxAbsEnergyError, Math.abs(solver.outErrorInternalEnergy));
+
+				writer.timestamp = timestamp;
+				writer.temperature = solver.outTemperature;
+				// outTheta is left unset by this solver/equation-state combo (plain
+				// SoilInternalEnergy has no liquid-water-content computation), so
+				// writing it would just be a column of meaningless constant zeros
+				writer.internalEnergy = solver.outInternalEnergy;
+				writer.heatFlux = solver.outDiffusionHeatFlux;
+				writer.error = solver.outErrorInternalEnergy;
+				writer.topBC = solver.outHeatFluxTop;
+				writer.bottomBC = solver.outHeatFluxBottom;
+				writer.write();
 			}
+			progressMonitor.done();
 		}
 		// check that the energy error is small enough to be considered negligible
 		assertTrue("energy error too large: " + maxAbsEnergyError, maxAbsEnergyError < 1e-4);

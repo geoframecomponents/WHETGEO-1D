@@ -149,10 +149,10 @@ public class TestVanGenuchtenDirichletGpkg extends WGTestCase {
 				maxAbsWaterVolumeError = Math.max(maxAbsWaterVolumeError, Math.abs(solver.outErrorVolume));
 				finalPsi = solver.outWaterSuctions.clone();
 
-				// RichardsSolver1D doesn't solve temperature (notemperature model): the
-				// input array is written back unchanged at every step.
+				// RichardsSolver1D doesn't solve temperature (notemperature model): leave
+				// writer.temperature unset rather than write the IC array back unchanged
+				// at every step, which would just be a flat, non-informative column.
 				writer.timestamp = timestamp;
-				writer.temperature = solver.temperature;
 				writer.theta = solver.outWaterContent;
 				writer.waterSuction = solver.outWaterSuctions;
 				writer.darcyVelocity = solver.outDarcyVelocity;
