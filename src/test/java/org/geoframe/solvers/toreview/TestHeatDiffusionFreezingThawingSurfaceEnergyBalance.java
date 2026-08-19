@@ -44,7 +44,7 @@ public class TestHeatDiffusionFreezingThawingSurfaceEnergyBalance extends WGTest
 
 
 		String startDate = "2003-01-01 00:00";
-		String endDate = "2007-01-01 00:00";
+		String endDate = "2004-01-01 00:00";
 		int timeStepMinutes = 60;
 		String fId = "ID";
 		

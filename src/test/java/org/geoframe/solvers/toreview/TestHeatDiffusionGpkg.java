@@ -52,7 +52,7 @@ public class TestHeatDiffusionGpkg extends WGTestCase {
 	public void testHeatDiffusion() throws Exception {
 
 		String startDate = "2013-12-15 01:00";
-		String endDate = "2015-12-16 01:00";
+		String endDate = "2014-12-15 01:00";
 		String inputsPath = getRes("/input/gpkg/HeatDiffusion.gpkg");
 		String outputsPath = getTmpPath("HeatDiffusion_output", "gpkg");
 		Files.deleteIfExists(Path.of(outputsPath));

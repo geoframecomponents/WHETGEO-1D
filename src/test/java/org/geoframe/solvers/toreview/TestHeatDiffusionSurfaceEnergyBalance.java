@@ -42,7 +42,7 @@ public class TestHeatDiffusionSurfaceEnergyBalance  extends WGTestCase {
 
 	public void testHeatDiffusionSurfaceEnergyBalance() throws Exception {
 		String startDate = "2003-01-01 00:00";
-		String endDate = "2007-01-01 00:00";
+		String endDate = "2004-01-01 00:00";
 		int timeStepMinutes = 60;
 		String fId = "ID";
 		

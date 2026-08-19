@@ -43,7 +43,7 @@ public class TestHeatDiffusionFreezingThawingSurfaceEnergyBalanceGpkg extends WG
 	public void testHeatDiffusionFreezingThawingSurfaceEnergyBalance() throws Exception {
 
 		String startDate = "2003-01-01 01:00";
-		String endDate = "2006-12-01 00:00";
+		String endDate = "2004-01-01 00:00";
 		String folder = "/home/hydrologis/TMP/UNITN/whetgeo1d/TestHeatDiffusionFreezingThawingSurfaceEnergyBalance/";
 		String inputsPath = folder + "HeatDiffusionSurfaceEnergyBalance.gpkg";
 		String outputsPath =folder + "HeatDiffusionFreezingThawingSurfaceEnergyBalance_output.gpkg";

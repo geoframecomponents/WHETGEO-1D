@@ -10,7 +10,7 @@ import org.hortonmachine.gears.io.timedependent.OmsTimeSeriesIteratorReader;
 
 import junit.framework.TestCase;
 
-public class WGTestCase extends TestCase {
+public abstract class WGTestCase extends TestCase {
 	protected String getRes(String name) throws Exception {
 		URL url = this.getClass().getResource(name);
 		if (url == null) {

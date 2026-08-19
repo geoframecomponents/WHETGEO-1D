@@ -24,7 +24,7 @@
 	<classpathentry kind="var" path="M2_REPO/javax/measure/unit-api/2.2/unit-api-2.2.jar" sourcepath="M2_REPO/javax/measure/unit-api/2.2/unit-api-2.2-sources.jar"/>
 	<classpathentry kind="var" path="M2_REPO/javax/xml/bind/jaxb-api/2.4.0-b180830.0359/jaxb-api-2.4.0-b180830.0359.jar" sourcepath="M2_REPO/javax/xml/bind/jaxb-api/2.4.0-b180830.0359/jaxb-api-2.4.0-b180830.0359-sources.jar"/>
 	<classpathentry kind="var" path="M2_REPO/javax/activation/javax.activation-api/1.2.0/javax.activation-api-1.2.0.jar" sourcepath="M2_REPO/javax/activation/javax.activation-api/1.2.0/javax.activation-api-1.2.0-sources.jar"/>
-	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-17">
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-21">
 		<attributes>
 			<attribute name="maven.pomderived" value="true"/>
 		</attributes>
