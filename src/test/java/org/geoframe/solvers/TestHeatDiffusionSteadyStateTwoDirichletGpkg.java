@@ -59,7 +59,7 @@ import org.hortonmachine.gears.utils.time.ETimeUtilities;
  *
  * @author Andrea Antonello
  */
-public class TestHeatDiffusionSteadyStateTwoDirichlet extends WGTestCase {
+public class TestHeatDiffusionSteadyStateTwoDirichletGpkg extends WGTestCase {
 
 	public void testSteadyStateLinearProfile() throws Exception {
 

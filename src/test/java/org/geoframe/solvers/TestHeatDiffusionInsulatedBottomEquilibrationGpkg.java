@@ -54,7 +54,7 @@ import org.hortonmachine.gears.utils.time.ETimeUtilities;
  *
  * @author Andrea Antonello
  */
-public class TestHeatDiffusionInsulatedBottomEquilibration extends WGTestCase {
+public class TestHeatDiffusionInsulatedBottomEquilibrationGpkg extends WGTestCase {
 
 	public void testInsulatedBottomEquilibratesToTopTemperature() throws Exception {
 
