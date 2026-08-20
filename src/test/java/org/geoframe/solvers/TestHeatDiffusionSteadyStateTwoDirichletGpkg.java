@@ -25,8 +25,8 @@ import java.util.Map;
 import org.geoframe.whetgeo.WGTestCase;
 import org.geoframe.whetgeo1d.core.boundaryconditions.IBoundaryCondition;
 import org.geoframe.whetgeo1d.solvers.HeatDiffusionSolver1D;
-import org.hortonmachine.gears.io.geoframe.whetgeo.Whetgeo1DInputsHandler;
-import org.hortonmachine.gears.io.geoframe.whetgeo.Whetgeo1DOutputsHandler;
+import org.geoframe.whetgeo1d.io.Whetgeo1DInputsHandler;
+import org.geoframe.whetgeo1d.io.Whetgeo1DOutputsHandler;
 import org.hortonmachine.gears.libs.monitor.LogProgressMonitor;
 import org.hortonmachine.gears.utils.time.ETimeUtilities;
 

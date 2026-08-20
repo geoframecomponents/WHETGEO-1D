@@ -30,8 +30,8 @@ import org.geoframe.whetgeo1d.solvers.HeatDiffusionSolverWithSurfaceEnergyBalanc
 import org.hortonmachine.dbs.compat.ADb;
 import org.hortonmachine.dbs.compat.EDb;
 import org.hortonmachine.dbs.compat.objects.QueryResult;
-import org.hortonmachine.gears.io.geoframe.whetgeo.Whetgeo1DInputsHandler;
-import org.hortonmachine.gears.io.geoframe.whetgeo.Whetgeo1DOutputsHandler;
+import org.geoframe.whetgeo1d.io.Whetgeo1DInputsHandler;
+import org.geoframe.whetgeo1d.io.Whetgeo1DOutputsHandler;
 import org.hortonmachine.gears.utils.time.ETimeUtilities;
 
 /**

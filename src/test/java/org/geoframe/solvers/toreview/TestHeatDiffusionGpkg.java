@@ -30,14 +30,8 @@ import org.geoframe.whetgeo1d.solvers.HeatDiffusionSolver1D;
 import org.hortonmachine.dbs.compat.ADb;
 import org.hortonmachine.dbs.compat.EDb;
 import org.hortonmachine.dbs.compat.objects.QueryResult;
-// import org.hortonmachine.dbs.compat.ADb;
-// import org.hortonmachine.dbs.compat.EDb;
-// import org.hortonmachine.gears.io.geoframe.HeatDiffusionBuffer1D;
-// import org.hortonmachine.gears.io.geoframe.ReadNetCDFHeatDiffusionGrid1D;
-// import org.hortonmachine.gears.io.geoframe.WriteNetCDFHeatDiffusion1DDouble;
-// import org.hortonmachine.gears.io.geoframe.whetgeo.WhetgeoTemperatureIterator;
-import org.hortonmachine.gears.io.geoframe.whetgeo.Whetgeo1DInputsHandler;
-import org.hortonmachine.gears.io.geoframe.whetgeo.Whetgeo1DOutputsHandler;
+import org.geoframe.whetgeo1d.io.Whetgeo1DInputsHandler;
+import org.geoframe.whetgeo1d.io.Whetgeo1DOutputsHandler;
 // import org.hortonmachine.gears.io.timedependent.OmsTimeSeriesIteratorReader;
 import org.hortonmachine.gears.utils.time.ETimeUtilities;
 
