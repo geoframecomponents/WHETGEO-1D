@@ -14,7 +14,7 @@ import org.hortonmachine.dbs.compat.ADb;
 import org.hortonmachine.dbs.compat.EDb;
 import org.hortonmachine.dbs.compat.IHMPreparedStatement;
 import org.hortonmachine.dbs.utils.SqlName;
-import org.hortonmachine.gears.io.geopackage.GeopackageTimeseriesIterator;
+import org.hortonmachine.dbs.utils.DbTimeseriesIterator;
 import org.hortonmachine.gears.io.timeseries.OmsTimeSeriesReader;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
@@ -411,12 +411,9 @@ public class Whetgeo1DInputsHandler {
 
 		// Discover which columns are actually present in the table
 		Set<String> existingCols = new HashSet<>();
-		db.execOnResultSet("PRAGMA table_info(\"" + TABLE_SWRC_PARAMETERS + "\")", rs -> {
-			while (rs.next()) {
-				existingCols.add(rs.getString(2)); // column 2 is 'name'
-			}
-			return null;
-		});
+		for (String[] col : db.getTableColumns(SqlName.m(TABLE_SWRC_PARAMETERS))) {
+			existingCols.add(col[0]);
+		}
 
 		// Build dynamic SELECT: id first, then every known column that exists
 		List<String> selectCols = new ArrayList<>();
@@ -547,8 +544,8 @@ public class Whetgeo1DInputsHandler {
 	 * Buffered cursor over the bottom-interface temperature table. Must be closed
 	 * after use.
 	 */
-	public GeopackageTimeseriesIterator iterateTemperatureBottomInterface(int bufferSize) throws Exception {
-		return new GeopackageTimeseriesIterator(db, TABLE_TEMPERATURE_BOTTOM_INTERFACE, COL_TEMPERATURE_TIMESTAMP,
+	public DbTimeseriesIterator iterateTemperatureBottomInterface(int bufferSize) throws Exception {
+		return new DbTimeseriesIterator(db, TABLE_TEMPERATURE_BOTTOM_INTERFACE, COL_TEMPERATURE_TIMESTAMP,
 				COL_TIMESERIES_VALUE, bufferSize);
 	}
 
@@ -556,8 +553,8 @@ public class Whetgeo1DInputsHandler {
 	 * Buffered cursor over the top-interface temperature table. Must be closed
 	 * after use.
 	 */
-	public GeopackageTimeseriesIterator iterateTemperatureTopInterface(int bufferSize) throws Exception {
-		return new GeopackageTimeseriesIterator(db, TABLE_TEMPERATURE_TOP_INTERFACE, COL_TEMPERATURE_TIMESTAMP,
+	public DbTimeseriesIterator iterateTemperatureTopInterface(int bufferSize) throws Exception {
+		return new DbTimeseriesIterator(db, TABLE_TEMPERATURE_TOP_INTERFACE, COL_TEMPERATURE_TIMESTAMP,
 				COL_TIMESERIES_VALUE, bufferSize);
 	}
 
@@ -566,8 +563,8 @@ public class Whetgeo1DInputsHandler {
 	 * {@code TABLE_TIMESERIES_*} constants for the known table names. Must be
 	 * closed after use.
 	 */
-	public GeopackageTimeseriesIterator iterateTimeseries(String tableName, int bufferSize) throws Exception {
-		return new GeopackageTimeseriesIterator(db, tableName, COL_TEMPERATURE_TIMESTAMP, COL_TIMESERIES_VALUE,
+	public DbTimeseriesIterator iterateTimeseries(String tableName, int bufferSize) throws Exception {
+		return new DbTimeseriesIterator(db, tableName, COL_TEMPERATURE_TIMESTAMP, COL_TIMESERIES_VALUE,
 				bufferSize);
 	}
 
@@ -579,12 +576,12 @@ public class Whetgeo1DInputsHandler {
 	 * @param endDate   inclusive end, format {@code "yyyy-MM-dd HH:mm"} (UTC), or
 	 *                  null for no upper limit
 	 */
-	public GeopackageTimeseriesIterator iterateTimeseries(String tableName, String startDate, String endDate,
+	public DbTimeseriesIterator iterateTimeseries(String tableName, String startDate, String endDate,
 			int bufferSize) throws Exception {
 		DateTimeFormatter fmt = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm").withZoneUTC();
 		Long startMs = (startDate != null) ? fmt.parseDateTime(startDate).getMillis() : null;
 		Long endMs = (endDate != null) ? fmt.parseDateTime(endDate).getMillis() : null;
-		return new GeopackageTimeseriesIterator(db, tableName, COL_TEMPERATURE_TIMESTAMP, COL_TIMESERIES_VALUE,
+		return new DbTimeseriesIterator(db, tableName, COL_TEMPERATURE_TIMESTAMP, COL_TIMESERIES_VALUE,
 				startMs, endMs, bufferSize);
 	}
 
