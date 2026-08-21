@@ -107,7 +107,8 @@ public class TestHeatDiffusionSurfaceEnergyBalanceGpkg extends WGTestCase {
 		solver.nestedNewton = 1;
 		solver.picardIteration = 1;
 
-		try (var airTIter = inputsHandler.iterateTimeseries(Whetgeo1DInputsHandler.TABLE_TIMESERIES_AIR_T, startDate,
+		try (inputsHandler;
+			var airTIter = inputsHandler.iterateTimeseries(Whetgeo1DInputsHandler.TABLE_TIMESERIES_AIR_T, startDate,
 				endDate, 1000);
 				var swIter = inputsHandler.iterateTimeseries(Whetgeo1DInputsHandler.TABLE_TIMESERIES_SW_RADIATION,
 						startDate, endDate, 1000);

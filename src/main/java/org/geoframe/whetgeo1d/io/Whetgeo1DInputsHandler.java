@@ -23,10 +23,19 @@ import org.joda.time.format.DateTimeFormatter;
 /**
  * Inputs handler for Whetgeoinputs.
  *
+ * <p>
+ * {@code AutoCloseable}: closing this closes the underlying connection, but
+ * only if it was opened by the {@code String dbPath} constructor - if an
+ * already-open {@link ADb} was passed in instead, this handler doesn't own
+ * it and leaves it open for the caller to close. {@link DbTimeseriesIterator}s
+ * handed out by {@code iterateTimeseries}/{@code iterateTemperature*} only
+ * close their own statement, not the connection, so this handler should be
+ * closed last, after every iterator obtained from it.
+ *
  * @author Andrea Antonello (https://g-ant.eu)
  * @since 2026-06
  */
-public class Whetgeo1DInputsHandler {
+public class Whetgeo1DInputsHandler implements AutoCloseable {
 	/*
 	 * Names for input files and corresponding database tables and columns. These
 	 * are fixed by convention and must match the CSV files
@@ -107,6 +116,7 @@ public class Whetgeo1DInputsHandler {
 	public static final String COL_TIMESERIES_VALUE = "value";
 
 	private ADb db;
+	private boolean ownsDb;
 
 	/** Number of control volumes. */
 	public int KMAX;
@@ -190,11 +200,21 @@ public class Whetgeo1DInputsHandler {
 	 */
 	public Whetgeo1DInputsHandler(ADb db) {
 		this.db = db;
+		this.ownsDb = false;
 	}
 
 	public Whetgeo1DInputsHandler(String dbPath) throws Exception {
 		this.db = EDb.GEOPACKAGE.getDb();
 		this.db.open(dbPath);
+		this.ownsDb = true;
+	}
+
+	/** Closes the underlying connection, but only if this handler opened it itself. */
+	@Override
+	public void close() throws Exception {
+		if (ownsDb) {
+			db.close();
+		}
 	}
 
 	/**

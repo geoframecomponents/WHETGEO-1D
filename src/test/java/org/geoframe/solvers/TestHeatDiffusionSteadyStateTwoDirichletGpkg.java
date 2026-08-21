@@ -122,7 +122,8 @@ public class TestHeatDiffusionSteadyStateTwoDirichletGpkg extends WGTestCase {
 
 		String outputPath = getTmpPath("HeatDiffusionSteadyStateTwoDirichletOutput", ".gpkg");
 		var progressMonitor = new LogProgressMonitor("TestHeatDiffusionSteadyStateTwoDirichlet");
-		try (var topBCIterator = inputsHandler.iterateTimeseries("temperature_top_interface", startDate, endDate,
+		try (inputsHandler;
+			var topBCIterator = inputsHandler.iterateTimeseries("temperature_top_interface", startDate, endDate,
 				1000);
 				var bottomBCIterator = inputsHandler.iterateTimeseries("temperature_bottom_interface", startDate,
 						endDate, 1000);

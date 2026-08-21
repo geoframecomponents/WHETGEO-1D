@@ -96,7 +96,8 @@ public class TestHeatDiffusionGpkg extends WGTestCase {
 		solver.picardIteration = 1;
 		solver.stationID = 0;
 
-		try (var topBCIterator = inputsHandler.iterateTimeseries("timeseries_temperature_bottom_interface", startDate,
+		try (inputsHandler;
+			var topBCIterator = inputsHandler.iterateTimeseries("timeseries_temperature_bottom_interface", startDate,
 				endDate, 1000);
 				var bottomBCIterator = inputsHandler.iterateTimeseries("timeseries_temperature_top_interface",
 						startDate, endDate, 1000);

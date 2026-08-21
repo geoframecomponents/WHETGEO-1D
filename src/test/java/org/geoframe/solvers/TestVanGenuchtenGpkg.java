@@ -123,7 +123,8 @@ public class TestVanGenuchtenGpkg extends WGTestCase {
 
 		String outputPath = getTmpPath("VanGenuchtenCoupledOutput", ".gpkg");
 		var progressMonitor = new LogProgressMonitor("TestVanGenuchtenGpkg");
-		try (var topBCIterator = inputsHandler.iterateTimeseries("timeseries_topBC", startDate, endDate, 1000);
+		try (inputsHandler;
+			var topBCIterator = inputsHandler.iterateTimeseries("timeseries_topBC", startDate, endDate, 1000);
 				var bottomBCIterator = inputsHandler.iterateTimeseries("timeseries_bottomBC", startDate, endDate,
 						1000);
 				var writer = new Whetgeo1DOutputsHandler(outputPath, 500)) {

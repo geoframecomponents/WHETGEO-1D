@@ -108,7 +108,8 @@ public class TestHeatAdvectionDiffusionGpkg extends WGTestCase {
 		solver.picardIteration = 1;
 		solver.stationID = 135;
 
-		try (var topInternalEnergyBCIter = inputsHandler.iterateTimeseries(airTTable, startDate, endDate, 1000);
+		try (inputsHandler;
+			var topInternalEnergyBCIter = inputsHandler.iterateTimeseries(airTTable, startDate, endDate, 1000);
 				var bottomInternalEnergyBCIter = inputsHandler.iterateTimeseries(bottomTTable, startDate, endDate,
 						1000);
 				var top_bot_RichardsBCIter = inputsHandler.iterateTimeseries(precipTable, startDate, endDate, 1000);

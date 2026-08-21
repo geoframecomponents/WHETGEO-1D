@@ -103,7 +103,8 @@ public class TestHeatDiffusionFreezingThawingSurfaceEnergyBalanceGpkg extends WG
 		solver.nestedNewton = 1;
 		solver.picardIteration = 1;
 
-		try (var airTIter = inputsHandler.iterateTimeseries(Whetgeo1DInputsHandler.TABLE_TIMESERIES_AIR_T, startDate, endDate, 1000);
+		try (inputsHandler;
+			var airTIter = inputsHandler.iterateTimeseries(Whetgeo1DInputsHandler.TABLE_TIMESERIES_AIR_T, startDate, endDate, 1000);
 				var swIter = inputsHandler.iterateTimeseries(Whetgeo1DInputsHandler.TABLE_TIMESERIES_SW_RADIATION, startDate, endDate, 1000);
 				var lwIter = inputsHandler.iterateTimeseries(Whetgeo1DInputsHandler.TABLE_TIMESERIES_LW_DOWNWELLING, startDate, endDate, 1000);
 				var leIter = inputsHandler.iterateTimeseries(Whetgeo1DInputsHandler.TABLE_TIMESERIES_LATENT_HEAT, startDate, endDate, 1000);
