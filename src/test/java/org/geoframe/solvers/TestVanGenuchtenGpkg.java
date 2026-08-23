@@ -32,25 +32,22 @@ import org.hortonmachine.gears.libs.monitor.LogProgressMonitor;
 import org.hortonmachine.gears.utils.time.ETimeUtilities;
 
 /**
- * Scenario: same 3 m, 3-layer Van Genuchten soil column as
- * {@link TestVanGenuchtenDirichletGpkg}, but driven by an actual rainfall
- * timeseries through a <b>coupled</b> top boundary condition instead of a
- * fixed Dirichlet head, with free drainage at the bottom. Inputs come from
- * {@code /input/gpkg/RichardsCoupled_VG.gpkg}.
+ * Scenario:  3 1m layer Van Genuchten soil column driven by an actual rainfall
+ * timeseries through a <b>coupled</b> top boundary with free drainage at the bottom. 
+ * Inputs come from {@code /input/gpkg/RichardsCoupled_VG.gpkg}.
  *
  * <p>
  * {@code TOP_COUPLED} reuses the same flux (Neumann-style) equation as
  * {@code TOP_NEUMANN}, but the grid carries one extra pseudo control-volume
  * stacked on top of the 150 real soil cells: a "Water Depth" surface-ponding
- * reservoir (equation state {@code theta(psi) = max(psi, 0)}, i.e. its state
- * variable *is* the ponding depth in metres). This lets rainfall in excess of
- * the soil's infiltration capacity accumulate as a real solved state instead
- * of being discarded as bookkeeping-only runoff, and couples back into the
- * Richards column through the pond cell's own (soil-derived) conductivity at
- * the interface.
+ * reservoir with its state variable being the ponding depth in metres. 
+ * This lets rainfall in excess of the soil's infiltration capacity accumulate 
+ * as a real solved state instead of being discarded as bookkeeping-only runoff,
+ * and couples back into the Richards column through the pond cell's own 
+ * (soil-derived) conductivity at the interface.
  *
  * <p>
- * Unlike the Dirichlet scenario, rainfall here is intermittent, so the
+ * Rainfall here is intermittent, so the
  * column isn't guaranteed to monotonically wet up. Instead this test checks
  * physical invariants that must hold regardless of the exact rainfall
  * sequence: the water balance must close at every step, and the water
