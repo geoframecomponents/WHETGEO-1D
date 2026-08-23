@@ -480,6 +480,12 @@ public class HeatDiffusionSolver1D extends HMModel {
 			 */
 			computeQuantitiesInternalEnergy.computeConductionHeatFlux(KMAX);
 
+			// TODO: check if this addition makes indeed sense. Added the following
+			// line because top/bottom values are not set anywere (hence resulting
+			// in always being 0 per java default)
+			variables.heatFluxTop = variables.conductionHeatFluxs[KMAX];
+			variables.heatFluxBottom = variables.conductionHeatFluxs[0];
+
 			/*
 			 * Compute error
 			 */
