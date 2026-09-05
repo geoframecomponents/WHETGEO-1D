@@ -295,13 +295,81 @@ public class RichardsSolverWithRootWaterUptake1D extends HMModel {
 	/*
 	 * OUTPUT
 	 */
+	@Description("Water suction")
+	@Out
+	@Unit("m")
+	public double[] outWaterSuctions;
+
+	@Description("Water content")
+	@Out
+	@Unit("-")
+	public double[] outWaterContent;
+
+	@Description("Control volume water volume")
+	@Out
+	@Unit("m")
+	public double[] outVolumes;
+
+	@Description("Degree of saturation")
+	@Out
+	@Unit("-")
+	public double[] outSaturationDegree;
+
+	@Description("Darcy velocity")
+	@Out
+	@Unit("m s-1")
+	public double[] outDarcyVelocity;
+
+	@Description("Darcy velocity, capillary component")
+	@Out
+	@Unit("m s-1")
+	public double[] outDarcyVelocityCapillary;
+
+	@Description("Darcy velocity, gravity component")
+	@Out
+	@Unit("m s-1")
+	public double[] outDarcyVelocityGravity;
+
+	@Description("Pore water velocity")
+	@Out
+	@Unit("m s-1")
+	public double[] outPoreVelocity;
+
+	@Description("Celerity")
+	@Out
+	@Unit("m s-1")
+	public double[] outCelerity;
+
+	@Description("Kinematic ratio")
+	@Out
+	@Unit("-")
+	public double[] outKinematicRatio;
+
+	@Description("Error in water volume")
+	@Out
+	public double outErrorVolume;
+
+	@Description("Applied top boundary condition value")
+	@Out
+	public double outTopBCValue;
+
+	@Description("Applied bottom boundary condition value")
+	@Out
+	public double outBottomBCValue;
+
+	@Description("Surface runoff")
+	@Out
+	public double outRunOff;
+
+	@Description("Root water uptake actually applied to each control volume this step, after the "
+			+ "wilting-point clamp - as opposed to the requested @In stressedETs, which the clamp may reduce")
+	@Out
+	@Unit("mm")
+	public double[] outAppliedRootUptake;
+
 	@Description("ArrayList of variable to be stored in the buffer writer")
 	@Out
 	public ArrayList<double[]> outputToBuffer;
-
-	@Description("Soil water content at the new time level. This will be passed to the Broker component")
-	@Out
-	public double[] thetasNew;
 
 	@Out
 	public boolean doProcess0;
@@ -309,8 +377,6 @@ public class RichardsSolverWithRootWaterUptake1D extends HMModel {
 	@Description("Control variable")
 	@Out
 	public boolean doProcessBuffer;
-
-	public Parameters parameters;
 
 	//////////////////////////////////////////
 	//////////////////////////////////////////
@@ -334,6 +400,7 @@ public class RichardsSolverWithRootWaterUptake1D extends HMModel {
 	private Richards1DKernel richardsSolver;
 	private ProblemQuantities variables;
 	private GFGeometry geometry;
+	private Parameters parameters;
 	private ComputeQuantitiesRichards computeQuantitiesRichards;
 	private ComputeQuantitiesRichardsRoot computeQuantitiesRichardsRoot;
 	private IBoundaryCondition topBoundaryCondition;
@@ -347,6 +414,8 @@ public class RichardsSolverWithRootWaterUptake1D extends HMModel {
 
 			variables = new ProblemQuantities(psiIC, temperature, inEquationStateID, inParameterID);
 			geometry = new GFGeometry(z, spaceDeltaZ, controlVolume);
+			parameters = new Parameters(referenceTemperatureSWRC, beta0, thetaS, thetaR, par1SWRC, par2SWRC,
+					par3SWRC, par4SWRC, par5SWRC, ks, alphaSpecificStorage, betaSpecificStorage);
 
 			computeQuantitiesRichards = new ComputeQuantitiesRichards(typeClosureEquation, typeEquationState,
 					typeUHCModel, typeUHCTemperatureModel, interfaceHydraulicConductivityModel, topBCType, bottomBCType,
@@ -383,21 +452,18 @@ public class RichardsSolverWithRootWaterUptake1D extends HMModel {
 		}
 
 		variables.richardsBottomBCValue = 0.0;
-		tmpBCValue = inBottomBC.get(stationID)[0];
-		if (isNovalue(tmpBCValue))
-			tmpBCValue = 0;
 		if (inBottomBC != null) {
+			tmpBCValue = inBottomBC.get(stationID)[0];
+			if (isNovalue(tmpBCValue))
+				tmpBCValue = 0;
 			variables.richardsBottomBCValue = tmpBCValue;
 		}
 
-		saveDate = 1.0;
 		if (inSaveDate != null) {
 			saveDate = inSaveDate.get(stationID)[0];
 		}
 
 		computeQuantitiesRichardsRoot.computeEvapoTranspirations(KMAX, tTimeStep, timeDelta, stressedETs);
-
-		computeQuantitiesRichards.resetRunOff();
 
 		outputToBuffer.clear();
 
@@ -459,6 +525,7 @@ public class RichardsSolverWithRootWaterUptake1D extends HMModel {
 			 */
 			computeQuantitiesRichards.computeWaterVolumeNew(KMAX);
 			computeQuantitiesRichards.computeThetasNew(KMAX);
+			computeQuantitiesRichards.computeSaturationDegree(KMAX);
 
 			/*
 			 * Fluxes
@@ -477,19 +544,36 @@ public class RichardsSolverWithRootWaterUptake1D extends HMModel {
 
 		}
 
-		thetasNew = variables.thetasNew;
+		outWaterSuctions = variables.waterSuctions;
+		outWaterContent = variables.thetasNew;
+		outVolumes = variables.volumesNew;
+		outSaturationDegree = variables.saturationDegree;
+		outDarcyVelocity = variables.darcyVelocities;
+		outDarcyVelocityCapillary = variables.darcyVelocitiesCapillary;
+		outDarcyVelocityGravity = variables.darcyVelocitiesGravity;
+		outPoreVelocity = variables.poreVelocities;
+		outCelerity = variables.celerities;
+		outKinematicRatio = variables.kinematicRatio;
+		outErrorVolume = variables.errorVolume;
+		outTopBCValue = variables.richardsTopBCValue * tTimeStep * 1000;
+		outBottomBCValue = variables.richardsBottomBCValue;
+		outRunOff = variables.runOff / tTimeStep;
+		outAppliedRootUptake = variables.ETs;
 
-		if (saveDate == 1) {
+		if (inSaveDate != null && saveDate == 1) {
+			// index-parallel with RichardsSolver1D's own 14-entry bundle, with
+			// outAppliedRootUptake (variables.ETs) appended as an extra 15th entry
+			// specific to this solver
 			outputToBuffer.add(variables.waterSuctions);
 			outputToBuffer.add(variables.thetasNew);
 			outputToBuffer.add(variables.volumesNew);
+			outputToBuffer.add(variables.saturationDegree);
 			outputToBuffer.add(variables.darcyVelocities);
 			outputToBuffer.add(variables.darcyVelocitiesCapillary);
 			outputToBuffer.add(variables.darcyVelocitiesGravity);
 			outputToBuffer.add(variables.poreVelocities);
 			outputToBuffer.add(variables.celerities);
 			outputToBuffer.add(variables.kinematicRatio);
-			outputToBuffer.add(variables.ETs);
 			outputToBuffer.add(new double[] { variables.errorVolume });
 			outputToBuffer.add(new double[] { variables.richardsTopBCValue * tTimeStep * 1000 }); // I want to have
 																									// rainfall height
@@ -497,6 +581,7 @@ public class RichardsSolverWithRootWaterUptake1D extends HMModel {
 																									// flux
 			outputToBuffer.add(new double[] { variables.richardsBottomBCValue });
 			outputToBuffer.add(new double[] { variables.runOff / tTimeStep }); // surface runoff
+			outputToBuffer.add(variables.ETs); // 15th, extra: applied root uptake (see outAppliedRootUptake)
 			doProcessBuffer = true;
 		} else {
 			// System.out.println("SaveDate = " + saveDate);

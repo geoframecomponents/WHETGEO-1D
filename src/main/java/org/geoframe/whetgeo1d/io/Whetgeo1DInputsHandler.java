@@ -98,6 +98,8 @@ public class Whetgeo1DInputsHandler implements AutoCloseable {
 	public static final String COL_SWRC_SP_SPECIFIC_HEAT = "spSpecificHeatCapacity";
 	public static final String COL_SWRC_THETAS = "thetaS";
 	public static final String COL_SWRC_THETAR = "thetaR";
+	public static final String COL_SWRC_THETA_WP = "thetaWP";
+	public static final String COL_SWRC_THETA_FC = "thetaFC";
 	public static final String COL_SWRC_MELTING_T = "meltingT";
 	public static final String COL_SWRC_N = "n";
 	public static final String COL_SWRC_ALPHA = "alpha";
@@ -173,6 +175,10 @@ public class Whetgeo1DInputsHandler implements AutoCloseable {
 	public double[] thetaS;
 	/** Residual volumetric water content per parameter set [-]. */
 	public double[] thetaR;
+	/** Volumetric water content at the wilting point per parameter set [-]. */
+	public double[] thetaWP;
+	/** Volumetric water content at field capacity per parameter set [-]. */
+	public double[] thetaFC;
 
 	/** Melting temperature per parameter set [K]. */
 	public double[] meltingTemperature;
@@ -439,8 +445,9 @@ public class Whetgeo1DInputsHandler implements AutoCloseable {
 		List<String> selectCols = new ArrayList<>();
 		selectCols.add(COL_SWRC_ID);
 		for (String knownCol : List.of(COL_SWRC_SP_DENSITY, COL_SWRC_SP_CONDUCTIVITY, COL_SWRC_SP_SPECIFIC_HEAT,
-				COL_SWRC_THETAS, COL_SWRC_THETAR, COL_SWRC_MELTING_T, COL_SWRC_ALPHA, COL_SWRC_N,
-				COL_SWRC_ALPHA_SPECIFIC_STORAGE, COL_SWRC_BETA_SPECIFIC_STORAGE, COL_SWRC_KS)) {
+				COL_SWRC_THETAS, COL_SWRC_THETAR, COL_SWRC_THETA_WP, COL_SWRC_THETA_FC, COL_SWRC_MELTING_T,
+				COL_SWRC_ALPHA, COL_SWRC_N, COL_SWRC_ALPHA_SPECIFIC_STORAGE, COL_SWRC_BETA_SPECIFIC_STORAGE,
+				COL_SWRC_KS)) {
 			if (existingCols.contains(knownCol)) {
 				selectCols.add(knownCol);
 			}
@@ -467,6 +474,10 @@ public class Whetgeo1DInputsHandler implements AutoCloseable {
 			thetaS = new double[arraySize];
 		if (existingCols.contains(COL_SWRC_THETAR))
 			thetaR = new double[arraySize];
+		if (existingCols.contains(COL_SWRC_THETA_WP))
+			thetaWP = new double[arraySize];
+		if (existingCols.contains(COL_SWRC_THETA_FC))
+			thetaFC = new double[arraySize];
 		if (existingCols.contains(COL_SWRC_MELTING_T))
 			meltingTemperature = new double[arraySize];
 		if (existingCols.contains(COL_SWRC_ALPHA_SPECIFIC_STORAGE))
@@ -500,6 +511,10 @@ public class Whetgeo1DInputsHandler implements AutoCloseable {
 					thetaS[idx] = rs.getDouble(colIdx.get(COL_SWRC_THETAS));
 				if (thetaR != null)
 					thetaR[idx] = rs.getDouble(colIdx.get(COL_SWRC_THETAR));
+				if (thetaWP != null)
+					thetaWP[idx] = rs.getDouble(colIdx.get(COL_SWRC_THETA_WP));
+				if (thetaFC != null)
+					thetaFC[idx] = rs.getDouble(colIdx.get(COL_SWRC_THETA_FC));
 				if (meltingTemperature != null)
 					meltingTemperature[idx] = rs.getDouble(colIdx.get(COL_SWRC_MELTING_T));
 				if (alphaSS != null)
