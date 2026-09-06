@@ -20,7 +20,7 @@ package org.geoframe.whetgeo1d.core.surfaceproperties;
 
 import org.geoframe.whetgeo1d.core.surfaceproperties.albedo.SurfaceAlbedoConstant;
 import org.geoframe.whetgeo1d.core.surfaceproperties.albedo.SurfaceAlbedoVanBavelHillel;
-import org.geoframe.whetgeo1d.utils.EnumUtils;
+import org.geoframe.whetgeo1d.core.utils.EnumUtils;
 
 /**
  * Interface for the evaluation of the surface albedo.

@@ -32,8 +32,8 @@ import org.geoframe.whetgeo1d.core.equationstate.models.SoilWaterVolumeKosugi;
 import org.geoframe.whetgeo1d.core.equationstate.models.SoilWaterVolumeRomano;
 import org.geoframe.whetgeo1d.core.equationstate.models.SoilWaterVolumeVanGenuchten;
 import org.geoframe.whetgeo1d.core.equationstate.models.WaterDepth;
-import org.geoframe.whetgeo1d.utils.GFGeometry;
-import org.geoframe.whetgeo1d.utils.ProblemQuantities;
+import org.geoframe.whetgeo1d.core.state.WGGeometry;
+import org.geoframe.whetgeo1d.core.state.WGProblemQuantities;
 
 public class EquationStateFactory {
 	public enum StateEquationModel {
@@ -41,8 +41,8 @@ public class EquationStateFactory {
 		FREEZING_SOIL_INTERNAL_ENERGY, SOIL_HEAT_CAPACITY, WATER_HEAT_CAPACITY, WATER_INTERNAL_ENERGY
 	}
 
-	public EquationState create(StateEquationModel model, ClosureEquation closureEquation, GFGeometry geometry,
-			ProblemQuantities problemQuantities) {
+	public EquationState create(StateEquationModel model, ClosureEquation closureEquation, WGGeometry geometry,
+			WGProblemQuantities problemQuantities) {
 
 		switch (model) {
 		case VAN_GENUCHTEN:

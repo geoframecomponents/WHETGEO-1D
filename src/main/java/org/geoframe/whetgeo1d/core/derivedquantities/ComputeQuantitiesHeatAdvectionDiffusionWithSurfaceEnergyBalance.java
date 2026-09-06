@@ -32,15 +32,15 @@ import org.geoframe.closureequation.interfaceconductivity.InterfaceConductivity;
 import org.geoframe.closureequation.interfaceconductivity.SimpleInterfaceConductivityFactory;
 import org.geoframe.whetgeo1d.core.equationstate.EquationStateFactory;
 import org.geoframe.whetgeo1d.core.equationstate.EquationStateFactory.StateEquationModel;
+import org.geoframe.whetgeo1d.core.state.WGGeometry;
+import org.geoframe.whetgeo1d.core.state.WGProblemQuantities;
 import org.geoframe.whetgeo1d.core.surfaceproperties.ISurfaceAereodynamicResistance;
 import org.geoframe.whetgeo1d.core.surfaceproperties.ISurfaceAereodynamicResistance.SurfaceAereodynamicResistanceType;
 import org.geoframe.whetgeo1d.core.surfaceproperties.ISurfaceAlbedo;
 import org.geoframe.whetgeo1d.core.surfaceproperties.ISurfaceAlbedo.SurfaceAlbedoModel;
 import org.geoframe.whetgeo1d.core.surfaceproperties.ISurfaceEmissivity;
 import org.geoframe.whetgeo1d.core.surfaceproperties.ISurfaceEmissivity.SurfaceEmissivityModel;
-import org.geoframe.whetgeo1d.utils.EnumUtils;
-import org.geoframe.whetgeo1d.utils.GFGeometry;
-import org.geoframe.whetgeo1d.utils.ProblemQuantities;
+import org.geoframe.whetgeo1d.core.utils.EnumUtils;
 
 import oms3.annotations.Author;
 import oms3.annotations.Bibliography;
@@ -63,8 +63,8 @@ import oms3.annotations.License;
 public class ComputeQuantitiesHeatAdvectionDiffusionWithSurfaceEnergyBalance {
 	
 	
-	private ProblemQuantities variables;
-	private GFGeometry geometry;
+	private WGProblemQuantities variables;
+	private WGGeometry geometry;
 	private Parameters parameters;
 	
 
@@ -105,7 +105,7 @@ public class ComputeQuantitiesHeatAdvectionDiffusionWithSurfaceEnergyBalance {
 	
 	public ComputeQuantitiesHeatAdvectionDiffusionWithSurfaceEnergyBalance(String[] typeClosureEquation, String[] typeEquationState, String[] typeThermalConductivity,
 			String interfaceHydraulicConductivityModel, String bottomBCType, String surfaceAlbedoType, String surfaceEmissivityType,
-			String surfaceAereodynamicResistanceType, ProblemQuantities variables, GFGeometry geometry, Parameters parameters) {
+			String surfaceAereodynamicResistanceType, WGProblemQuantities variables, WGGeometry geometry, Parameters parameters) {
 		
 		this.variables = variables;
 		this.geometry = geometry;

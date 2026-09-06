@@ -31,8 +31,8 @@ import org.geoframe.whetgeo1d.core.derivedquantities.ComputeQuantitiesRichardsRo
 import org.geoframe.whetgeo1d.core.derivedquantities.ComputeQuantitiesSoluteAdvectionDispersion;
 import org.geoframe.whetgeo1d.core.finitevolume.AdvectionDiffusion1DKernel;
 import org.geoframe.whetgeo1d.core.finitevolume.Richards1DKernel;
-import org.geoframe.whetgeo1d.utils.GFGeometry;
-import org.geoframe.whetgeo1d.utils.ProblemQuantities;
+import org.geoframe.whetgeo1d.core.state.WGGeometry;
+import org.geoframe.whetgeo1d.core.state.WGProblemQuantities;
 import org.hortonmachine.gears.libs.modules.HMModel;
 
 import oms3.annotations.Author;
@@ -372,8 +372,8 @@ public class RichardsConservativeSoluteADESolverWithRootWaterUptake1D extends HM
 
 	private Richards1DKernel richardsSolver;
 	private AdvectionDiffusion1DKernel advectionDispersionSolver;
-	private ProblemQuantities variables;
-	private GFGeometry geometry;
+	private WGProblemQuantities variables;
+	private WGGeometry geometry;
 	private ComputeQuantitiesRichards computeQuantitiesRichards;
 	private ComputeQuantitiesRichardsRoot computeQuantitiesRichardsRoot;
 	private ComputeQuantitiesSoluteAdvectionDispersion computeQuantitiesSoluteAdvectionDispersion;
@@ -388,8 +388,8 @@ public class RichardsConservativeSoluteADESolverWithRootWaterUptake1D extends HM
 		if (step == 0) {
 			KMAX = psiIC.length;
 
-			variables = new ProblemQuantities(psiIC, temperatureIC, concentrationIC, inEquationStateID, inParameterID);
-			geometry = new GFGeometry(z, spaceDeltaZ, controlVolume);
+			variables = new WGProblemQuantities(psiIC, temperatureIC, concentrationIC, inEquationStateID, inParameterID);
+			geometry = new WGGeometry(z, spaceDeltaZ, controlVolume);
 			var parameters = new Parameters(molecularDiffusion, longitudinalDispersivity, referenceTemperatureSWRC,
 					beta0, thetaS, thetaR, par1SWRC, par2SWRC, par3SWRC, par4SWRC, par5SWRC, ks, alphaSpecificStorage,
 					betaSpecificStorage);

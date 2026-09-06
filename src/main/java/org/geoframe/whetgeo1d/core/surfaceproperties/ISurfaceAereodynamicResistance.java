@@ -19,7 +19,7 @@
 package org.geoframe.whetgeo1d.core.surfaceproperties;
 
 import org.geoframe.whetgeo1d.core.surfaceproperties.aerodynamicresistance.SurfaceAereodynamicResistanceNeutralCondition;
-import org.geoframe.whetgeo1d.utils.EnumUtils;
+import org.geoframe.whetgeo1d.core.utils.EnumUtils;
 
 /**
  * Evaluate the aerodynamic resistance

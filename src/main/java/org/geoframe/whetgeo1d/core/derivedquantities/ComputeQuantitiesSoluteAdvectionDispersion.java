@@ -31,8 +31,8 @@ import org.geoframe.closureequation.equationstate.EquationState;
 import org.geoframe.closureequation.interfaceconductivity.InterfaceConductivity;
 import org.geoframe.closureequation.interfaceconductivity.SimpleInterfaceConductivityFactory;
 import org.geoframe.whetgeo1d.core.equationstate.EquationStateFactory;
-import org.geoframe.whetgeo1d.utils.GFGeometry;
-import org.geoframe.whetgeo1d.utils.ProblemQuantities;
+import org.geoframe.whetgeo1d.core.state.WGGeometry;
+import org.geoframe.whetgeo1d.core.state.WGProblemQuantities;
 
 import oms3.annotations.Author;
 import oms3.annotations.Bibliography;
@@ -53,8 +53,8 @@ import oms3.annotations.License;
 
 public class ComputeQuantitiesSoluteAdvectionDispersion {
 
-	private ProblemQuantities variables;
-	private GFGeometry geometry;
+	private WGProblemQuantities variables;
+	private WGGeometry geometry;
 	private Parameters parameters;
 
 	@Description("List containing the closure equations")
@@ -89,7 +89,7 @@ public class ComputeQuantitiesSoluteAdvectionDispersion {
 //	private double tmp;
 
 	public ComputeQuantitiesSoluteAdvectionDispersion(String[] typeClosureEquation, String interfaceDispersionModel,
-			String topBCType, String bottomBCType, ProblemQuantities variables, GFGeometry geometry,
+			String topBCType, String bottomBCType, WGProblemQuantities variables, WGGeometry geometry,
 			Parameters parameters) {
 
 		this.variables = variables;

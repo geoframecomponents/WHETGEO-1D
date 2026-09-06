@@ -19,7 +19,7 @@
 package org.geoframe.whetgeo1d.core.surfaceproperties;
 
 import org.geoframe.whetgeo1d.core.surfaceproperties.vaporresistance.SurfaceWaterVaporResistanceFeddes;
-import org.geoframe.whetgeo1d.utils.EnumUtils;
+import org.geoframe.whetgeo1d.core.utils.EnumUtils;
 
 /**
  * Interface to evaluate the surface water vapor resistance.

@@ -1,4 +1,4 @@
-package org.geoframe.whetgeo1d.utils;
+package org.geoframe.whetgeo1d.core.utils;
 
 /**
  * Helper class for enums.

@@ -20,7 +20,7 @@ package org.geoframe.whetgeo1d.core.surfaceproperties;
 
 import org.geoframe.whetgeo1d.core.surfaceproperties.emissivity.SurfaceEmissivityConstant;
 import org.geoframe.whetgeo1d.core.surfaceproperties.emissivity.SurfaceEmissivityVanBavelHillel;
-import org.geoframe.whetgeo1d.utils.EnumUtils;
+import org.geoframe.whetgeo1d.core.utils.EnumUtils;
 
 /**
  * Interface for the evaluation of the surface emissivity.

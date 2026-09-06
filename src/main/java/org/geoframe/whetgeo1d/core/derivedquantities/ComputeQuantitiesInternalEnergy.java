@@ -34,9 +34,9 @@ import org.geoframe.whetgeo1d.core.boundaryconditions.IBoundaryCondition;
 import org.geoframe.whetgeo1d.core.boundaryconditions.IBoundaryCondition.DiffusionBoundaryConditionType;
 import org.geoframe.whetgeo1d.core.equationstate.EquationStateFactory;
 import org.geoframe.whetgeo1d.core.equationstate.EquationStateFactory.StateEquationModel;
-import org.geoframe.whetgeo1d.utils.EnumUtils;
-import org.geoframe.whetgeo1d.utils.GFGeometry;
-import org.geoframe.whetgeo1d.utils.ProblemQuantities;
+import org.geoframe.whetgeo1d.core.state.WGGeometry;
+import org.geoframe.whetgeo1d.core.state.WGProblemQuantities;
+import org.geoframe.whetgeo1d.core.utils.EnumUtils;
 
 import oms3.annotations.Author;
 import oms3.annotations.Bibliography;
@@ -57,8 +57,8 @@ import oms3.annotations.License;
 
 public class ComputeQuantitiesInternalEnergy {
 
-	private ProblemQuantities variables;
-	private GFGeometry geometry;
+	private WGProblemQuantities variables;
+	private WGGeometry geometry;
 	private Parameters parameters;
 
 	@Description("List containing the closure equations")
@@ -88,7 +88,7 @@ public class ComputeQuantitiesInternalEnergy {
 
 	public ComputeQuantitiesInternalEnergy(String[] typeClosureEquation, String[] typeEquationState,
 			String[] typeThermalConductivity, String interfaceHydraulicConductivityModel, DiffusionBoundaryConditionType topBCType,
-			DiffusionBoundaryConditionType bottomBCType, ProblemQuantities variables, GFGeometry geometry, Parameters parameters) {
+			DiffusionBoundaryConditionType bottomBCType, WGProblemQuantities variables, WGGeometry geometry, Parameters parameters) {
 
 		this.variables = variables;
 		this.geometry = geometry;

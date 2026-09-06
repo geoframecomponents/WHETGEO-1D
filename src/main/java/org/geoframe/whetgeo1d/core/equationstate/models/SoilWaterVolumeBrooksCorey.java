@@ -24,8 +24,8 @@ package org.geoframe.whetgeo1d.core.equationstate.models;
 
 import org.geoframe.closureequation.closureequation.ClosureEquation;
 import org.geoframe.closureequation.equationstate.EquationState;
-import org.geoframe.whetgeo1d.utils.GFGeometry;
-import org.geoframe.whetgeo1d.utils.ProblemQuantities;
+import org.geoframe.whetgeo1d.core.state.WGGeometry;
+import org.geoframe.whetgeo1d.core.state.WGProblemQuantities;
 
 /**
  * @author Niccolo` Tubini
@@ -33,11 +33,11 @@ import org.geoframe.whetgeo1d.utils.ProblemQuantities;
  */
 public class SoilWaterVolumeBrooksCorey extends EquationState {
 
-	private GFGeometry geometry;
-	private ProblemQuantities variables;
+	private WGGeometry geometry;
+	private WGProblemQuantities variables;
 
-	public SoilWaterVolumeBrooksCorey(ClosureEquation closureEquation, GFGeometry geometry,
-			ProblemQuantities variables) {
+	public SoilWaterVolumeBrooksCorey(ClosureEquation closureEquation, WGGeometry geometry,
+			WGProblemQuantities variables) {
 		super(closureEquation);
 		this.geometry = geometry;
 		this.variables = variables;

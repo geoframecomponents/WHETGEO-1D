@@ -29,7 +29,7 @@ import org.geoframe.whetgeo1d.core.boundaryconditions.richards.RichardsBottomBou
 import org.geoframe.whetgeo1d.core.boundaryconditions.richards.RichardsBottomBoundaryConditionNeumann;
 import org.geoframe.whetgeo1d.core.boundaryconditions.richards.RichardsTopBoundaryConditionDirichlet;
 import org.geoframe.whetgeo1d.core.boundaryconditions.richards.RichardsTopBoundaryConditionNeumann;
-import org.geoframe.whetgeo1d.utils.EnumUtils;
+import org.geoframe.whetgeo1d.core.utils.EnumUtils;
 
 /**
  * The boundary condition interface.

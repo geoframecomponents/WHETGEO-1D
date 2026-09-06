@@ -24,8 +24,8 @@ package org.geoframe.whetgeo1d.core.equationstate.models;
 
 import org.geoframe.closureequation.closureequation.ClosureEquation;
 import org.geoframe.closureequation.equationstate.EquationState;
-import org.geoframe.whetgeo1d.utils.GFGeometry;
-import org.geoframe.whetgeo1d.utils.ProblemQuantities;
+import org.geoframe.whetgeo1d.core.state.WGGeometry;
+import org.geoframe.whetgeo1d.core.state.WGProblemQuantities;
 
 /**
  * @author Niccolo` Tubini
@@ -33,9 +33,9 @@ import org.geoframe.whetgeo1d.utils.ProblemQuantities;
  */
 public class WaterDepth extends EquationState {
 
-	protected ProblemQuantities variables;
+	protected WGProblemQuantities variables;
 
-	public WaterDepth(ClosureEquation closureEquation, ProblemQuantities variables) {
+	public WaterDepth(ClosureEquation closureEquation, WGProblemQuantities variables) {
 		super(closureEquation);
 		this.variables = variables;
 	}

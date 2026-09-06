@@ -20,8 +20,8 @@
 package org.geoframe.whetgeo1d.core.derivedquantities;
 
 import org.geoframe.closureequation.closureequation.Parameters;
-import org.geoframe.whetgeo1d.utils.GFGeometry;
-import org.geoframe.whetgeo1d.utils.ProblemQuantities;
+import org.geoframe.whetgeo1d.core.state.WGGeometry;
+import org.geoframe.whetgeo1d.core.state.WGProblemQuantities;
 
 import oms3.annotations.Author;
 import oms3.annotations.Bibliography;
@@ -41,8 +41,8 @@ import oms3.annotations.License;
 @License("General Public License Version 3 (GPLv3)")
 public class ComputeQuantitiesRichardsRoot {
 
-	private ProblemQuantities variables;
-	private GFGeometry geometry;
+	private WGProblemQuantities variables;
+	private WGGeometry geometry;
 
 	@Description("Values of the adimensional water content at the wilting point")
 	private double[] thetaWP;
@@ -50,8 +50,8 @@ public class ComputeQuantitiesRichardsRoot {
 	@Description("Values of the adimensional water content at the field capacity")
 	private double[] thetaFC;
 
-	public ComputeQuantitiesRichardsRoot(double[] thetaWP, double[] thetaFC, ProblemQuantities variables,
-			GFGeometry geometry, Parameters parameters) {
+	public ComputeQuantitiesRichardsRoot(double[] thetaWP, double[] thetaFC, WGProblemQuantities variables,
+			WGGeometry geometry, Parameters parameters) {
 
 		this.variables = variables;
 		this.geometry = geometry;

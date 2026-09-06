@@ -17,10 +17,10 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.geoframe.whetgeo1d.utils;
+package org.geoframe.whetgeo1d.core.state;
 
 
-public class ProblemQuantities {
+public class WGProblemQuantities {
 	
 	public double[] waterSuctions;
 	public double[] temperatures;
@@ -135,7 +135,7 @@ public class ProblemQuantities {
 	
 	
 	
-	public ProblemQuantities(double[] icWaterSuction, double[] icTemperature, int[] equationStateID, int[] parameterID) {
+	public WGProblemQuantities(double[] icWaterSuction, double[] icTemperature, int[] equationStateID, int[] parameterID) {
 		
 		waterSuctions = icWaterSuction.clone();
 		temperatures = icTemperature.clone();
@@ -179,7 +179,7 @@ public class ProblemQuantities {
 		
 		
 	}
-	public ProblemQuantities(double[] icWaterSuction, double[] icTemperature, double[] icConcentration, int[] equationStateID, int[] parameterID) {
+	public WGProblemQuantities(double[] icWaterSuction, double[] icTemperature, double[] icConcentration, int[] equationStateID, int[] parameterID) {
 		waterSuctions = icWaterSuction.clone();
 		temperatures = icTemperature.clone();
 		

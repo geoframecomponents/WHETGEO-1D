@@ -32,8 +32,8 @@ import org.geoframe.whetgeo1d.core.boundaryconditions.IBoundaryCondition.Richard
 import org.geoframe.whetgeo1d.core.derivedquantities.ComputeQuantitiesRichards;
 import org.geoframe.whetgeo1d.core.derivedquantities.ComputeQuantitiesRichardsRoot;
 import org.geoframe.whetgeo1d.core.finitevolume.Richards1DKernel;
-import org.geoframe.whetgeo1d.utils.GFGeometry;
-import org.geoframe.whetgeo1d.utils.ProblemQuantities;
+import org.geoframe.whetgeo1d.core.state.WGGeometry;
+import org.geoframe.whetgeo1d.core.state.WGProblemQuantities;
 import org.hortonmachine.gears.libs.modules.HMModel;
 
 import oms3.annotations.Author;
@@ -398,8 +398,8 @@ public class RichardsSolverWithRootWaterUptake1D extends HMModel {
 	private double tmpBCValue;
 
 	private Richards1DKernel richardsSolver;
-	private ProblemQuantities variables;
-	private GFGeometry geometry;
+	private WGProblemQuantities variables;
+	private WGGeometry geometry;
 	private Parameters parameters;
 	private ComputeQuantitiesRichards computeQuantitiesRichards;
 	private ComputeQuantitiesRichardsRoot computeQuantitiesRichardsRoot;
@@ -412,8 +412,8 @@ public class RichardsSolverWithRootWaterUptake1D extends HMModel {
 		if (step == 0) {
 			KMAX = psiIC.length;
 
-			variables = new ProblemQuantities(psiIC, temperature, inEquationStateID, inParameterID);
-			geometry = new GFGeometry(z, spaceDeltaZ, controlVolume);
+			variables = new WGProblemQuantities(psiIC, temperature, inEquationStateID, inParameterID);
+			geometry = new WGGeometry(z, spaceDeltaZ, controlVolume);
 			parameters = new Parameters(referenceTemperatureSWRC, beta0, thetaS, thetaR, par1SWRC, par2SWRC,
 					par3SWRC, par4SWRC, par5SWRC, ks, alphaSpecificStorage, betaSpecificStorage);
 

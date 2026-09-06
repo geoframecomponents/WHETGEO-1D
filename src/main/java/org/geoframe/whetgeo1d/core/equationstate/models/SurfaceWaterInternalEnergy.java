@@ -25,7 +25,7 @@ package org.geoframe.whetgeo1d.core.equationstate.models;
 import org.geoframe.closureequation.closureequation.ClosureEquation;
 import org.geoframe.closureequation.closureequation.Parameters;
 import org.geoframe.closureequation.equationstate.EquationState;
-import org.geoframe.whetgeo1d.utils.ProblemQuantities;
+import org.geoframe.whetgeo1d.core.state.WGProblemQuantities;
 
 /**
  * @author Niccolo` Tubini
@@ -33,11 +33,11 @@ import org.geoframe.whetgeo1d.utils.ProblemQuantities;
  */
 public class SurfaceWaterInternalEnergy extends EquationState {
 
-	private ProblemQuantities variables;
+	private WGProblemQuantities variables;
 
 	private double f;
 
-	public SurfaceWaterInternalEnergy(ClosureEquation closureEquation, ProblemQuantities variables) {
+	public SurfaceWaterInternalEnergy(ClosureEquation closureEquation, WGProblemQuantities variables) {
 		super(closureEquation);
 		this.variables = variables;
 	}

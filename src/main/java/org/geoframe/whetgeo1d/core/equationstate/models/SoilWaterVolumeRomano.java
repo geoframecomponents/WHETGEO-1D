@@ -26,8 +26,8 @@ import org.geoframe.closureequation.closureequation.ClosureEquation;
 import org.geoframe.closureequation.closureequation.Parameters;
 import org.geoframe.closureequation.equationstate.EquationState;
 import org.geoframe.numerical.rootfinding.Bisection;
-import org.geoframe.whetgeo1d.utils.GFGeometry;
-import org.geoframe.whetgeo1d.utils.ProblemQuantities;
+import org.geoframe.whetgeo1d.core.state.WGGeometry;
+import org.geoframe.whetgeo1d.core.state.WGProblemQuantities;
 
 /**
  * @author Niccolo` Tubini
@@ -35,11 +35,11 @@ import org.geoframe.whetgeo1d.utils.ProblemQuantities;
  */
 public class SoilWaterVolumeRomano extends EquationState {
 
-	private GFGeometry geometry;
-	private ProblemQuantities variables;
+	private WGGeometry geometry;
+	private WGProblemQuantities variables;
 	private Bisection bisection;
 
-	public SoilWaterVolumeRomano(ClosureEquation closureEquation, GFGeometry geometry, ProblemQuantities variables) {
+	public SoilWaterVolumeRomano(ClosureEquation closureEquation, WGGeometry geometry, WGProblemQuantities variables) {
 		super(closureEquation);
 		this.bisection = new Bisection(this);
 		this.geometry = geometry;

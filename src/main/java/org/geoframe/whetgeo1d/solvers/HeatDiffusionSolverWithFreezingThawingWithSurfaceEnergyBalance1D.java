@@ -35,8 +35,8 @@ import org.geoframe.whetgeo1d.core.boundaryconditions.IBoundaryCondition;
 import org.geoframe.whetgeo1d.core.boundaryconditions.IBoundaryCondition.DiffusionBoundaryConditionType;
 import org.geoframe.whetgeo1d.core.derivedquantities.ComputeQuantitiesHeatDiffusionFreezingThawingWithSurfaceEnergyBalance;
 import org.geoframe.whetgeo1d.core.finitevolume.HeatDiffusionWithSurfaceEnergyBalance1DKernel;
-import org.geoframe.whetgeo1d.utils.GFGeometry;
-import org.geoframe.whetgeo1d.utils.ProblemQuantities;
+import org.geoframe.whetgeo1d.core.state.WGGeometry;
+import org.geoframe.whetgeo1d.core.state.WGProblemQuantities;
 import org.hortonmachine.gears.libs.modules.HMModel;
 
 import oms3.annotations.Author;
@@ -495,8 +495,8 @@ public class HeatDiffusionSolverWithFreezingThawingWithSurfaceEnergyBalance1D ex
 
 
 	private HeatDiffusionWithSurfaceEnergyBalance1DKernel heatDiffusionSolver;
-	private ProblemQuantities variables;
-	private GFGeometry geometry;
+	private WGProblemQuantities variables;
+	private WGGeometry geometry;
 	private Parameters parameters;
 	private ComputeQuantitiesHeatDiffusionFreezingThawingWithSurfaceEnergyBalance computeQuantities;
 	private IBoundaryCondition bottomBoundaryCondition;
@@ -509,8 +509,8 @@ public class HeatDiffusionSolverWithFreezingThawingWithSurfaceEnergyBalance1D ex
 		if(step==0){
 			KMAX = psiIC.length;
 
-			variables = new ProblemQuantities(psiIC, temperature, inEquationStateID, inParameterID);
-			geometry = new GFGeometry(z, spaceDeltaZ, controlVolume);
+			variables = new WGProblemQuantities(psiIC, temperature, inEquationStateID, inParameterID);
+			geometry = new WGGeometry(z, spaceDeltaZ, controlVolume);
 			parameters = new Parameters(waterDensity, iceDensity, specificThermalCapacityWater,
 					specificThermalCapacityIce, thermalConductivityWater, thermalConductivityIce, latentHeatFusion, referenceTemperatureInternalEnergy,
 					referenceTemperatureSWRC, beta0,

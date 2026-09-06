@@ -32,19 +32,7 @@ import org.hortonmachine.gears.io.geoframe.whetgeo.Whetgeo1DOutputSchema;
  * before the first {@link #write()} omits its column(s) entirely; setting it
  * adds the column(s) to the relevant table. This lets each solver opt into
  * exactly the columns it actually computes, without a fixed enumeration of
- * "modes" — e.g. a Richards-only run has no heat flux or energy error, but
- * does have {@link #waterSuction} and {@link #errorVolume}; a plain
- * {@code HeatDiffusionSolver1D} run driven by the {@code SoilInternalEnergy}
- * equation state never computes a liquid water content at all, so it should
- * leave {@link #theta} null rather than write a column of meaningless
- * constant zeros; conversely a Richards run with {@code
- * typeUHCTemperatureModel = "notemperature"} never actually solves {@link
- * #temperature} (it would just be the same IC array written back unchanged
- * every step), so it should leave that null too. The surface-energy-balance
- * scalars ({@link #airT}
- * and its 7 companions) are written as one bundle, keyed on {@link #airT}
- * being non-null, since they only ever come from the same physical
- * sub-model.
+ * "modes".
  *
  * @author Andrea Antonello (https://g-ant.eu)
  * @since 2026-06
