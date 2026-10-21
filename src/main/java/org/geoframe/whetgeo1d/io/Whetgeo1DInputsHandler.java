@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -103,6 +104,17 @@ public class Whetgeo1DInputsHandler implements AutoCloseable {
 	public static final String COL_SWRC_MELTING_T = "meltingT";
 	public static final String COL_SWRC_N = "n";
 	public static final String COL_SWRC_ALPHA = "alpha";
+	// retention curve parameters of the other models, mapped to their slots in the
+	// TABLE_DICTIONARY table (Brooks-Corey: n, psiD; Kosugi: psiMedian, sigma;
+	// Romano: w, sigma1, sigma2, h1, h2)
+	public static final String COL_SWRC_PSI_D = "psiD";
+	public static final String COL_SWRC_PSI_MEDIAN = "psiMedian";
+	public static final String COL_SWRC_SIGMA = "sigma";
+	public static final String COL_SWRC_W = "w";
+	public static final String COL_SWRC_SIGMA1 = "sigma1";
+	public static final String COL_SWRC_SIGMA2 = "sigma2";
+	public static final String COL_SWRC_H1 = "h1";
+	public static final String COL_SWRC_H2 = "h2";
 	public static final String COL_SWRC_ALPHA_SPECIFIC_STORAGE = "alphaSpecificStorage";
 	public static final String COL_SWRC_BETA_SPECIFIC_STORAGE = "betaSpecificStorage";
 	public static final String COL_SWRC_KS = "Ks";
@@ -426,30 +438,35 @@ public class Whetgeo1DInputsHandler implements AutoCloseable {
 			return null;
 		});
 
-		// column names that may map to parXSWRC via the dictionary
-		final Map<String, String> parTypeToCol = new HashMap<>();
-		for (String col : List.of(COL_SWRC_N, COL_SWRC_ALPHA)) {
-			String parType = colToParType.get(col);
-			if (parType != null) {
-				parTypeToCol.putIfAbsent(parType, col);
-			}
-		}
-
 		// Discover which columns are actually present in the table
 		Set<String> existingCols = new HashSet<>();
 		for (String[] col : db.getTableColumns(SqlName.m(TABLE_SWRC_PARAMETERS))) {
 			existingCols.add(col[0]);
 		}
 
-		// Build dynamic SELECT: id first, then every known column that exists
+		// The retention curve parameters: every dictionary entry whose column exists
+		// in the table fills its slot (par1..par5). Entries of models whose columns
+		// are absent are ignored, so one dictionary can list every model.
+		final Map<String, Integer> slotCols = new LinkedHashMap<>(); // column -> slot 1..5
+		for (Map.Entry<String, String> entry : colToParType.entrySet()) {
+			if (existingCols.contains(entry.getKey())) {
+				slotCols.put(entry.getKey(), parseSlot(entry.getKey(), entry.getValue()));
+			}
+		}
+
+		// Build dynamic SELECT: id first, then every known column and every slot column that exists
 		List<String> selectCols = new ArrayList<>();
 		selectCols.add(COL_SWRC_ID);
 		for (String knownCol : List.of(COL_SWRC_SP_DENSITY, COL_SWRC_SP_CONDUCTIVITY, COL_SWRC_SP_SPECIFIC_HEAT,
 				COL_SWRC_THETAS, COL_SWRC_THETAR, COL_SWRC_THETA_WP, COL_SWRC_THETA_FC, COL_SWRC_MELTING_T,
-				COL_SWRC_ALPHA, COL_SWRC_N, COL_SWRC_ALPHA_SPECIFIC_STORAGE, COL_SWRC_BETA_SPECIFIC_STORAGE,
-				COL_SWRC_KS)) {
+				COL_SWRC_ALPHA_SPECIFIC_STORAGE, COL_SWRC_BETA_SPECIFIC_STORAGE, COL_SWRC_KS)) {
 			if (existingCols.contains(knownCol)) {
 				selectCols.add(knownCol);
+			}
+		}
+		for (String slotCol : slotCols.keySet()) {
+			if (!selectCols.contains(slotCol)) {
+				selectCols.add(slotCol);
 			}
 		}
 
@@ -524,11 +541,27 @@ public class Whetgeo1DInputsHandler implements AutoCloseable {
 				if (existingCols.contains(COL_SWRC_KS))
 					Ks[idx] = rs.getDouble(colIdx.get(COL_SWRC_KS));
 
-				// Fill parXSWRC via dictionary mapping; absent mappings get NODATA
+				// Fill parXSWRC from the slot columns that have a value in this parameter
+				// set, ex. alpha for a Van Genuchten set and psiD for a Brooks-Corey one.
+				// Slots without a value get NODATA.
+				double[] slotValues = { NODATA, NODATA, NODATA, NODATA, NODATA };
+				String[] slotSources = new String[5];
+				for (Map.Entry<String, Integer> slotCol : slotCols.entrySet()) {
+					double value = rs.getDouble(colIdx.get(slotCol.getKey()));
+					if (rs.wasNull()) {
+						continue;
+					}
+					int slot = slotCol.getValue() - 1;
+					if (slotSources[slot] != null) {
+						throw new IllegalArgumentException("Parameter set " + idx + " has values for both "
+								+ slotSources[slot] + " and " + slotCol.getKey() + ", which fill the same slot par"
+								+ (slot + 1) + ": leave empty the one its retention model does not use.");
+					}
+					slotSources[slot] = slotCol.getKey();
+					slotValues[slot] = value;
+				}
 				for (int p = 1; p <= 5; p++) {
-					String colName = parTypeToCol.get("par" + p);
-					double val = (colName == null || !colIdx.containsKey(colName)) ? NODATA
-							: rs.getDouble(colIdx.get(colName));
+					double val = slotValues[p - 1];
 					switch (p) {
 					case 1 -> par1SWRC[idx] = val;
 					case 2 -> par2SWRC[idx] = val;
@@ -540,6 +573,17 @@ public class Whetgeo1DInputsHandler implements AutoCloseable {
 			}
 			return null;
 		});
+	}
+
+	/**
+	 * @return the slot number 1..5 of a dictionary entry like {@code alpha -> par2}.
+	 */
+	private static int parseSlot(String column, String parType) {
+		if (parType != null && parType.matches("par[1-5]")) {
+			return parType.charAt(3) - '0';
+		}
+		throw new IllegalArgumentException("The dictionary maps " + column + " to " + parType
+				+ ", but the retention curve slots are par1 to par5.");
 	}
 
 	private void readInitialConditions() throws Exception {

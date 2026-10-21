@@ -33,7 +33,7 @@ import org.joda.time.format.DateTimeFormatter;
  *     .initialCondition(0.0, 0.0, 285.15)
  *     .initialCondition(-1.0, 0.0, 285.15)
  *     .parameterSet(Map.of("thetaS", 0.38, "thetaR", 0.068, "alpha", 0.8, "n", 1.09))
- *     .vanGenuchtenNames()
+ *     .vanGenuchtenSlots()
  *     .constantTimeseries(TABLE_TEMPERATURE_TOP_INTERFACE, "2000-01-01 00:00", "2000-03-01 00:00", 60, 20.0)
  *     .write();
  * </pre>
@@ -57,7 +57,7 @@ public class Whetgeo1DInputsBuilder {
 	private final List<Object[]> pseudoCellRows = new ArrayList<>(); // stackOrder, eqID, parID, cv, note
 	private final List<Object[]> icRows = new ArrayList<>(); // eta, psi0, t0
 	private final List<Map<String, Double>> parameterSets = new ArrayList<>();
-	private final Map<String, String> parameterNames = new LinkedHashMap<>();
+	private final Map<String, String> parameterSlots = new LinkedHashMap<>();
 	private final Map<String, Object[]> timeseries = new LinkedHashMap<>(); // table -> {long[], double[]}
 
 	/**
@@ -153,6 +153,10 @@ public class Whetgeo1DInputsBuilder {
 	 * From groovy, named arguments make it read like a table row:
 	 * {@code parameterSet(thetaS: 0.38, thetaR: 0.068, n: 1.09, alpha: 0.8)}.
 	 *
+	 * <p>
+	 * A <code>null</code> value leaves the parameter empty, ex. the {@code psiD} of a
+	 * Van Genuchten set in a table that also holds Brooks-Corey sets.
+	 *
 	 * @param values the values by parameter name.
 	 * @return the builder.
 	 */
@@ -163,11 +167,11 @@ public class Whetgeo1DInputsBuilder {
 		Map<String, Double> set = new LinkedHashMap<>();
 		for (Map.Entry<String, ?> entry : values.entrySet()) {
 			Object value = entry.getValue();
-			if (!(value instanceof Number)) {
+			if (value != null && !(value instanceof Number)) {
 				throw new IllegalArgumentException(
 						"Parameter " + entry.getKey() + " must be a number, got: " + value);
 			}
-			set.put(entry.getKey(), ((Number) value).doubleValue());
+			set.put(entry.getKey(), value == null ? null : ((Number) value).doubleValue());
 		}
 		if (!parameterSets.isEmpty() && !parameterSets.get(0).keySet().equals(set.keySet())) {
 			throw new IllegalArgumentException("Parameter set " + (parameterSets.size() + 1) + " has the names "
@@ -181,15 +185,15 @@ public class Whetgeo1DInputsBuilder {
 	 * Tell which parameter name fills which generic slot of the retention curve
 	 * ({@code par1} .. {@code par5}).
 	 *
-	 * @param name    the parameter name, ex. "n".
-	 * @param parType the slot, ex. "par1".
+	 * @param name the parameter name, ex. "n".
+	 * @param slot the slot, "par1" to "par5".
 	 * @return the builder.
 	 */
-	public Whetgeo1DInputsBuilder parameterName(String name, String parType) {
-		if (parameterNames.containsKey(name)) {
+	public Whetgeo1DInputsBuilder parameterSlot(String name, String slot) {
+		if (parameterSlots.containsKey(name)) {
 			throw new IllegalArgumentException("Parameter name " + name + " is already mapped.");
 		}
-		parameterNames.put(name, parType);
+		parameterSlots.put(name, slot);
 		return this;
 	}
 
@@ -198,8 +202,40 @@ public class Whetgeo1DInputsBuilder {
 	 *
 	 * @return the builder.
 	 */
-	public Whetgeo1DInputsBuilder vanGenuchtenNames() {
-		return parameterName(COL_SWRC_N, "par1").parameterName(COL_SWRC_ALPHA, "par2");
+	public Whetgeo1DInputsBuilder vanGenuchtenSlots() {
+		return parameterSlot(COL_SWRC_N, "par1").parameterSlot(COL_SWRC_ALPHA, "par2");
+	}
+
+	/**
+	 * The slots of the Brooks-Corey retention curve: n is par1, the air-entry suction
+	 * psiD [m] is par2.
+	 *
+	 * @return the builder.
+	 */
+	public Whetgeo1DInputsBuilder brooksCoreySlots() {
+		return parameterSlot(COL_SWRC_N, "par1").parameterSlot(COL_SWRC_PSI_D, "par2");
+	}
+
+	/**
+	 * The slots of the Kosugi retention curve: the median suction psiMedian [m] is
+	 * par1, sigma is par2.
+	 *
+	 * @return the builder.
+	 */
+	public Whetgeo1DInputsBuilder kosugiSlots() {
+		return parameterSlot(COL_SWRC_PSI_MEDIAN, "par1").parameterSlot(COL_SWRC_SIGMA, "par2");
+	}
+
+	/**
+	 * The slots of the Romano bimodal retention curve: the weight w is par1, sigma1
+	 * and sigma2 are par2 and par3, the median suctions h1 and h2 [m] are par4 and par5.
+	 *
+	 * @return the builder.
+	 */
+	public Whetgeo1DInputsBuilder romanoSlots() {
+		return parameterSlot(COL_SWRC_W, "par1").parameterSlot(COL_SWRC_SIGMA1, "par2")
+				.parameterSlot(COL_SWRC_SIGMA2, "par3").parameterSlot(COL_SWRC_H1, "par4")
+				.parameterSlot(COL_SWRC_H2, "par5");
 	}
 
 	// ---------------------------------------------------------------- timeseries
@@ -309,9 +345,9 @@ public class Whetgeo1DInputsBuilder {
 	public void write() throws Exception {
 		validate();
 
-		if (!parameterNames.isEmpty()) {
+		if (!parameterSlots.isEmpty()) {
 			List<Object[]> rows = new ArrayList<>();
-			parameterNames.forEach((name, parType) -> rows.add(new Object[] { name, parType }));
+			parameterSlots.forEach((name, parType) -> rows.add(new Object[] { name, parType }));
 			insert(TABLE_DICTIONARY, new String[] { COL_DICTIONARY_VAL1 + " TEXT PRIMARY KEY",
 					COL_DICTIONARY_VAL2 + " TEXT" }, new String[] { COL_DICTIONARY_VAL1, COL_DICTIONARY_VAL2 },
 					rows);
@@ -429,7 +465,9 @@ public class Whetgeo1DInputsBuilder {
 				for (Object[] row : rows) {
 					for (int i = 0; i < row.length; i++) {
 						Object value = row[i];
-						if (value instanceof Double d) {
+						if (value == null) {
+							pStmt.setObject(i + 1, null);
+						} else if (value instanceof Double d) {
 							pStmt.setDouble(i + 1, d);
 						} else if (value instanceof Integer n) {
 							pStmt.setInt(i + 1, n);
