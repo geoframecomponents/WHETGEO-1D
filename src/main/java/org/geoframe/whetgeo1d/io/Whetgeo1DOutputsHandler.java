@@ -218,6 +218,32 @@ public class Whetgeo1DOutputsHandler implements AutoCloseable {
 		this.bufferSize = bufferSize;
 	}
 
+	/**
+	 * Set the information that is written once: the grid, the initial condition and
+	 * the soil parameter snapshot as read by the input handler, and the boundary
+	 * condition types.
+	 *
+	 * @param inputs       the input handler, already read.
+	 * @param topBCType    the top boundary condition type, ex.
+	 *                     {@code RichardsBoundaryConditionType.TOP_COUPLED}, or <code>null</code>.
+	 * @param bottomBCType the bottom boundary condition type, or <code>null</code>.
+	 */
+	public void describe(Whetgeo1DInputsHandler inputs, Enum<?> topBCType, Enum<?> bottomBCType) {
+		eta = inputs.eta;
+		etaDual = inputs.etaDual;
+		controlVolume = inputs.controlVolume;
+		psi = inputs.psi;
+		temperatureIC = inputs.temperatureIC;
+		parameterID = inputs.parameterID;
+		swrcThetaS = inputs.thetaS;
+		swrcThetaR = inputs.thetaR;
+		swrcKs = inputs.Ks;
+		swrcN = inputs.par1SWRC;
+		swrcAlpha = inputs.par2SWRC;
+		this.topBCType = topBCType == null ? null : topBCType.name();
+		this.bottomBCType = bottomBCType == null ? null : bottomBCType.name();
+	}
+
 	/** Accumulate the current step and flush to DB when the buffer is full. */
 	public void write() throws Exception {
 		if (!initialized) {

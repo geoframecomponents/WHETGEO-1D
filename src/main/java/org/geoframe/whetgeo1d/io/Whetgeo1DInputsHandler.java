@@ -1,6 +1,7 @@
 package org.geoframe.whetgeo1d.io;
 
 import java.io.File;
+import java.lang.reflect.Field;
 import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -662,6 +663,85 @@ public class Whetgeo1DInputsHandler implements AutoCloseable {
 		Long endMs = (endDate != null) ? fmt.parseDateTime(endDate).getMillis() : null;
 		return new DbTimeseriesIterator(db, tableName, COL_TEMPERATURE_TIMESTAMP, COL_TIMESERIES_VALUE,
 				startMs, endMs, bufferSize);
+	}
+
+	/**
+	 * Which field of this handler feeds which field of the solvers: the handler
+	 * field first, then the solver field names it may go to, the first one the
+	 * solver has wins (the solute solvers call the initial temperature
+	 * {@code temperatureIC}, the others {@code temperature}).
+	 */
+	private static final String[][] SOLVER_FIELDS = { //
+			{ "z", "z" }, //
+			{ "spaceDelta", "spaceDeltaZ" }, //
+			{ "controlVolume", "controlVolume" }, //
+			{ "psi", "psiIC" }, //
+			{ "temperatureIC", "temperature", "temperatureIC" }, //
+			{ "equationStateID", "inEquationStateID" }, //
+			{ "parameterID", "inParameterID" }, //
+			{ "Ks", "ks" }, //
+			{ "thetaS", "thetaS" }, //
+			{ "thetaR", "thetaR" }, //
+			{ "thetaWP", "thetaWP" }, //
+			{ "thetaFC", "thetaFC" }, //
+			{ "par1SWRC", "par1SWRC" }, //
+			{ "par2SWRC", "par2SWRC" }, //
+			{ "par3SWRC", "par3SWRC" }, //
+			{ "par4SWRC", "par4SWRC" }, //
+			{ "par5SWRC", "par5SWRC" }, //
+			{ "alphaSS", "alphaSpecificStorage" }, //
+			{ "betaSS", "betaSpecificStorage" }, //
+			{ "soilParticlesDensity", "soilParticlesDensity" }, //
+			{ "soilParticlesThermalConductivity", "thermalConductivitySoilParticles" }, //
+			{ "soilParticlesSpecificHeatCapacity", "specificThermalCapacitySoilParticles" }, //
+			{ "meltingTemperature", "meltingTemperature" } //
+	};
+
+	/**
+	 * Set on a solver everything this handler read: grid, initial condition and
+	 * soil parameters. Works with any WHETGEO-1D solver: a field is set only if the
+	 * solver has it and the input database provided it. The models, boundary
+	 * conditions and numerics are left to the caller.
+	 *
+	 * @param solver the solver, ex. a {@code RichardsSolver1D}.
+	 * @return the names of the solver fields that were set.
+	 */
+	public List<String> applyTo(Object solver) throws Exception {
+		List<String> setFields = new ArrayList<>();
+		for (String[] mapping : SOLVER_FIELDS) {
+			Object value = Whetgeo1DInputsHandler.class.getField(mapping[0]).get(this);
+			if (value == null) {
+				continue;
+			}
+			for (int i = 1; i < mapping.length; i++) {
+				Field target;
+				try {
+					target = solver.getClass().getField(mapping[i]);
+				} catch (NoSuchFieldException e) {
+					continue;
+				}
+				if (!target.getType().isInstance(value)) {
+					throw new IllegalArgumentException("The solver field " + mapping[i] + " is a "
+							+ target.getType().getSimpleName() + ", but " + mapping[0] + " is a "
+							+ value.getClass().getSimpleName());
+				}
+				target.set(solver, value);
+				setFields.add(mapping[i]);
+				break;
+			}
+		}
+		return setFields;
+	}
+
+	/**
+	 * @return all the solver field names {@link #applyTo(Object)} can set.
+	 */
+	public static List<String> applicableSolverFields() {
+		List<String> names = new ArrayList<>();
+		for (String[] mapping : SOLVER_FIELDS) {
+			names.addAll(Arrays.asList(mapping).subList(1, mapping.length));
+		}
+		return names;
 	}
 
 	/**
