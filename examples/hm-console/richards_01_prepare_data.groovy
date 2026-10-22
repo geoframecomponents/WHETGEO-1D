@@ -40,10 +40,9 @@ HM.connectGeopackage(gpkg).withCloseable{ db ->
         .parameterSet(thetaS: 0.48664, thetaR: 0.13335, alpha: 0.846, n: 1.34174,
                 alphaSpecificStorage: 0.0, betaSpecificStorage: 0.0, Ks: 9.73284e-07)
         .vanGenuchtenSlots()
-        // top: psi = 0 m constant. 
-        // bottom: free drainage, the
-        // value is not used but the solver still steps through a timeseries.
+        // top: psi = 0 m constant
         .constantTimeseries("timeseries_topBC", startDate, endDate, 60, 0.0)
+        // bottom: free drainage
         .constantTimeseries("timeseries_bottomBC", startDate, endDate, 60, 0.0)
         // write record to gpkg
         .write()

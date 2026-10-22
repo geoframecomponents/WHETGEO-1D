@@ -13,7 +13,7 @@ def inGpkg = dataFolder.absolutePath + "/heatdiffusion.gpkg"
 def outGpkg = dataFolder.absolutePath + "/heatdiffusion_output.gpkg" 
 def startDate = "2000-01-01 00:00"
 def endDate = "2000-03-01 00:00"
-
+def stationId = 0
 
 // cleanup first
 deleteGpkg(outGpkg)
@@ -51,7 +51,7 @@ solver.delta = 0
 solver.newtonTolerance = 1e-6
 solver.nestedNewton = 1
 solver.picardIteration = 1
-solver.stationID = 0
+solver.stationID = stationId
 
 ////////////////////////////////////
 // get data iterators and output writer
@@ -75,8 +75,8 @@ try (inputHandler
         def timestamp = topIterator.timestamp()
         def tsStr = HM.ts2str(timestamp)
         println "Processing timestamp: " + tsStr
-        solver.inTopBC = [(solver.stationID): topIterator.values()]
-        solver.inBottomBC = [(solver.stationID): bottomIterator.values()]
+        solver.inTopBC = [(stationId): topIterator.values()]
+        solver.inBottomBC = [(stationId): bottomIterator.values()]
         solver.inCurrentDate = tsStr
 
         solver.solve()

@@ -74,8 +74,8 @@ try (inputHandler
         def timestamp = topIterator.timestamp()
         def tsStr = HM.ts2str(timestamp)
         println "Processing timestamp: " + tsStr
-        solver.inTopBC = [(solver.stationID): topIterator.values()]
-        solver.inBottomBC = [(solver.stationID): bottomIterator.values()]
+        solver.inTopBC = [(stationId): topIterator.values()]
+        solver.inBottomBC = [(stationId): bottomIterator.values()]
         solver.inCurrentDate = tsStr
 
         solver.solve()
