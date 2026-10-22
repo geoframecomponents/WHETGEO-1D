@@ -16,6 +16,9 @@ def startDate = "2015-01-15 00:00"
 def endDate = "2015-12-15 00:00"
 def stationId = 0
 
+def tableTopBC = "timeseries_topBC";
+def tableBotBC = "timeseries_bottomBC";
+
 // cleanup first
 deleteGpkg(outGpkg)
 
@@ -61,7 +64,11 @@ solver.stationID = stationId
 // what to chart: rain, pond depth and water content near the top of each layer
 def watchDepths = [-0.1, -1.1, -2.1]
 // find cells for that depths
-def watchCells = watchDepths.collect { d -> (0..<pondIndex).min { Math.abs(inputHandler.eta[it] - d) } }
+def watchCells = watchDepths.collect { d -> 
+        (0..<pondIndex).min { 
+            Math.abs(inputHandler.eta[it] - d) 
+        } 
+    }
 def times = []
 def rainValues = []
 def pondValues = []
@@ -72,8 +79,8 @@ def cumulativeDrainage = 0.0
 
 def stepCount = 0
 try (inputHandler
-    def topIterator = inputHandler.iterateTimeseries("timeseries_topBC", startDate, endDate, 1000)
-    def bottomIterator = inputHandler.iterateTimeseries("timeseries_bottomBC", startDate, endDate, 1000)
+    def topIterator = inputHandler.iterateTimeseries(tableTopBC, startDate, endDate, 1000)
+    def bottomIterator = inputHandler.iterateTimeseries(tableBotBC, startDate, endDate, 1000)
     def outWriter = new Whetgeo1DOutputsHandler(outGpkg, 500)
     ){
     outWriter.writeIntervalMinutes = 60 * 24 // one output per day is enough here
@@ -121,8 +128,8 @@ try (inputHandler
 }
 
 println "Simulation geopackage written: " + outGpkg
-println String.format("Rain:              %8.1f mm", cumulativeRain * 1000)
-println String.format("Drained at base:   %8.1f mm", cumulativeDrainage * 1000)
+println "Rain: " + ((cumulativeRain * 1000) as int) + " mm"
+println "Drained at base: " + ((cumulativeDrainage * 1000) as int) + " mm"
 
 ////////////////////////////////////
 // PLOT RESULTS

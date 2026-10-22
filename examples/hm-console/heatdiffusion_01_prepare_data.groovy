@@ -16,6 +16,10 @@ def topTempC = 20.0
 def bottomTempC = 5.0 
 def initTempC = 285.15
 
+def tableTopBC = "timeseries_topBC";
+def tableBotBC = "timeseries_bottomBC";
+
+
 checkFolder(dataFolder)
 deleteGpkg(gpkg)
 
@@ -46,10 +50,8 @@ HM.connectGeopackage(gpkg).withCloseable{ db ->
         )
     .vanGenuchtenSlots() // n and alpha 
     // boundary temperatures, hourly
-    .constantTimeseries(Whetgeo1DInputsHandler.TABLE_TEMPERATURE_TOP_INTERFACE,
-            startDate, endDate, 60, topTempC)
-    .constantTimeseries(Whetgeo1DInputsHandler.TABLE_TEMPERATURE_BOTTOM_INTERFACE,
-            startDate, endDate, 60, bottomTempC)
+    .constantTimeseries(tableTopBC, startDate, endDate, 60, topTempC)
+    .constantTimeseries(tableBotBC, startDate, endDate, 60, bottomTempC)
     // write the gpkg
     .write()
 }

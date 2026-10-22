@@ -12,9 +12,11 @@ def dataFolder = workspace + "richards_rain/" as File
 def gpkg = dataFolder.absolutePath + "/richards_rain.gpkg"
 def topBcCsv = workspace + "data/precip.csv"
 def bottomBcCsv = workspace + "data/bottom.csv"
-
 def startDate = "2015-01-15 00:00"
 def endDate = "2015-12-15 00:00"
+
+def tableTopBC = "timeseries_topBC";
+def tableBotBC = "timeseries_bottomBC";
 
 checkFolder(dataFolder)
 deleteGpkg(gpkg)
@@ -45,8 +47,8 @@ HM.connectGeopackage(gpkg).withCloseable{ db ->
         .parameterSet(thetaS: 0.48664, thetaR: 0.13335, alpha: 0.846, n: 1.34174,
                 alphaSpecificStorage: 0.0, betaSpecificStorage: 0.0, Ks: 9.73284e-07)
         .vanGenuchtenSlots()
-        .timeseriesFromCsv("timeseries_topBC", topBcCsv)
-        .timeseriesFromCsv("timeseries_bottomBC", bottomBcCsv)
+        .timeseriesFromCsv(tableTopBC, topBcCsv)
+        .timeseriesFromCsv(tableBotBC, bottomBcCsv)
         // write record to gpkg
         .write()
 }

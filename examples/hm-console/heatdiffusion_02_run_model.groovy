@@ -1,5 +1,5 @@
 import org.geoframe.whetgeo1d.io.Whetgeo1DInputsHandler
-import org.geoframe.whetgeo1d.core.boundaryconditions.IBoundaryCondition
+import static org.geoframe.whetgeo1d.core.boundaryconditions.IBoundaryCondition.DiffusionBoundaryConditionType.*
 import org.geoframe.whetgeo1d.solvers.HeatDiffusionSolver1D
 import org.geoframe.whetgeo1d.io.Whetgeo1DOutputsHandler
 import org.hortonmachine.HM
@@ -15,6 +15,9 @@ def startDate = "2000-01-01 00:00"
 def endDate = "2000-03-01 00:00"
 def stationId = 0
 
+def tableTopBC = "timeseries_topBC";
+def tableBotBC = "timeseries_bottomBC";
+
 // cleanup first
 deleteGpkg(outGpkg)
 
@@ -26,8 +29,8 @@ println "Simulation on column with " + kmax +
         " cells [" + inputHandler.etaDual[kmax] + " to " +
         inputHandler.etaDual[0] + "]"
 
-def topBC = IBoundaryCondition.DiffusionBoundaryConditionType.TOP_DIRICHLET
-def bottomBC = IBoundaryCondition.DiffusionBoundaryConditionType.BOTTOM_DIRICHLET
+def topBC = TOP_DIRICHLET
+def bottomBC = BOTTOM_DIRICHLET
 
 ////////////////////////////////////
 // DEFINE THE SOLVER
@@ -64,8 +67,8 @@ snapshots["start"] = inputHandler.temperatureIC
 
 def stepCount = 0
 try (inputHandler
-    def topIterator = inputHandler.iterateTimeseries(Whetgeo1DInputsHandler.TABLE_TEMPERATURE_TOP_INTERFACE, startDate, endDate, 1000)
-    def bottomIterator = inputHandler.iterateTimeseries(Whetgeo1DInputsHandler.TABLE_TEMPERATURE_BOTTOM_INTERFACE, startDate, endDate, 1000)
+    def topIterator = inputHandler.iterateTimeseries(tableTopBC, startDate, endDate, 1000)
+    def bottomIterator = inputHandler.iterateTimeseries(tableBotBC, startDate, endDate, 1000)
     def outWriter = new Whetgeo1DOutputsHandler(outGpkg, 500)
     ){
     // grid, initial condition, soil parameters and boundary condition types, written once

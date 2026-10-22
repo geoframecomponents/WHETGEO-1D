@@ -1,5 +1,5 @@
 import org.geoframe.whetgeo1d.io.Whetgeo1DInputsHandler
-import org.geoframe.whetgeo1d.core.boundaryconditions.IBoundaryCondition
+import static org.geoframe.whetgeo1d.core.boundaryconditions.IBoundaryCondition.RichardsBoundaryConditionType.*
 import org.geoframe.whetgeo1d.solvers.RichardsSolver1D
 import org.geoframe.whetgeo1d.io.Whetgeo1DOutputsHandler
 import org.hortonmachine.HM
@@ -15,6 +15,9 @@ def startDate = "2015-01-15 00:00"
 def endDate = "2015-12-15 00:00"
 def stationId = 0
 
+def tableTopBC = "timeseries_topBC";
+def tableBotBC = "timeseries_bottomBC";
+
 // cleanup first
 deleteGpkg(outGpkg)
 
@@ -22,8 +25,8 @@ def inputHandler = new Whetgeo1DInputsHandler(inGpkg)
 inputHandler.read()
 
 def kmax = inputHandler.KMAX
-def topBC = IBoundaryCondition.RichardsBoundaryConditionType.TOP_DIRICHLET
-def bottomBC = IBoundaryCondition.RichardsBoundaryConditionType.BOTTOM_FREE_DRAINAGE
+def topBC = TOP_DIRICHLET
+def bottomBC = BOTTOM_FREE_DRAINAGE
 
 ////////////////////////////////////
 // DEFINE THE SOLVER
@@ -62,8 +65,8 @@ def snapshots = [:]
 
 def stepCount = 0
 try (inputHandler
-    def topIterator = inputHandler.iterateTimeseries("timeseries_topBC", startDate, endDate, 1000)
-    def bottomIterator = inputHandler.iterateTimeseries("timeseries_bottomBC", startDate, endDate, 1000)
+    def topIterator = inputHandler.iterateTimeseries(tableTopBC, startDate, endDate, 1000)
+    def bottomIterator = inputHandler.iterateTimeseries(tableBotBC, startDate, endDate, 1000)
     def outWriter = new Whetgeo1DOutputsHandler(outGpkg, 500)
     ){
     outWriter.writeIntervalMinutes = 60 * 24 // one output per day is enough here
@@ -108,7 +111,9 @@ chart.setXLabel("theta [-]")
 chart.setYLabel("eta [m]")
 // a profile: keep the points in depth order instead of sorting them by theta
 chart.setSortByX(false)
-snapshots.each { name, thetas -> chart.addSeries(name, thetas, inputHandler.eta) }
+snapshots.each { name, thetas -> 
+    chart.addSeries(name, thetas, inputHandler.eta) 
+}
 chart.setShowShapes(snapshots.collect { false })
 chart.addHorizontalAnnotation("layer 1 | layer 2", -1.0)
 chart.addHorizontalAnnotation("layer 2 | layer 3", -2.0)

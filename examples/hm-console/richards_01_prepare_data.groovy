@@ -11,9 +11,11 @@ import org.geoframe.whetgeo1d.io.Whetgeo1DInputsHandler
 def workspace = "/home/hydrologis/storage/lavori_tmp/UNITN/WHETGEO1D/"
 def dataFolder = workspace + "richards/" as File
 def gpkg = dataFolder.absolutePath + "/richards.gpkg" 
-
 def startDate = "2015-01-15 00:00"
 def endDate = "2015-12-15 00:00"
+
+def tableTopBC = "timeseries_topBC";
+def tableBotBC = "timeseries_bottomBC";
 
 checkFolder(dataFolder)
 deleteGpkg(gpkg)
@@ -41,9 +43,9 @@ HM.connectGeopackage(gpkg).withCloseable{ db ->
                 alphaSpecificStorage: 0.0, betaSpecificStorage: 0.0, Ks: 9.73284e-07)
         .vanGenuchtenSlots()
         // top: psi = 0 m constant
-        .constantTimeseries("timeseries_topBC", startDate, endDate, 60, 0.0)
+        .constantTimeseries(tableTopBC, startDate, endDate, 60, 0.0)
         // bottom: free drainage
-        .constantTimeseries("timeseries_bottomBC", startDate, endDate, 60, 0.0)
+        .constantTimeseries(tableBotBC, startDate, endDate, 60, 0.0)
         // write record to gpkg
         .write()
 }
