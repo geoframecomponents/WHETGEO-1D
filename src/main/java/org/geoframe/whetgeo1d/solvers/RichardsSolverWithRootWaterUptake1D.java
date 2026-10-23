@@ -361,10 +361,11 @@ public class RichardsSolverWithRootWaterUptake1D extends HMModel {
 	@Out
 	public double outRunOff;
 
-	@Description("Root water uptake actually applied to each control volume this step, after the "
-			+ "wilting-point clamp - as opposed to the requested @In stressedETs, which the clamp may reduce")
+	@Description("Root water uptake actually applied to each control volume in one sub-step of length "
+			+ "timeDelta (the whole step when timeDelta = tTimeStep), after the wilting-point clamp - as "
+			+ "opposed to the requested @In stressedETs [mm per step], which the clamp may reduce")
 	@Out
-	@Unit("mm")
+	@Unit("m")
 	public double[] outAppliedRootUptake;
 
 	@Description("ArrayList of variable to be stored in the buffer writer")

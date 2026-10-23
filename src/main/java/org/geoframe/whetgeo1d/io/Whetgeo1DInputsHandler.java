@@ -734,6 +734,66 @@ public class Whetgeo1DInputsHandler implements AutoCloseable {
 	}
 
 	/**
+	 * Find the cell that contains an elevation, ex. to follow the water content
+	 * at a given depth. Zero-thickness cells, like a surface pond, never contain
+	 * one. An elevation on the interface of two cells belongs to the lower one.
+	 *
+	 * @param eta the elevation [m], between the bottom and the top of the grid.
+	 * @return the index of the cell, 0 for the bottom cell.
+	 */
+	public int cellAt(double eta) {
+		for (int i = 0; i < KMAX; i++) {
+			if (etaDual[i + 1] > etaDual[i] && eta >= etaDual[i] && eta <= etaDual[i + 1]) {
+				return i;
+			}
+		}
+		throw new IllegalArgumentException("The elevation " + eta + " is outside of the grid, which goes from "
+				+ etaDual[0] + " to " + etaDual[KMAX] + ".");
+	}
+
+	/**
+	 * Interpolate linearly a profile given at a few elevations, ex. a root density
+	 * profile, on the centres of the soil cells. Zero-thickness cells, like a
+	 * surface pond, are left out.
+	 *
+	 * @param etas    the elevations of the profile points [m], in any order.
+	 * @param values  the values at those points.
+	 * @param outside the value of the cells above or below the profile.
+	 * @return one value per soil cell, from the bottom up as {@link #eta}.
+	 */
+	public double[] profileOnCells(double[] etas, double[] values, double outside) {
+		if (etas.length != values.length || etas.length < 2) {
+			throw new IllegalArgumentException("The profile needs at least two points, with one value each, got "
+					+ etas.length + " elevations and " + values.length + " values.");
+		}
+		Integer[] order = new Integer[etas.length];
+		for (int i = 0; i < order.length; i++) {
+			order[i] = i;
+		}
+		Arrays.sort(order, (a, b) -> Double.compare(etas[a], etas[b]));
+
+		int soilCells = 0;
+		while (soilCells < KMAX && etaDual[soilCells + 1] > etaDual[soilCells]) {
+			soilCells++;
+		}
+		double[] profile = new double[soilCells];
+		for (int cell = 0; cell < soilCells; cell++) {
+			double cellEta = eta[cell];
+			profile[cell] = outside;
+			for (int p = 0; p < order.length - 1; p++) {
+				double etaLow = etas[order[p]];
+				double etaHigh = etas[order[p + 1]];
+				if (cellEta >= etaLow && cellEta <= etaHigh) {
+					double t = etaHigh > etaLow ? (cellEta - etaLow) / (etaHigh - etaLow) : 0.0;
+					profile[cell] = values[order[p]] + t * (values[order[p + 1]] - values[order[p]]);
+					break;
+				}
+			}
+		}
+		return profile;
+	}
+
+	/**
 	 * @return all the solver field names {@link #applyTo(Object)} can set.
 	 */
 	public static List<String> applicableSolverFields() {
