@@ -16,7 +16,6 @@ def endDate = "2015-12-15 00:00"
 def stationId = 0
 
 def tableTopBC = "timeseries_topBC";
-def tableBotBC = "timeseries_bottomBC";
 
 // cleanup first
 deleteGpkg(outGpkg)
@@ -26,6 +25,8 @@ inputHandler.read()
 
 def kmax = inputHandler.KMAX
 def topBC = TOP_DIRICHLET
+// free drainage: the flux at the base follows from the conductivity of the
+// bottom cell, no bottom boundary data is needed
 def bottomBC = BOTTOM_FREE_DRAINAGE
 
 ////////////////////////////////////
@@ -66,19 +67,17 @@ def snapshots = [:]
 def stepCount = 0
 try (inputHandler
     def topIterator = inputHandler.iterateTimeseries(tableTopBC, startDate, endDate, 1000)
-    def bottomIterator = inputHandler.iterateTimeseries(tableBotBC, startDate, endDate, 1000)
     def outWriter = new Whetgeo1DOutputsHandler(outGpkg, 500)
     ){
     outWriter.writeIntervalMinutes = 60 * 24 // one output per day is enough here
     // grid, initial condition, soil parameters and boundary condition types, written once
     outWriter.describe(inputHandler, topBC, bottomBC)
 
-    while (topIterator.next() && bottomIterator.next()) {
+    while (topIterator.next()) {
         def timestamp = topIterator.timestamp()
         def tsStr = HM.ts2str(timestamp)
         println "Processing timestamp: " + tsStr
         solver.inTopBC = [(stationId): topIterator.values()]
-        solver.inBottomBC = [(stationId): bottomIterator.values()]
         solver.inCurrentDate = tsStr
 
         solver.solve()

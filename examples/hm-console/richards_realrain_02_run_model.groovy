@@ -17,7 +17,6 @@ def endDate = "2015-12-15 00:00"
 def stationId = 0
 
 def tableTopBC = "timeseries_topBC";
-def tableBotBC = "timeseries_bottomBC";
 
 // cleanup first
 deleteGpkg(outGpkg)
@@ -29,6 +28,8 @@ def pondIndex = kmax - 1 // the pseudo cell is the last one, cells go bottom to 
 println "Column with ${kmax - 1} soil cells + 1 pond cell"
 
 def topBC = IBoundaryCondition.RichardsBoundaryConditionType.TOP_COUPLED
+// free drainage: the flux at the base follows from the conductivity of the
+// bottom cell, no bottom boundary data is needed
 def bottomBC = IBoundaryCondition.RichardsBoundaryConditionType.BOTTOM_FREE_DRAINAGE
 
 ////////////////////////////////////
@@ -80,14 +81,13 @@ def cumulativeDrainage = 0.0
 def stepCount = 0
 try (inputHandler
     def topIterator = inputHandler.iterateTimeseries(tableTopBC, startDate, endDate, 1000)
-    def bottomIterator = inputHandler.iterateTimeseries(tableBotBC, startDate, endDate, 1000)
     def outWriter = new Whetgeo1DOutputsHandler(outGpkg, 500)
     ){
     outWriter.writeIntervalMinutes = 60 * 24 // one output per day is enough here
     // grid, initial condition, soil parameters and boundary condition types, written once
     outWriter.describe(inputHandler, topBC, bottomBC)
 
-    while (topIterator.next() && bottomIterator.next()) {
+    while (topIterator.next()) {
         def timestamp = topIterator.timestamp()
         def tsStr = HM.ts2str(timestamp)
         
@@ -97,7 +97,6 @@ try (inputHandler
         
         def rain = topIterator.values()[0]
         solver.inTopBC = [(stationId): topIterator.values()]
-        solver.inBottomBC = [(stationId): bottomIterator.values()]
         solver.inCurrentDate = tsStr
         solver.solve()
 

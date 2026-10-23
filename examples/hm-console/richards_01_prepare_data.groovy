@@ -15,7 +15,6 @@ def startDate = "2015-01-15 00:00"
 def endDate = "2015-12-15 00:00"
 
 def tableTopBC = "timeseries_topBC";
-def tableBotBC = "timeseries_bottomBC";
 
 checkFolder(dataFolder)
 deleteGpkg(gpkg)
@@ -44,8 +43,7 @@ HM.connectGeopackage(gpkg).withCloseable{ db ->
         .vanGenuchtenSlots()
         // top: psi = 0 m constant
         .constantTimeseries(tableTopBC, startDate, endDate, 60, 0.0)
-        // bottom: free drainage
-        .constantTimeseries(tableBotBC, startDate, endDate, 60, 0.0)
+        // bottom: free drainage, which needs no data
         // write record to gpkg
         .write()
 }
